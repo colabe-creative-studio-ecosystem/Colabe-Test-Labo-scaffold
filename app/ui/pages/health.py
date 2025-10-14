@@ -137,6 +137,7 @@ def health_page_content() -> rx.Component:
             ),
             launch_card(),
             domains_seo_card(),
+            runners_card(),
             slo_section(),
             class_name="p-8 space-y-8",
         ),
@@ -282,6 +283,28 @@ def domains_seo_card() -> rx.Component:
                 "Top Redirect Anomaly", "None", is_green=True, icon="route-off"
             ),
             launch_item("Broken Links", "0 errors", is_green=True, icon="link"),
+            class_name="mt-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-4",
+        ),
+        class_name="bg-white p-6 rounded-xl border border-gray-200 shadow-sm",
+    )
+
+
+def runners_card() -> rx.Component:
+    return rx.el.div(
+        rx.el.h2(
+            rx.icon("server", class_name="mr-2"),
+            "Runners",
+            class_name="text-xl font-semibold text-gray-800 flex items-center",
+        ),
+        rx.el.div(
+            launch_item(
+                "Shared Pool", "100/100 Healthy", is_green=True, icon="circle-check"
+            ),
+            launch_item(
+                "Private Pools", "2 Active", is_green=True, icon="lock", href="/runners"
+            ),
+            launch_item("Queue Depth", "12 jobs", is_green=True, icon="list"),
+            launch_item("Agent Versions", "v1.2.0 (latest)", is_green=True, icon="tag"),
             class_name="mt-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-4",
         ),
         class_name="bg-white p-6 rounded-xl border border-gray-200 shadow-sm",

@@ -17,6 +17,7 @@ class Tenant(rx.Model, table=True):
     name: str = Field(unique=True)
     created_at: datetime.datetime = Field(default_factory=datetime.datetime.now)
     users: list["User"] = Relationship(back_populates="tenant")
+    runner_pools: list["RunnerPool"] = Relationship(back_populates="tenant")
 
 
 class User(rx.Model, table=True):
@@ -305,3 +306,36 @@ class GptDocDraft(rx.Model, table=True):
     draft_type: str
     draft_data: dict = Field(default={}, sa_column=Column(JSON))
     created_at: datetime.datetime = Field(default_factory=datetime.datetime.now)
+
+
+class RunnerPool(rx.Model, table=True):
+    id: Optional[int] = Field(default=None, primary_key=True)
+    name: str
+    tenant_id: int = Field(foreign_key="tenant.id")
+    pool_type: str = Field(default="private")
+    labels: dict = Field(default={}, sa_column=Column(JSON))
+    region: str
+    min_runners: int = Field(default=0)
+    max_runners: int = Field(default=5)
+    max_concurrency: int = Field(default=5)
+    idle_ttl_seconds: int = Field(default=300)
+    created_at: datetime.datetime = Field(default_factory=datetime.datetime.now)
+    tenant: "Tenant" = Relationship(back_populates="runner_pools")
+    runners: list["Runner"] = Relationship(back_populates="pool")
+
+
+class Runner(rx.Model, table=True):
+    id: Optional[int] = Field(default=None, primary_key=True)
+    runner_crn: str = Field(unique=True)
+    pool_id: int = Field(foreign_key="runnerpool.id")
+    hostname: str
+    os: str
+    arch: str
+    ip_address: str
+    region: str
+    status: str = Field(default="offline")
+    last_heartbeat: Optional[datetime.datetime] = None
+    agent_version: str
+    capabilities: dict = Field(default={}, sa_column=Column(JSON))
+    registered_at: datetime.datetime = Field(default_factory=datetime.datetime.now)
+    pool: "RunnerPool" = Relationship(back_populates="runners")

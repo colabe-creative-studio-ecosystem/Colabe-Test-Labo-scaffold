@@ -187,10 +187,10 @@ def merge_status_card() -> rx.Component:
             ),
             merge_check_item(
                 "Coverage Gate",
-                "> "
+                ">= "
                 + PolicyState.project_policy.min_coverage_percent.to_string()
                 + "%",
-                is_passing=PolicyState.is_mergeable,
+                is_passing=PolicyState.coverage_gate_passed,
             ),
             class_name="mt-4 space-y-2 text-sm",
         ),
