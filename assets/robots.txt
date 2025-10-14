@@ -1,0 +1,18 @@
+# https://www.robotstxt.org/robotstxt.html
+User-agent: *
+Disallow: /login
+Disallow: /register
+Disallow: /audits
+Disallow: /projects
+Disallow: /test-plans
+Disallow: /runs
+Disallow: /diffs
+Disallow: /settings
+Disallow: /ops/
+
+Allow: /
+Allow: /who-we-are
+Allow: /api-docs
+Allow: /sitemap
+
+Sitemap: https://your-domain.com/sitemap.xml

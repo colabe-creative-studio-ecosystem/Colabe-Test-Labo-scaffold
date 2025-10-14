@@ -34,48 +34,85 @@ def api_docs_content() -> rx.Component:
             class_name=header_style,
         ),
         rx.el.div(
-            rx.el.div(
-                rx.el.h2(
-                    "OpenAPI 3.0 Specification",
-                    class_name="text-xl font-semibold text-text-primary",
-                ),
-                rx.el.p(
-                    "Download our OpenAPI JSON file to generate clients, or explore the API endpoints below.",
-                    class_name="text-text-secondary mt-1",
-                ),
-                rx.el.button(
-                    rx.icon("download", size=16, class_name="mr-2"),
-                    "Download openapi.json",
-                    on_click=rx.download(
-                        data=ApiDocsState.openapi_json_str, filename="openapi.json"
-                    ),
-                    class_name="mt-4 inline-flex items-center px-4 py-2 bg-accent-cyan text-bg-base font-semibold rounded-lg hover:opacity-90",
-                ),
-                **card_style("cyan"),
-            ),
-            rx.el.div(
-                rx.el.h2(
-                    "API Keys", class_name="text-xl font-semibold text-text-primary"
-                ),
-                rx.el.p(
-                    "API keys are scoped per-project. Manage your keys in your project settings. Authenticate by providing the key in the ",
-                    rx.el.code("X-API-Key", class_name="bg-bg-base p-1 rounded"),
-                    " header.",
-                    class_name="text-text-secondary mt-1",
-                ),
-                **card_style("gold"),
-            ),
-            rx.el.div(
-                rx.el.h2(
-                    "Webhooks", class_name="text-xl font-semibold text-text-primary"
-                ),
-                rx.el.p(
-                    "Configure webhooks to receive real-time updates on run events and PR statuses. See the 'webhooks' section in the OpenAPI spec for payload details.",
-                    class_name="text-text-secondary mt-1",
-                ),
-                **card_style("magenta"),
-            ),
-            class_name="grid grid-cols-1 md:grid-cols-1 gap-6 p-8",
+            openapi_spec_card(),
+            sdk_card(),
+            api_keys_card(),
+            webhooks_card(),
+            class_name="grid grid-cols-1 lg:grid-cols-2 gap-6 p-8",
         ),
         class_name=page_content_style,
+    )
+
+
+def openapi_spec_card() -> rx.Component:
+    return rx.el.div(
+        rx.el.h2(
+            "OpenAPI 3.0 Specification",
+            class_name="text-xl font-semibold text-text-primary",
+        ),
+        rx.el.p(
+            "Download our OpenAPI JSON file to generate clients, or explore the API endpoints below.",
+            class_name="text-text-secondary mt-1",
+        ),
+        rx.el.button(
+            rx.icon("download", size=16, class_name="mr-2"),
+            "Download openapi.json",
+            on_click=rx.download(
+                data=ApiDocsState.openapi_json_str, filename="openapi.json"
+            ),
+            class_name="mt-4 inline-flex items-center px-4 py-2 bg-accent-cyan text-bg-base font-semibold rounded-lg hover:opacity-90",
+        ),
+        **card_style("cyan"),
+    )
+
+
+def sdk_card() -> rx.Component:
+    return rx.el.div(
+        rx.el.h2("SDKs (Python & TypeScript)", class_name="text-xl font-semibold"),
+        rx.el.p(
+            "Use our typed, ergonomic SDKs to interact with the Test Labo API.",
+            class_name="text-text-secondary mt-1",
+        ),
+        rx.el.div(
+            rx.el.h3("Python", class_name="font-semibold text-lg mt-4"),
+            rx.el.code(
+                "pip install colabe_testlabo",
+                class_name="block bg-bg-base p-2 rounded mt-2 font-mono text-sm",
+            ),
+            rx.el.h3("TypeScript", class_name="font-semibold text-lg mt-4"),
+            rx.el.code(
+                "npm install @colabe/testlabo",
+                class_name="block bg-bg-base p-2 rounded mt-2 font-mono text-sm",
+            ),
+            rx.el.a(
+                "View Examples",
+                href="/who-we-are#sdk-examples",
+                class_name="mt-4 inline-block text-accent-cyan hover:underline",
+            ),
+        ),
+        **card_style("magenta"),
+    )
+
+
+def api_keys_card() -> rx.Component:
+    return rx.el.div(
+        rx.el.h2("API Keys", class_name="text-xl font-semibold text-text-primary"),
+        rx.el.p(
+            "API keys are scoped per-project. Manage your keys in your project settings. Authenticate by providing the key in the ",
+            rx.el.code("X-API-Key", class_name="bg-bg-base p-1 rounded"),
+            " header.",
+            class_name="text-text-secondary mt-1",
+        ),
+        **card_style("gold"),
+    )
+
+
+def webhooks_card() -> rx.Component:
+    return rx.el.div(
+        rx.el.h2("Webhooks", class_name="text-xl font-semibold text-text-primary"),
+        rx.el.p(
+            "Configure webhooks to receive real-time updates on run events and PR statuses. See the 'webhooks' section in the OpenAPI spec for payload details.",
+            class_name="text-text-secondary mt-1",
+        ),
+        **card_style("blue"),
     )

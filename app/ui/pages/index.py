@@ -69,7 +69,7 @@ def sidebar() -> rx.Component:
             sidebar_link("Dashboard", "/", "layout-dashboard"),
             sidebar_link("Projects", "/projects", "folder-kanban"),
             sidebar_link("Test Plans", "/test-plans", "file-check"),
-            sidebar_link("Live Runs", "/runs", "circle_play"),
+            sidebar_link("Live Runs", "/runs", "circle-play"),
             sidebar_link("Diffs", "/diffs", "git-compare"),
             sidebar_link("Coverage", "/quality", "pie-chart"),
             sidebar_link("Security", "/security", "shield"),
@@ -81,8 +81,13 @@ def sidebar() -> rx.Component:
             sidebar_link("API & Webhooks", "/api-docs", "code"),
             sidebar_link("Ops Events", "/ops/events", "webhook"),
             sidebar_link("System Health", "/health", "heart-pulse"),
-            sidebar_link("Settings", "/settings", "settings"),
             class_name="flex-grow p-4 space-y-2",
+        ),
+        rx.el.div(
+            sidebar_link("Who We Are", "/who-we-are", "info"),
+            sidebar_link("Sitemap", "/sitemap", "map"),
+            sidebar_link("Settings", "/settings", "settings"),
+            class_name="p-4 space-y-2 border-t border-white/10",
         ),
         class_name=sidebar_style,
     )

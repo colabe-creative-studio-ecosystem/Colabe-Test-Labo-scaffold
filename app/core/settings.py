@@ -42,6 +42,17 @@ class Settings:
     EVENT_SCHEMA_STRICT: bool = (
         os.environ.get("EVENT_SCHEMA_STRICT", "true").lower() == "true"
     )
+    EMBED_ALLOWED_ORIGINS: str = os.environ.get(
+        "EMBED_ALLOWED_ORIGINS", "https://app.colabe.*,https://studio.colabe.*"
+    )
+    EMBED_TOKEN_TTL_MIN: int = int(os.environ.get("EMBED_TOKEN_TTL_MIN", 15))
+    SDK_NPM_REGISTRY_URL: str | None = os.environ.get("SDK_NPM_REGISTRY_URL")
+    SDK_NPM_TOKEN: str | None = os.environ.get("SDK_NPM_TOKEN")
+    SDK_PYPI_INDEX_URL: str | None = os.environ.get("SDK_PYPI_INDEX_URL")
+    SDK_PYPI_USERNAME: str | None = os.environ.get("SDK_PYPI_USERNAME")
+    SDK_PYPI_PASSWORD: str | None = os.environ.get("SDK_PYPI_PASSWORD")
+    SDK_RELEASE_SIGNING_KEY: str | None = os.environ.get("SDK_RELEASE_SIGNING_KEY")
+    ORG_EMAIL: str = os.environ.get("ORG_EMAIL", "contact@colabe.ai")
 
 
 settings = Settings()

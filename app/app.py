@@ -36,4 +36,11 @@ app.add_page(quality_page, route="/quality", on_load=AuthState.check_login)
 app.add_page(policies_page, route="/policies", on_load=AuthState.check_login)
 app.add_page(billing_page, route="/billing", on_load=AuthState.check_login)
 app.add_page(api_docs_page, route="/api-docs", on_load=AuthState.check_login)
+from app.ui.pages.who_we_are import who_we_are_page
+from app.ui.pages.embeds import embed_page
+from app.ui.pages.sitemap import sitemap_page
+
 app.add_page(ops_events_page, route="/ops/events", on_load=AuthState.check_login)
+app.add_page(who_we_are_page, route="/who-we-are", on_load=AuthState.check_login)
+app.add_page(sitemap_page, route="/sitemap", on_load=AuthState.check_login)
+app.add_page(embed_page, route="/embed/[widget_type]")
