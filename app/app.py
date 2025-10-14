@@ -1,5 +1,6 @@
 import reflex as rx
 import reflex_enterprise as rxe
+from fastapi import FastAPI
 from app.ui.pages.index import index
 from app.ui.pages.dashboard import dashboard_page
 from app.ui.pages.health import health_check_page
@@ -24,6 +25,20 @@ from app.ui.pages.kb import (
 from app.ui.states.auth_state import AuthState
 from app.core.settings import settings
 from app.core import models
+from app.ui.states.api_center_state import ApiCenterState
+
+api = FastAPI()
+
+
+@api.get("/api/openapi.json")
+async def openapi():
+    return ApiCenterState.openapi_spec
+
+
+@api.get("/api/asyncapi.json")
+async def asyncapi():
+    return ApiCenterState.asyncapi_spec
+
 
 app = rxe.App(
     head_components=[
@@ -45,6 +60,7 @@ app = rxe.App(
     ],
     theme=rx.theme(appearance="dark", accent_color="cyan"),
     stylesheets=["/colabe.css"],
+    api_transformer=api,
 )
 app.add_page(index, route="/", on_load=AuthState.page_view)
 app.add_page(
@@ -59,9 +75,38 @@ app.add_page(quality_page, route="/quality", on_load=AuthState.check_login)
 app.add_page(policies_page, route="/policies", on_load=AuthState.check_login)
 app.add_page(billing_page, route="/billing", on_load=AuthState.check_login)
 app.add_page(api_docs_page, route="/api-docs", on_load=AuthState.check_login)
+app.add_page(billing_page, route="/billing", on_load=AuthState.check_login)
+app.add_page(api_docs_page, route="/api-docs", on_load=AuthState.check_login)
+from app.ui.pages.api_center import (
+    api_center_page,
+    api_rest_page,
+    api_webhooks_page,
+    api_sdk_page,
+    api_playground_page,
+    api_changelog_page,
+    api_keys_page,
+)
 from app.ui.pages.cookie_policy import cookie_policy_page
 from app.ui.pages.privacy_center import privacy_center_page
+from app.ui.states.api_center_state import ApiCenterState
 
+app.add_page(api_center_page, route="/api-center", on_load=AuthState.check_login)
+app.add_page(
+    api_rest_page, route="/api-center/rest", on_load=ApiCenterState.on_load_spec
+)
+app.add_page(
+    api_webhooks_page, route="/api-center/webhooks", on_load=AuthState.check_login
+)
+app.add_page(api_sdk_page, route="/api-center/sdk", on_load=AuthState.check_login)
+app.add_page(
+    api_playground_page, route="/api-center/playground", on_load=AuthState.check_login
+)
+app.add_page(
+    api_changelog_page, route="/api-center/changelog", on_load=AuthState.check_login
+)
+app.add_page(
+    api_keys_page, route="/api-center/keys", on_load=ApiCenterState.load_api_keys
+)
 app.add_page(security_page, route="/security")
 app.add_page(privacy_policy_page, route="/legal/privacy")
 app.add_page(terms_and_conditions_page, route="/legal/terms")

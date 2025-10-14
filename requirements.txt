@@ -34,3 +34,4 @@ lighthouse-python-plus
 cyclonedx-py
 osv
 pytest-asyncio
+fastapi

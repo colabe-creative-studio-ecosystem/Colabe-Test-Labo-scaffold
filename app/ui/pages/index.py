@@ -78,7 +78,7 @@ def sidebar() -> rx.Component:
             sidebar_link("Policies", "/policies", "gavel"),
             sidebar_link("Audit Log", "/audits", "scroll-text"),
             sidebar_link("Billing & Wallet", "/billing", "wallet"),
-            sidebar_link("API & Webhooks", "/api-docs", "code"),
+            sidebar_link("API Center", "/api-center", "binary"),
             sidebar_link("System Health", "/health", "heart-pulse"),
             sidebar_link("Settings", "/settings", "settings"),
             rx.el.div(class_name="flex-grow"),

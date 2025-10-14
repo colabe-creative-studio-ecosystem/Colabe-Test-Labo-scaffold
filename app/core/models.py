@@ -266,3 +266,18 @@ class Invoice(rx.Model, table=True):
     paid_at: Optional[datetime.datetime] = None
     download_url: Optional[str] = None
     created_at: datetime.datetime = Field(default_factory=datetime.datetime.now)
+
+
+class APIKey(rx.Model, table=True):
+    id: Optional[int] = Field(default=None, primary_key=True)
+    tenant_id: int = Field(foreign_key="tenant.id")
+    user_id: int = Field(foreign_key="user.id")
+    prefix: str = Field(unique=True, index=True)
+    hashed_key: str
+    scopes: str
+    last_used_at: Optional[datetime.datetime] = None
+    created_at: datetime.datetime = Field(default_factory=datetime.datetime.now)
+    revoked: bool = Field(default=False)
+    name: str = ""
+    tenant: "Tenant" = Relationship()
+    user: "User" = Relationship()
