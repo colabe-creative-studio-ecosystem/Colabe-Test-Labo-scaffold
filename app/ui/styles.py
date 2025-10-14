@@ -16,17 +16,16 @@ colors = {
 
 
 def card_style(accent_color: str) -> dict:
-    accent_var = f"var(--accent-{accent_color})"
     return {
-        "bg": colors["bg_elevated"],
+        "bg": "bg_elevated",
         "p": "6",
-        "rounded": "xl",
+        "rounded": "2xl",
         "border": "1px",
-        "border_color": f"hsl(var(--accent-{accent_color}-hsl) / 0.2)",
-        "box_shadow": f"0 0 20px -5px hsl(var(--accent-{accent_color}-hsl) / 0.3)",
-        "transition": "all 200ms cubic-bezier(0.2, 0.8, 0.2, 1)",
+        "border_color": f"var(--{accent_color})/0.3",
+        "box_shadow": f"0 0 40px -10px var(--{accent_color})",
+        "transition": "all 0.2s ease-in-out",
         "_hover": {
-            "box_shadow": f"0 0 30px -5px hsl(var(--accent-{accent_color}-hsl) / 0.4)",
+            "box_shadow": f"0 0 60px -15px var(--{accent_color})",
             "transform": "translateY(-2px)",
         },
     }
@@ -35,5 +34,5 @@ def card_style(accent_color: str) -> dict:
 page_style = "flex min-h-screen colabe-bg font-['Inter'] text-text-primary"
 page_content_style = "flex-1 flex flex-col"
 header_style = "flex items-center justify-between p-4 border-b border-white/10"
-sidebar_style = "hidden md:flex flex-col w-64 bg-bg-base border-r border-white/10"
-sidebar_button_style = "flex items-center space-x-3 text-text-secondary hover:text-text-primary hover:bg-white/5 px-3 py-2 rounded-lg transition-colors duration-200"
+sidebar_style = "hidden md:flex flex-col w-64 bg-bg-elevated border-r border-white/10"
+sidebar_button_style = "flex items-center space-x-3 text-text-secondary hover:text-text-primary hover:bg-white/5 px-3 py-2 rounded-lg transition-colors"

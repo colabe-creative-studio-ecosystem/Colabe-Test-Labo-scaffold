@@ -17,11 +17,6 @@ class Tenant(rx.Model, table=True):
     name: str = Field(unique=True)
     created_at: datetime.datetime = Field(default_factory=datetime.datetime.now)
     users: list["User"] = Relationship(back_populates="tenant")
-    wallet: Optional["Wallet"] = Relationship(back_populates="tenant")
-    subscription: Optional["Subscription"] = Relationship(back_populates="tenant")
-    billing_settings: Optional["BillingSettings"] = Relationship(
-        back_populates="tenant"
-    )
 
 
 class User(rx.Model, table=True):
@@ -67,26 +62,15 @@ class TestPlan(rx.Model, table=True):
     created_at: datetime.datetime = Field(default_factory=datetime.datetime.now)
 
 
-class RunStatus(str, Enum):
-    PENDING = "pending"
-    RUNNING = "running"
-    COMPLETED = "completed"
-    FAILED = "failed"
-    CANCELED = "canceled"
-
-
 class Run(rx.Model, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
     test_plan_id: int = Field(foreign_key="testplan.id")
-    status: RunStatus = Field(default=RunStatus.PENDING)
+    status: str
     started_at: Optional[datetime.datetime] = None
     completed_at: Optional[datetime.datetime] = None
     created_at: datetime.datetime = Field(default_factory=datetime.datetime.now)
-    idempotency_key: Optional[str] = Field(default=None, index=True)
-    steps: list["RunStep"] = Relationship(back_populates="run")
     coverage_data: list["Coverage"] = Relationship(back_populates="run")
     quality_score: Optional["QualityScore"] = Relationship(back_populates="run")
-    cost_estimate: Optional["RunCostEstimate"] = Relationship(back_populates="run")
 
 
 class Finding(rx.Model, table=True):
@@ -98,25 +82,6 @@ class Finding(rx.Model, table=True):
     file_path: str
     line_number: int
     created_at: datetime.datetime = Field(default_factory=datetime.datetime.now)
-
-
-class RunStepStatus(str, Enum):
-    PENDING = "pending"
-    RUNNING = "running"
-    COMPLETED = "completed"
-    FAILED = "failed"
-    SKIPPED = "skipped"
-
-
-class RunStep(rx.Model, table=True):
-    id: Optional[int] = Field(default=None, primary_key=True)
-    run_id: int = Field(foreign_key="run.id")
-    run: "Run" = Relationship(back_populates="steps")
-    name: str
-    status: RunStepStatus = Field(default=RunStepStatus.PENDING)
-    started_at: Optional[datetime.datetime] = None
-    completed_at: Optional[datetime.datetime] = None
-    log_artifact_id: Optional[int] = Field(foreign_key="artifact.id")
 
 
 class SeverityEnum(str, Enum):
@@ -270,105 +235,51 @@ class Session(rx.Model, table=True):
 class Wallet(rx.Model, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
     tenant_id: int = Field(foreign_key="tenant.id", unique=True)
-    coins_balance: int = Field(default=0)
-    credits_balance: int = Field(default=0)
-    holds_balance: int = Field(default=0)
-    tenant: "Tenant" = Relationship(back_populates="wallet")
-
-
-class LedgerEntryType(str, Enum):
-    CREDIT = "credit"
-    DEBIT = "debit"
-    HOLD = "hold"
-    FINALIZE = "finalize"
-    REFUND = "refund"
-
-
-class WalletLedger(rx.Model, table=True):
-    id: Optional[int] = Field(default=None, primary_key=True)
-    wallet_id: int = Field(foreign_key="wallet.id")
-    entry_type: LedgerEntryType
-    amount: int
-    idempotency_key: str = Field(unique=True)
-    request_hash: str
-    related_id: Optional[str] = None
-    timestamp: datetime.datetime = Field(default_factory=datetime.datetime.now)
-    wallet: "Wallet" = Relationship()
+    coins: int = Field(default=500)
+    tenant: "Tenant" = Relationship()
 
 
 class Subscription(rx.Model, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
     tenant_id: int = Field(foreign_key="tenant.id", unique=True)
-    plan_id: str = Field(default="free")
+    plan: str = Field(default="Free")
     status: str = Field(default="active")
     renews_at: Optional[datetime.datetime] = None
-    concurrency_limit: int = Field(default=1)
-    artifact_storage_gb: int = Field(default=1)
-    retention_days: int = Field(default=7)
-    autofix_attempts_limit: int = Field(default=0)
-    tenant: "Tenant" = Relationship(back_populates="subscription")
+    tenant: "Tenant" = Relationship()
 
 
-class PricingSnapshot(rx.Model, table=True):
+class CoinPack(rx.Model, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
-    snapshot_data: str
-    created_at: datetime.datetime = Field(default_factory=datetime.datetime.now)
+    name: str
+    amount: int
+    price_eur: float
+    volume_discount: float = Field(default=0.0)
 
 
-class UsageEvent(rx.Model, table=True):
+class Invoice(rx.Model, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
     tenant_id: int = Field(foreign_key="tenant.id")
-    meter_id: str
-    quantity: float
-    timestamp: datetime.datetime = Field(default_factory=datetime.datetime.now)
-
-
-class InvoicesIndex(rx.Model, table=True):
-    id: Optional[int] = Field(default=None, primary_key=True)
-    tenant_id: int = Field(foreign_key="tenant.id")
-    invoice_ref: str = Field(unique=True)
     amount: float
     currency: str = Field(default="EUR")
     status: str
     due_date: Optional[datetime.date] = None
     paid_at: Optional[datetime.datetime] = None
-    pdf_url: Optional[str] = None
+    download_url: Optional[str] = None
     created_at: datetime.datetime = Field(default_factory=datetime.datetime.now)
 
 
-class BillingSettings(rx.Model, table=True):
+class EventOutbox(rx.Model, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
-    tenant_id: int = Field(foreign_key="tenant.id", unique=True)
-    auto_top_up_enabled: bool = Field(default=False)
-    auto_top_up_threshold: int = Field(default=1000)
-    auto_top_up_amount: int = Field(default=5000)
-    low_balance_alert_threshold: int = Field(default=200)
-    billing_email: Optional[str] = None
-    vat_id: Optional[str] = None
-    tax_address: Optional[str] = None
-    tenant: "Tenant" = Relationship(back_populates="billing_settings")
-
-
-class RunCostEstimate(rx.Model, table=True):
-    id: Optional[int] = Field(default=None, primary_key=True)
-    run_id: int = Field(foreign_key="run.id", unique=True)
-    estimated_cost: int
-    actual_cost: Optional[int] = None
-    hold_id: Optional[str] = None
-    status: str = Field(default="estimated")
-    run: "Run" = Relationship(back_populates="cost_estimate")
-
-
-class APIKey(rx.Model, table=True):
-    id: Optional[int] = Field(default=None, primary_key=True)
-    tenant_id: int = Field(foreign_key="tenant.id")
-    user_id: int = Field(foreign_key="user.id")
-    prefix: str = Field(unique=True, index=True)
-    hashed_key: str
-    scopes: str
-    last_used_at: Optional[datetime.datetime] = None
+    event_id: str = Field(unique=True, index=True)
+    topic: str
+    payload: str
+    status: str = Field(default="pending", index=True)
     created_at: datetime.datetime = Field(default_factory=datetime.datetime.now)
-    revoked: bool = Field(default=False)
-    name: str = ""
-    tenant: "Tenant" = Relationship()
-    user: "User" = Relationship()
+    updated_at: datetime.datetime = Field(default_factory=datetime.datetime.now)
+    retry_count: int = Field(default=0)
+
+
+class ConsumerIdempotency(rx.Model, table=True):
+    id: Optional[int] = Field(default=None, primary_key=True)
+    idempotency_key: str = Field(unique=True, index=True)
+    created_at: datetime.datetime = Field(default_factory=datetime.datetime.now)
