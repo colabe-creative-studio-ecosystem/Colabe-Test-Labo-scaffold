@@ -319,6 +319,7 @@ class RunnerPool(rx.Model, table=True):
     max_runners: int = Field(default=5)
     max_concurrency: int = Field(default=5)
     idle_ttl_seconds: int = Field(default=300)
+    enrollment_token: Optional[str] = Field(default=None)
     created_at: datetime.datetime = Field(default_factory=datetime.datetime.now)
     tenant: "Tenant" = Relationship(back_populates="runner_pools")
     runners: list["Runner"] = Relationship(back_populates="pool")

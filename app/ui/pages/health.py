@@ -298,13 +298,31 @@ def runners_card() -> rx.Component:
         ),
         rx.el.div(
             launch_item(
-                "Shared Pool", "100/100 Healthy", is_green=True, icon="circle-check"
+                "Fleet Size / Healthy %",
+                "100 / 99%",
+                is_green=True,
+                icon="circle-check",
             ),
             launch_item(
-                "Private Pools", "2 Active", is_green=True, icon="lock", href="/runners"
+                "Queue Depth / Avg Wait",
+                "12 jobs / 25s",
+                is_green=True,
+                icon="list",
+                href="/runners",
             ),
-            launch_item("Queue Depth", "12 jobs", is_green=True, icon="list"),
-            launch_item("Agent Versions", "v1.2.0 (latest)", is_green=True, icon="tag"),
+            launch_item("Cache Hit Rate", "88%", is_green=True, icon="database"),
+            launch_item(
+                "Device Minutes (Today)", "1,234", is_green=True, icon="smartphone"
+            ),
+            launch_item(
+                "Last Attestation Pass", "2m ago", is_green=True, icon="shield-check"
+            ),
+            launch_item(
+                "Last Autoscale Action",
+                "scale-up (+2)",
+                is_green=True,
+                icon="trending-up",
+            ),
             class_name="mt-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-4",
         ),
         class_name="bg-white p-6 rounded-xl border border-gray-200 shadow-sm",
