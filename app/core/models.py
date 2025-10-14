@@ -17,6 +17,11 @@ class Tenant(rx.Model, table=True):
     name: str = Field(unique=True)
     created_at: datetime.datetime = Field(default_factory=datetime.datetime.now)
     users: list["User"] = Relationship(back_populates="tenant")
+    wallet: Optional["Wallet"] = Relationship(back_populates="tenant")
+    subscription: Optional["Subscription"] = Relationship(back_populates="tenant")
+    billing_settings: Optional["BillingSettings"] = Relationship(
+        back_populates="tenant"
+    )
 
 
 class User(rx.Model, table=True):
@@ -71,6 +76,7 @@ class Run(rx.Model, table=True):
     created_at: datetime.datetime = Field(default_factory=datetime.datetime.now)
     coverage_data: list["Coverage"] = Relationship(back_populates="run")
     quality_score: Optional["QualityScore"] = Relationship(back_populates="run")
+    cost_estimate: Optional["RunCostEstimate"] = Relationship(back_populates="run")
 
 
 class Finding(rx.Model, table=True):
@@ -235,37 +241,93 @@ class Session(rx.Model, table=True):
 class Wallet(rx.Model, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
     tenant_id: int = Field(foreign_key="tenant.id", unique=True)
-    coins: int = Field(default=500)
-    tenant: "Tenant" = Relationship()
+    coins_balance: int = Field(default=0)
+    credits_balance: int = Field(default=0)
+    holds_balance: int = Field(default=0)
+    tenant: "Tenant" = Relationship(back_populates="wallet")
+
+
+class LedgerEntryType(str, Enum):
+    CREDIT = "credit"
+    DEBIT = "debit"
+    HOLD = "hold"
+    FINALIZE = "finalize"
+    REFUND = "refund"
+
+
+class WalletLedger(rx.Model, table=True):
+    id: Optional[int] = Field(default=None, primary_key=True)
+    wallet_id: int = Field(foreign_key="wallet.id")
+    entry_type: LedgerEntryType
+    amount: int
+    idempotency_key: str = Field(unique=True)
+    request_hash: str
+    related_id: Optional[str] = None
+    timestamp: datetime.datetime = Field(default_factory=datetime.datetime.now)
+    wallet: "Wallet" = Relationship()
 
 
 class Subscription(rx.Model, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
     tenant_id: int = Field(foreign_key="tenant.id", unique=True)
-    plan: str = Field(default="Free")
+    plan_id: str = Field(default="free")
     status: str = Field(default="active")
     renews_at: Optional[datetime.datetime] = None
-    tenant: "Tenant" = Relationship()
+    concurrency_limit: int = Field(default=1)
+    artifact_storage_gb: int = Field(default=1)
+    retention_days: int = Field(default=7)
+    autofix_attempts_limit: int = Field(default=0)
+    tenant: "Tenant" = Relationship(back_populates="subscription")
 
 
-class CoinPack(rx.Model, table=True):
+class PricingSnapshot(rx.Model, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
-    name: str
-    amount: int
-    price_eur: float
-    volume_discount: float = Field(default=0.0)
+    snapshot_data: str
+    created_at: datetime.datetime = Field(default_factory=datetime.datetime.now)
 
 
-class Invoice(rx.Model, table=True):
+class UsageEvent(rx.Model, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
     tenant_id: int = Field(foreign_key="tenant.id")
+    meter_id: str
+    quantity: float
+    timestamp: datetime.datetime = Field(default_factory=datetime.datetime.now)
+
+
+class InvoicesIndex(rx.Model, table=True):
+    id: Optional[int] = Field(default=None, primary_key=True)
+    tenant_id: int = Field(foreign_key="tenant.id")
+    invoice_ref: str = Field(unique=True)
     amount: float
     currency: str = Field(default="EUR")
     status: str
     due_date: Optional[datetime.date] = None
     paid_at: Optional[datetime.datetime] = None
-    download_url: Optional[str] = None
+    pdf_url: Optional[str] = None
     created_at: datetime.datetime = Field(default_factory=datetime.datetime.now)
+
+
+class BillingSettings(rx.Model, table=True):
+    id: Optional[int] = Field(default=None, primary_key=True)
+    tenant_id: int = Field(foreign_key="tenant.id", unique=True)
+    auto_top_up_enabled: bool = Field(default=False)
+    auto_top_up_threshold: int = Field(default=1000)
+    auto_top_up_amount: int = Field(default=5000)
+    low_balance_alert_threshold: int = Field(default=200)
+    billing_email: Optional[str] = None
+    vat_id: Optional[str] = None
+    tax_address: Optional[str] = None
+    tenant: "Tenant" = Relationship(back_populates="billing_settings")
+
+
+class RunCostEstimate(rx.Model, table=True):
+    id: Optional[int] = Field(default=None, primary_key=True)
+    run_id: int = Field(foreign_key="run.id", unique=True)
+    estimated_cost: int
+    actual_cost: Optional[int] = None
+    hold_id: Optional[str] = None
+    status: str = Field(default="estimated")
+    run: "Run" = Relationship(back_populates="cost_estimate")
 
 
 class APIKey(rx.Model, table=True):

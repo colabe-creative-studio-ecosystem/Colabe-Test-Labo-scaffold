@@ -12,11 +12,15 @@ from app.ui.styles import (
 
 
 def wallet_badge() -> rx.Component:
-    return rx.el.div(
+    return rx.el.a(
         rx.icon("gem", size=16),
         rx.text(BillingState.wallet_balance, class_name="font-semibold"),
-        rx.text("coins", class_name="text-sm text-text-secondary"),
-        class_name="flex items-center space-x-2 p-2 rounded-lg bg-bg-elevated border border-accent-gold/20",
+        rx.text(
+            BillingState.current_plan["name"], class_name="text-sm text-text-secondary"
+        ),
+        href="/billing",
+        class_name="flex items-center space-x-2 p-2 rounded-lg bg-bg-elevated border border-accent-gold/20 hover:border-accent-gold/50",
+        on_mount=BillingState.load_billing_page,
     )
 
 

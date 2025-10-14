@@ -1,6 +1,6 @@
 import reflex as rx
 import reflex_enterprise as rxe
-from fastapi import FastAPI
+from fastapi import FastAPI, Request, Response, Header
 from app.ui.pages.index import index
 from app.ui.pages.dashboard import dashboard_page
 from app.ui.pages.health import health_check_page
@@ -26,6 +26,11 @@ from app.ui.states.auth_state import AuthState
 from app.core.settings import settings
 from app.core import models
 from app.ui.states.api_center_state import ApiCenterState
+import hmac
+import hashlib
+import time
+import os
+import logging
 
 api = FastAPI()
 
@@ -38,6 +43,37 @@ async def openapi():
 @api.get("/api/asyncapi.json")
 async def asyncapi():
     return ApiCenterState.asyncapi_spec
+
+
+@api.post("/payments/webhook")
+async def payments_webhook(
+    request: Request,
+    x_colabe_signature: str = Header(None),
+    x_colabe_timestamp: str = Header(None),
+):
+    """Handle webhooks from Colabe Payments."""
+    if not x_colabe_signature or not x_colabe_timestamp:
+        return Response(status_code=400, content="Missing signature headers")
+    try:
+        timestamp = int(x_colabe_timestamp)
+        if abs(time.time() - timestamp) > 300:
+            return Response(status_code=400, content="Timestamp skew too large")
+    except ValueError as e:
+        logging.exception(e)
+        return Response(status_code=400, content="Invalid timestamp format")
+    webhook_secret = os.environ.get("COLABE_PAYMENTS_WEBHOOK_SECRET")
+    if not webhook_secret:
+        return Response(status_code=500, content="Webhook secret not configured")
+    body = await request.body()
+    signed_payload = f"{x_colabe_timestamp}.{body.decode()}"
+    expected_signature = hmac.new(
+        webhook_secret.encode(), signed_payload.encode(), hashlib.sha256
+    ).hexdigest()
+    if not hmac.compare_digest(f"v1={expected_signature}", x_colabe_signature):
+        return Response(status_code=403, content="Invalid signature")
+    event_data = await request.json()
+    print(f"Received valid webhook event: {event_data['type']}")
+    return Response(status_code=200, content="OK")
 
 
 app = rxe.App(
@@ -73,8 +109,6 @@ app.add_page(audit_log_page, route="/audits", on_load=AuthState.check_login)
 app.add_page(security_page, route="/security", on_load=AuthState.check_login)
 app.add_page(quality_page, route="/quality", on_load=AuthState.check_login)
 app.add_page(policies_page, route="/policies", on_load=AuthState.check_login)
-app.add_page(billing_page, route="/billing", on_load=AuthState.check_login)
-app.add_page(api_docs_page, route="/api-docs", on_load=AuthState.check_login)
 app.add_page(billing_page, route="/billing", on_load=AuthState.check_login)
 app.add_page(api_docs_page, route="/api-docs", on_load=AuthState.check_login)
 from app.ui.pages.api_center import (
