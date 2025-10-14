@@ -5,6 +5,7 @@ from sqlalchemy import text
 from app.ui.states.auth_state import AuthState
 from app.orchestrator.tasks import enqueue_health_check
 from app.ui.pages.index import sidebar, user_dropdown
+from app.core.settings import settings, REQUIRED_ORG_VARS
 
 
 class HealthState(AuthState):
@@ -13,9 +14,21 @@ class HealthState(AuthState):
     redis_status: str = "Unknown"
     worker_status: str = "Unknown"
     job_id: str = ""
+    org_vars_status: str = "Unknown"
+    missing_org_vars: list[str] = []
+
+    def _check_org_vars(self):
+        self.missing_org_vars = [
+            var for var in REQUIRED_ORG_VARS if not getattr(settings, var, None)
+        ]
+        if not self.missing_org_vars:
+            self.org_vars_status = "OK"
+        else:
+            self.org_vars_status = f"Error: Missing {len(self.missing_org_vars)} vars"
 
     @rx.event
     def check_health(self):
+        self._check_org_vars()
         try:
             with rx.session() as session:
                 session.exec(text("SELECT 1"))
@@ -39,7 +52,11 @@ class HealthState(AuthState):
         except Exception as e:
             logging.exception(e)
             self.worker_status = "Enqueue Failed"
-        if self.db_status == "OK" and self.redis_status == "OK":
+        if (
+            self.db_status == "OK"
+            and self.redis_status == "OK"
+            and (self.org_vars_status == "OK")
+        ):
             self.health_status = "OK"
         else:
             self.health_status = "Degraded"
@@ -90,7 +107,8 @@ def health_page_content() -> rx.Component:
                 status_card("Database", HealthState.db_status),
                 status_card("Redis Cache", HealthState.redis_status),
                 status_card("Background Worker", HealthState.worker_status),
-                class_name="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6",
+                org_vars_status_card(),
+                class_name="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6",
             ),
             class_name="p-8",
         ),
@@ -144,6 +162,42 @@ def status_card(title: str, status: rx.Var[str]) -> rx.Component:
                 ),
             ),
             class_name="mt-2 flex items-center space-x-2",
+        ),
+        class_name="bg-white p-6 rounded-xl border border-gray-200 shadow-sm",
+    )
+
+
+def org_vars_status_card() -> rx.Component:
+    return rx.el.div(
+        rx.el.h3("Org Variables", class_name="text-lg font-medium text-gray-700"),
+        rx.el.div(
+            rx.el.div(
+                class_name=rx.cond(
+                    HealthState.org_vars_status.contains("OK"),
+                    "h-3 w-3 rounded-full bg-green-500",
+                    "h-3 w-3 rounded-full bg-red-500",
+                )
+            ),
+            rx.el.p(
+                HealthState.org_vars_status,
+                class_name=rx.cond(
+                    HealthState.org_vars_status.contains("OK"),
+                    "text-green-600 font-semibold",
+                    "text-red-600 font-semibold",
+                ),
+            ),
+            class_name="mt-2 flex items-center space-x-2",
+        ),
+        rx.cond(
+            HealthState.missing_org_vars.length() > 0,
+            rx.el.div(
+                rx.el.p("Missing:", class_name="text-xs text-gray-500 font-bold"),
+                rx.foreach(
+                    HealthState.missing_org_vars,
+                    lambda var: rx.el.code(var, class_name="text-xs text-red-500"),
+                ),
+                class_name="mt-2 text-xs",
+            ),
         ),
         class_name="bg-white p-6 rounded-xl border border-gray-200 shadow-sm",
     )

@@ -1,8 +1,7 @@
 import reflex as rx
 from app.ui.states.auth_state import AuthState
 from app.ui.states.billing_state import BillingState
-from app.ui.states.copilot_state import CopilotState
-from app.ui.components.copilot import copilot_panel, help_beacon
+from app.ui.components.footer import footer
 from app.ui.styles import (
     card_style,
     sidebar_style,
@@ -85,15 +84,6 @@ def sidebar() -> rx.Component:
             sidebar_link("Settings", "/settings", "settings"),
             class_name="flex-grow p-4 space-y-2",
         ),
-        rx.el.div(
-            rx.el.button(
-                rx.icon("circle_plus", size=20),
-                rx.text("Help"),
-                on_click=lambda: CopilotState.toggle_panel(),
-                class_name="flex items-center space-x-3 text-text-secondary hover:text-text-primary hover:bg-white/5 px-3 py-2 rounded-lg transition-colors w-full",
-            ),
-            class_name="p-4 border-t border-white/10",
-        ),
         class_name=sidebar_style,
     )
 
@@ -143,9 +133,11 @@ def index() -> rx.Component:
             AuthState.is_logged_in,
             rx.el.div(
                 sidebar(),
-                main_content(),
-                copilot_panel(),
-                help_beacon(),
+                rx.el.div(
+                    main_content(),
+                    footer(),
+                    class_name="flex flex-col w-full h-screen overflow-y-auto",
+                ),
                 class_name=page_style,
             ),
             rx.el.div(

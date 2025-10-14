@@ -1,6 +1,5 @@
 import reflex as rx
 from app.ui.states.policy_state import PolicyState
-from app.ui.states.copilot_state import CopilotState
 from app.core.models import SeverityEnum, AutofixScopeEnum
 from app.ui.pages.index import sidebar, user_dropdown
 
@@ -70,7 +69,6 @@ def policy_form() -> rx.Component:
                 ),
                 class_name="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md",
             ),
-            help_context_id="policies-performance-budgets",
         ),
         policy_item(
             "Minimum Code Coverage",
@@ -116,15 +114,17 @@ def policy_form() -> rx.Component:
                     rx.el.span(
                         class_name=rx.cond(
                             PolicyState.project_policy.auto_merge_enabled,
-                            "translate-x-5 inline-block h-5 w-5 rounded-full bg-white transform ring-0 transition ease-in-out duration-200",
-                            "translate-x-0 inline-block h-5 w-5 rounded-full bg-white transform ring-0 transition ease-in-out duration-200",
+                            "translate-x-5",
+                            "translate-x-0",
                         )
+                        + " inline-block h-5 w-5 rounded-full bg-white transform ring-0 transition ease-in-out duration-200"
                     ),
                     class_name=rx.cond(
                         PolicyState.project_policy.auto_merge_enabled,
-                        "bg-blue-600 relative inline-flex flex-shrink-0 h-6 w-11 border-2 border-transparent rounded-full cursor-pointer transition-colors ease-in-out duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500",
-                        "bg-gray-200 relative inline-flex flex-shrink-0 h-6 w-11 border-2 border-transparent rounded-full cursor-pointer transition-colors ease-in-out duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500",
-                    ),
+                        "bg-blue-600",
+                        "bg-gray-200",
+                    )
+                    + " relative inline-flex flex-shrink-0 h-6 w-11 border-2 border-transparent rounded-full cursor-pointer transition-colors ease-in-out duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500",
                     on_click=lambda: PolicyState.update_policy(
                         "auto_merge_enabled",
                         (~PolicyState.project_policy.auto_merge_enabled).to_string(),
@@ -145,24 +145,11 @@ def policy_form() -> rx.Component:
     )
 
 
-def policy_item(
-    title: str,
-    description: str,
-    control: rx.Component,
-    help_context_id: str | None = None,
-) -> rx.Component:
+def policy_item(title: str, description: str, control: rx.Component) -> rx.Component:
     return rx.el.div(
         rx.el.div(
             rx.el.h3(title, class_name="font-medium text-gray-900"),
             rx.el.p(description, class_name="text-sm text-gray-500"),
-            rx.cond(
-                help_context_id is not None,
-                rx.el.button(
-                    "Explain this",
-                    on_click=lambda: CopilotState.toggle_panel(help_context_id),
-                    class_name="mt-1 text-xs text-blue-500 hover:underline",
-                ),
-            ),
         ),
         control,
         class_name="grid grid-cols-1 md:grid-cols-2 gap-4 items-center",
@@ -178,19 +165,18 @@ def merge_status_card() -> rx.Component:
             rx.icon(
                 tag=rx.cond(PolicyState.is_mergeable, "check_circle", "x_circle"),
                 class_name=rx.cond(
-                    PolicyState.is_mergeable,
-                    "text-green-500 h-16 w-16 mx-auto",
-                    "text-red-500 h-16 w-16 mx-auto",
-                ),
+                    PolicyState.is_mergeable, "text-green-500", "text-red-500"
+                )
+                + " h-16 w-16 mx-auto",
             ),
             rx.el.p(
                 rx.cond(PolicyState.is_mergeable, "Mergeable", "Blocked"),
-                class_name=rx.cond(
-                    PolicyState.is_mergeable,
-                    "mt-2 text-2xl font-bold text-green-600 text-center",
-                    "mt-2 text-2xl font-bold text-red-600 text-center",
-                ),
+                class_name="mt-2 text-2xl font-bold",
             ),
+            class_name=rx.cond(
+                PolicyState.is_mergeable, "text-green-600", "text-red-600"
+            )
+            + " text-center",
         ),
         rx.el.div(
             rx.el.h4("Conditions:", class_name="font-semibold text-sm mb-2"),
@@ -218,9 +204,8 @@ def merge_check_item(
     return rx.el.div(
         rx.icon(
             tag=rx.cond(is_passing, "check", "x"),
-            class_name=rx.cond(
-                is_passing, "text-green-500 h-5 w-5", "text-red-500 h-5 w-5"
-            ),
+            class_name=rx.cond(is_passing, "text-green-500", "text-red-500")
+            + " h-5 w-5",
         ),
         rx.el.p(name, class_name="font-medium"),
         rx.el.p(condition, class_name="text-gray-500 ml-auto"),
