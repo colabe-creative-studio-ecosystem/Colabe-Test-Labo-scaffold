@@ -82,8 +82,8 @@ def sidebar() -> rx.Component:
             sidebar_link("System Health", "/health", "heart-pulse"),
             sidebar_link("Settings", "/settings", "settings"),
             rx.el.div(class_name="flex-grow"),
-            sidebar_link("User Guide", "/guide", "book-open"),
-            sidebar_link("FAQ", "/faq", "circle-plus"),
+            rx.el.div(class_name="flex-grow"),
+            sidebar_link("Knowledge Base", "/kb", "book-open"),
             sidebar_link("AI Help", "/help", "sparkles"),
             class_name="flex-grow p-4 space-y-2 flex flex-col",
         ),
@@ -101,7 +101,7 @@ def landing_header() -> rx.Component:
                 class_name="flex items-center space-x-2 text-text-primary",
             ),
             rx.el.nav(
-                rx.el.a("Docs", href="/guide", class_name="hover:text-accent-cyan"),
+                rx.el.a("Docs", href="/kb", class_name="hover:text-accent-cyan"),
                 rx.el.a(
                     "API Center", href="/api-docs", class_name="hover:text-accent-cyan"
                 ),

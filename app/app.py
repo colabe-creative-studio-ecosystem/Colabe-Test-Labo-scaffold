@@ -15,6 +15,12 @@ from app.ui.pages.terms_and_conditions import terms_and_conditions_page
 from app.ui.pages.user_guide import user_guide_page
 from app.ui.pages.faq import faq_page
 from app.ui.pages.ai_help import ai_help_page
+from app.ui.pages.kb import (
+    kb_hub_page,
+    kb_article_page,
+    kb_search_page,
+    kb_changelog_page,
+)
 from app.ui.states.auth_state import AuthState
 from app.core.settings import settings
 from app.core import models
@@ -55,6 +61,10 @@ app.add_page(billing_page, route="/billing", on_load=AuthState.check_login)
 app.add_page(api_docs_page, route="/api-docs", on_load=AuthState.check_login)
 app.add_page(privacy_policy_page, route="/privacy")
 app.add_page(terms_and_conditions_page, route="/terms")
+app.add_page(kb_hub_page, route="/kb", on_load=AuthState.check_login)
+app.add_page(kb_article_page, route="/kb/guides/[slug]", on_load=AuthState.check_login)
+app.add_page(kb_search_page, route="/kb/search", on_load=AuthState.check_login)
+app.add_page(kb_changelog_page, route="/kb/changelog", on_load=AuthState.check_login)
+app.add_page(faq_page, route="/kb/faq", on_load=AuthState.check_login)
 app.add_page(user_guide_page, route="/guide", on_load=AuthState.check_login)
-app.add_page(faq_page, route="/faq", on_load=AuthState.check_login)
 app.add_page(ai_help_page, route="/help", on_load=AuthState.check_login)
