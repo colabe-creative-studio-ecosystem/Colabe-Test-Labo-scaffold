@@ -111,6 +111,7 @@ app.add_page(quality_page, route="/quality", on_load=AuthState.check_login)
 app.add_page(policies_page, route="/policies", on_load=AuthState.check_login)
 app.add_page(billing_page, route="/billing", on_load=AuthState.check_login)
 app.add_page(api_docs_page, route="/api-docs", on_load=AuthState.check_login)
+from app.ui.pages.run_console import run_console_page
 from app.ui.pages.api_center import (
     api_center_page,
     api_rest_page,
@@ -141,6 +142,7 @@ app.add_page(
 app.add_page(
     api_keys_page, route="/api-center/keys", on_load=ApiCenterState.load_api_keys
 )
+app.add_page(run_console_page, route="/runs/[run_id]", on_load=AuthState.check_login)
 app.add_page(security_page, route="/security")
 app.add_page(privacy_policy_page, route="/legal/privacy")
 app.add_page(terms_and_conditions_page, route="/legal/terms")

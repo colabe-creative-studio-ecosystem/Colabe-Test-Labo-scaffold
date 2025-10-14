@@ -67,13 +67,23 @@ class TestPlan(rx.Model, table=True):
     created_at: datetime.datetime = Field(default_factory=datetime.datetime.now)
 
 
+class RunStatus(str, Enum):
+    PENDING = "pending"
+    RUNNING = "running"
+    COMPLETED = "completed"
+    FAILED = "failed"
+    CANCELED = "canceled"
+
+
 class Run(rx.Model, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
     test_plan_id: int = Field(foreign_key="testplan.id")
-    status: str
+    status: RunStatus = Field(default=RunStatus.PENDING)
     started_at: Optional[datetime.datetime] = None
     completed_at: Optional[datetime.datetime] = None
     created_at: datetime.datetime = Field(default_factory=datetime.datetime.now)
+    idempotency_key: Optional[str] = Field(default=None, index=True)
+    steps: list["RunStep"] = Relationship(back_populates="run")
     coverage_data: list["Coverage"] = Relationship(back_populates="run")
     quality_score: Optional["QualityScore"] = Relationship(back_populates="run")
     cost_estimate: Optional["RunCostEstimate"] = Relationship(back_populates="run")
@@ -88,6 +98,25 @@ class Finding(rx.Model, table=True):
     file_path: str
     line_number: int
     created_at: datetime.datetime = Field(default_factory=datetime.datetime.now)
+
+
+class RunStepStatus(str, Enum):
+    PENDING = "pending"
+    RUNNING = "running"
+    COMPLETED = "completed"
+    FAILED = "failed"
+    SKIPPED = "skipped"
+
+
+class RunStep(rx.Model, table=True):
+    id: Optional[int] = Field(default=None, primary_key=True)
+    run_id: int = Field(foreign_key="run.id")
+    run: "Run" = Relationship(back_populates="steps")
+    name: str
+    status: RunStepStatus = Field(default=RunStepStatus.PENDING)
+    started_at: Optional[datetime.datetime] = None
+    completed_at: Optional[datetime.datetime] = None
+    log_artifact_id: Optional[int] = Field(foreign_key="artifact.id")
 
 
 class SeverityEnum(str, Enum):

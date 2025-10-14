@@ -2,6 +2,7 @@ import reflex as rx
 from app.ui.pages.index import sidebar, user_dropdown
 from app.ui.states.auth_state import AuthState
 from app.ui.states.dashboard_state import DashboardState
+from app.ui.states.run_state import RunState
 from app.ui.styles import page_style, page_content_style, header_style, card_style
 from app.ui.components.help_copilot import help_copilot_shell
 
@@ -46,7 +47,7 @@ def dashboard_content() -> rx.Component:
                 rx.el.button(
                     rx.icon("circle_play", class_name="mr-2"),
                     "Run Quick Sweep",
-                    on_click=lambda: AuthState.cta_clicked("quick_sweep_dashboard"),
+                    on_click=lambda: RunState.start_run(1),
                     class_name="px-6 py-3 bg-accent-cyan text-bg-base rounded-lg font-semibold hover:opacity-90 transition-opacity flex items-center",
                 ),
                 rx.el.button(
