@@ -1,3 +1,4 @@
+
 reflex==0.8.14
 reflex-enterprise
 psycopg2-binary
@@ -29,4 +30,3 @@ PyGithub
 anthropic
 openai
 tiktoken
-reflex-google-auth
