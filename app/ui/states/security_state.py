@@ -35,6 +35,16 @@ class SecurityState(AuthState):
         if not self.is_logged_in or not self.current_project_id:
             return
         with rx.session() as session:
+            project = session.exec(
+                sqlmodel.select(Project).where(
+                    Project.id == self.current_project_id,
+                    Project.tenant_id == self.current_tenant.id,
+                )
+            ).first()
+            if not project:
+                self.security_findings = []
+                self.sbom_components = []
+                return rx.toast("Project not found or access denied.")
             self.security_findings = session.exec(
                 sqlmodel.select(SecurityFinding).where(
                     SecurityFinding.project_id == self.current_project_id

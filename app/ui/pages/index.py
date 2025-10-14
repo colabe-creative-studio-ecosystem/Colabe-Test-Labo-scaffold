@@ -20,24 +20,58 @@ def wallet_badge() -> rx.Component:
     )
 
 
+def tenant_switcher() -> rx.Component:
+    return rx.radix.dropdown_menu.root(
+        rx.radix.dropdown_menu.trigger(
+            rx.el.button(
+                rx.icon("building", class_name="hidden md:block"),
+                rx.text(
+                    AuthState.current_tenant.name,
+                    class_name="hidden md:block text-text-primary",
+                ),
+                rx.icon("chevrons-up-down", size=16, class_name="hidden md:block"),
+                class_name="flex items-center space-x-2 p-2 rounded-lg hover:bg-bg-elevated",
+            )
+        ),
+        rx.radix.dropdown_menu.content(
+            rx.foreach(
+                AuthState.memberships,
+                lambda m: rx.radix.dropdown_menu.item(
+                    m.tenant.name, on_click=lambda: AuthState.switch_tenant(m.tenant_id)
+                ),
+            )
+        ),
+    )
+
+
 def user_dropdown() -> rx.Component:
     return rx.el.div(
         wallet_badge(),
-        rx.el.button(
-            rx.image(
-                src=f"https://api.dicebear.com/9.x/initials/svg?seed={AuthState.user.username}",
-                class_name="h-8 w-8 rounded-full",
+        tenant_switcher(),
+        rx.radix.dropdown_menu.root(
+            rx.radix.dropdown_menu.trigger(
+                rx.el.button(
+                    rx.image(
+                        src=f"https://api.dicebear.com/9.x/initials/svg?seed={AuthState.user.username}",
+                        class_name="h-8 w-8 rounded-full",
+                    ),
+                    rx.el.span(
+                        AuthState.user.username,
+                        class_name="hidden md:block text-text-primary",
+                    ),
+                    rx.icon("chevron-down", size=16, class_name="hidden md:block"),
+                    class_name="flex items-center space-x-2 p-2 rounded-lg hover:bg-bg-elevated",
+                )
             ),
-            rx.el.span(
-                AuthState.user.username, class_name="hidden md:block text-text-primary"
+            rx.radix.dropdown_menu.content(
+                rx.radix.dropdown_menu.item(
+                    "Profile", on_click=rx.redirect("/profile")
+                ),
+                rx.radix.dropdown_menu.separator(),
+                rx.radix.dropdown_menu.item(
+                    "Logout", on_click=AuthState.logout, color="red"
+                ),
             ),
-            rx.icon("chevron-down", size=16, class_name="hidden md:block"),
-            class_name="flex items-center space-x-2 p-2 rounded-lg hover:bg-bg-elevated",
-        ),
-        rx.el.button(
-            "Logout",
-            on_click=AuthState.logout,
-            class_name="ml-4 px-4 py-2 text-sm font-medium text-text-primary bg-danger/80 rounded-lg hover:bg-danger",
         ),
         class_name="flex items-center space-x-4",
     )
@@ -68,29 +102,24 @@ def sidebar() -> rx.Component:
         rx.el.div(
             sidebar_link("Dashboard", "/", "layout-dashboard"),
             sidebar_link("Projects", "/projects", "folder-kanban"),
-            sidebar_link("Test Plans", "/test-plans", "file-check"),
-            sidebar_link("Live Runs", "/runs", "circle-play"),
-            sidebar_link("Diffs", "/diffs", "git-compare"),
-            sidebar_link("Coverage", "/quality", "pie-chart"),
+            sidebar_link("Quality", "/quality", "pie-chart"),
             sidebar_link("Security", "/security", "shield"),
-            sidebar_link("Accessibility", "/accessibility", "accessibility"),
-            sidebar_link("Performance", "/performance", "gauge"),
             sidebar_link("Policies", "/policies", "gavel"),
+            sidebar_link("Members", "/members", "users"),
             sidebar_link("Audit Log", "/audits", "scroll-text"),
-            sidebar_link("Billing & Wallet", "/billing", "wallet"),
-            sidebar_link("API & Webhooks", "/api-docs", "code"),
-            sidebar_link("Ops Events", "/ops/events", "webhook"),
-            sidebar_link("System Health", "/health", "heart-pulse"),
-            sidebar_link("Ops Dashboard", "/ops/dashboard", "server"),
+            sidebar_link("Billing", "/billing", "wallet"),
+            sidebar_link("API", "/api-docs", "code"),
             class_name="flex-grow p-4 space-y-2",
         ),
         rx.el.div(
-            sidebar_link("Who We Are", "/who-we-are", "info"),
-            sidebar_link("Sitemap", "/sitemap", "map"),
-            sidebar_link("Settings", "/settings", "settings"),
+            sidebar_link("System Health", "/health", "heart-pulse"),
             rx.cond(
                 AuthState.is_admin,
-                sidebar_link("Admin Tenants", "/admin/tenants", "shield-half"),
+                rx.el.div(
+                    sidebar_link("Admin Tenants", "/admin/tenants", "shield-half"),
+                    sidebar_link("Ops Dashboard", "/ops/dashboard", "server"),
+                    sidebar_link("Ops Events", "/ops/events", "webhook"),
+                ),
             ),
             class_name="p-4 space-y-2 border-t border-white/10",
         ),
@@ -125,7 +154,7 @@ def main_content() -> rx.Component:
                     class_name="mt-4 text-lg text-text-secondary max-w-2xl text-center",
                 ),
                 rx.el.p(
-                    f"You are logged in with role: {AuthState.current_user_role}",
+                    f"Current Role: {AuthState.current_role.to_string()}",
                     class_name="mt-4 text-md text-accent-cyan bg-accent-cyan/10 px-3 py-1 rounded-full",
                 ),
                 class_name="flex flex-col items-center justify-center text-center p-16",
@@ -147,5 +176,5 @@ def index() -> rx.Component:
                 class_name="flex items-center justify-center min-h-screen colabe-bg",
             ),
         ),
-        on_mount=BillingState.load_wallet,
+        on_mount=[AuthState.check_login, BillingState.load_wallet],
     )

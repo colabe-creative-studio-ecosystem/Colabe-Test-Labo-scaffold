@@ -68,6 +68,16 @@ class Settings:
     SCIM_ENABLED: bool = os.environ.get("SCIM_ENABLED", "false").lower() == "true"
     TRIAL_DAYS_DEFAULT: int = int(os.environ.get("TRIAL_DAYS_DEFAULT", 14))
     QUOTA_DEFAULTS_JSON: str = os.environ.get("QUOTA_DEFAULTS_JSON", "{}")
+    COLABE_ID_ISSUER: str | None = os.environ.get("COLABE_ID_ISSUER")
+    COLABE_JWKS_URL: str | None = os.environ.get("COLABE_JWKS_URL")
+    COLABE_GATEWAY_AUDIENCE: str = os.environ.get(
+        "COLABE_GATEWAY_AUDIENCE", "colabe.testlabo"
+    )
+    SESSION_COOKIE_NAME: str = os.environ.get("SESSION_COOKIE_NAME", "sid")
+    SESSION_TTL_HOURS: int = int(os.environ.get("SESSION_TTL_HOURS", 8))
+    SESSION_REDIS_PREFIX: str = os.environ.get("SESSION_REDIS_PREFIX", "ctl:sess:")
+    CSRF_SECRET: str | None = os.environ.get("CSRF_SECRET")
+    LOGIN_RATE_LIMIT_PER_MIN: int = int(os.environ.get("LOGIN_RATE_LIMIT_PER_MIN", 10))
 
 
 settings = Settings()

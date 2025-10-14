@@ -1,8 +1,6 @@
 import reflex as rx
-import reflex as rx
 import sqlmodel
 import json
-import uuid
 import datetime
 import logging
 from typing import Optional
@@ -10,14 +8,15 @@ from app.ui.states.auth_state import AuthState
 from app.core.models import (
     Tenant,
     User,
-    UserRole,
+    Membership,
     RoleEnum,
     Wallet,
     Subscription,
-    ProjectPolicy,
     TenantStatusEnum,
 )
 from app.core.settings import settings
+
+logger = logging.getLogger(__name__)
 
 
 class TenantState(AuthState):
@@ -58,8 +57,7 @@ class TenantState(AuthState):
                 tenant_id=new_tenant.id, coins=1000 if plan != "Free" else 100
             )
             sub = Subscription(tenant_id=new_tenant.id, plan=plan, status="active")
-            session.add(wallet)
-            session.add(sub)
+            session.add_all([wallet, sub])
             owner_user = session.exec(
                 sqlmodel.select(User).where(User.email == owner_email)
             ).first()
@@ -75,17 +73,18 @@ class TenantState(AuthState):
                     username=owner_email.split("@")[0],
                     email=owner_email,
                     password_hash=password_hash,
-                    tenant_id=new_tenant.id,
                 )
                 session.add(owner_user)
                 session.commit()
                 session.refresh(owner_user)
-                owner_role = UserRole(user_id=owner_user.id, role=RoleEnum.OWNER)
-                session.add(owner_role)
+            membership = Membership(
+                user_id=owner_user.id, tenant_id=new_tenant.id, role=RoleEnum.OWNER
+            )
+            session.add(membership)
             self._log_audit(
                 action="tenant.provision",
                 tenant_id=new_tenant.id,
-                details=f"Provisioned tenant '{tenant_name}' with plan '{plan}'.",
+                after={"name": tenant_name, "plan": plan, "owner": owner_email},
             )
             session.commit()
         self.load_tenants()
@@ -98,7 +97,7 @@ class TenantState(AuthState):
         try:
             new_status = TenantStatusEnum(status)
         except ValueError as e:
-            logging.exception(f"Invalid status: {status}, error: {e}")
+            logger.exception(f"Invalid status: {status}, error: {e}")
             return rx.toast(f"Invalid status: {status}")
         with rx.session() as session:
             tenant = session.get(Tenant, tenant_id)
@@ -107,9 +106,11 @@ class TenantState(AuthState):
                 tenant.status = new_status
                 session.add(tenant)
                 self._log_audit(
-                    action=f"tenant.{status}",
+                    action=f"tenant.status.update",
                     tenant_id=tenant_id,
-                    details=f"Tenant status changed from '{old_status}' to '{status}'.",
+                    resource_crn=f"crn:colabe:{tenant.region}:{tenant.id}:tenant",
+                    before={"status": old_status},
+                    after={"status": new_status.value},
                 )
                 session.commit()
                 self.load_tenants()

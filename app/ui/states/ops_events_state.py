@@ -6,22 +6,12 @@ from app.core.models import EventOutbox, RoleEnum
 
 class OpsEventsState(AuthState):
     outbox_events: list[EventOutbox] = []
-    is_admin_or_owner: bool = False
 
     @rx.event
     def load_events(self):
-        if not self.is_logged_in or not self.user:
-            return rx.redirect("/login")
+        if not self.is_admin:
+            return rx.redirect("/")
         with rx.session() as session:
-            role = session.exec(
-                sqlmodel.select(RoleEnum)
-                .join(UserRole)
-                .where(UserRole.user_id == self.user.id)
-            ).first()
-            if role not in [RoleEnum.ADMIN, RoleEnum.OWNER]:
-                self.is_admin_or_owner = False
-                return rx.redirect("/")
-            self.is_admin_or_owner = True
             self.outbox_events = session.exec(
                 sqlmodel.select(EventOutbox)
                 .order_by(sqlmodel.desc(EventOutbox.created_at))
@@ -30,6 +20,8 @@ class OpsEventsState(AuthState):
 
     @rx.event
     def retry_event(self, event_id: int):
+        if not self.is_admin:
+            return rx.toast("Permission denied.")
         with rx.session() as session:
             event = session.get(EventOutbox, event_id)
             if event:

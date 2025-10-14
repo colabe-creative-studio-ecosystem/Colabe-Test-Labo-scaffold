@@ -18,9 +18,18 @@ from app.ui.pages.who_we_are import who_we_are_page
 from app.ui.pages.embeds import embed_page
 from app.ui.pages.sitemap import sitemap_page
 from app.ui.pages.ops_dashboard import ops_dashboard_page
+from app.ui.pages.profile import profile_page
+from app.ui.pages.members import members_page
 
+csp = "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' https://api.dicebear.com data:; connect-src 'self' wss://*.colabe.app"
 app = rxe.App(
     head_components=[
+        rx.el.meta(char_set="UTF-8"),
+        rx.el.meta(name="viewport", content="width=device-width, initial-scale=1.0"),
+        rx.el.meta(http_equiv="X-UA-Compatible", content="ie=edge"),
+        rx.el.meta(http_equiv="Content-Security-Policy", content=csp),
+        rx.el.meta(name="Referrer-Policy", content="strict-origin-when-cross-origin"),
+        rx.el.meta(name="X-Content-Type-Options", content="nosniff"),
         rx.el.link(rel="preconnect", href="https://fonts.googleapis.com"),
         rx.el.link(rel="preconnect", href="https://fonts.gstatic.com", cross_origin=""),
         rx.el.link(
@@ -47,3 +56,5 @@ app.add_page(sitemap_page, route="/sitemap", on_load=AuthState.check_login)
 app.add_page(embed_page, route="/embed/[widget_type]")
 app.add_page(admin_tenants_page, route="/admin/tenants", on_load=AuthState.check_login)
 app.add_page(ops_dashboard_page, route="/ops/dashboard", on_load=AuthState.check_login)
+app.add_page(profile_page, route="/profile", on_load=AuthState.check_login)
+app.add_page(members_page, route="/members", on_load=AuthState.check_login)

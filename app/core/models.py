@@ -26,11 +26,18 @@ class DomainStatusEnum(str, Enum):
     FAILED = "failed"
 
 
+class Organization(rx.Model, table=True):
+    id: Optional[int] = Field(default=None, primary_key=True)
+    name: str = Field(unique=True)
+    tenants: list["Tenant"] = Relationship(back_populates="organization")
+
+
 class Tenant(rx.Model, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
     name: str = Field(unique=True)
+    organization_id: Optional[int] = Field(default=None, foreign_key="organization.id")
+    organization: Optional["Organization"] = Relationship(back_populates="tenants")
     created_at: datetime.datetime = Field(default_factory=datetime.datetime.now)
-    users: list["User"] = Relationship(back_populates="tenant")
     status: TenantStatusEnum = Field(default=TenantStatusEnum.ACTIVE)
     region: str = Field(default="eu-central-1")
     plan: str = Field(default="Free")
@@ -40,35 +47,40 @@ class Tenant(rx.Model, table=True):
     custom_domain: Optional[str] = Field(default=None, unique=True)
     custom_domain_status: Optional[DomainStatusEnum] = Field(default=None)
     custom_domain_txt_record: Optional[str] = Field(default=None)
+    memberships: list["Membership"] = Relationship(back_populates="tenant")
+    projects: list["Project"] = Relationship(back_populates="tenant")
 
 
 class User(rx.Model, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
     username: str = Field(unique=True)
     email: str = Field(unique=True)
-    password_hash: str
-    tenant_id: int = Field(foreign_key="tenant.id")
-    tenant: "Tenant" = Relationship(back_populates="users")
-    roles: list["UserRole"] = Relationship(back_populates="user")
+    password_hash: Optional[str] = None
+    oidc_sub: Optional[str] = Field(default=None, unique=True)
+    has_2fa: bool = Field(default=False)
     created_at: datetime.datetime = Field(default_factory=datetime.datetime.now)
+    memberships: list["Membership"] = Relationship(back_populates="user")
+
+
+class Membership(rx.Model, table=True):
+    id: Optional[int] = Field(default=None, primary_key=True)
+    user_id: int = Field(foreign_key="user.id")
+    tenant_id: int = Field(foreign_key="tenant.id")
+    role: RoleEnum
+    user: "User" = Relationship(back_populates="memberships")
+    tenant: "Tenant" = Relationship(back_populates="memberships")
 
 
 class Project(rx.Model, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
     name: str
     tenant_id: int = Field(foreign_key="tenant.id")
+    tenant: "Tenant" = Relationship(back_populates="projects")
     created_at: datetime.datetime = Field(default_factory=datetime.datetime.now)
-    user_roles: list["UserRole"] = Relationship(back_populates="project")
     policy: Optional["ProjectPolicy"] = Relationship(back_populates="project")
-
-
-class UserRole(rx.Model, table=True):
-    id: Optional[int] = Field(default=None, primary_key=True)
-    user_id: int = Field(foreign_key="user.id")
-    project_id: Optional[int] = Field(default=None, foreign_key="project.id")
-    role: RoleEnum
-    user: "User" = Relationship(back_populates="roles")
-    project: Optional["Project"] = Relationship(back_populates="user_roles")
+    runs: list["Run"] = Relationship(back_populates="project")
+    security_findings: list["SecurityFinding"] = Relationship(back_populates="project")
+    sbom_components: list["SBOMComponent"] = Relationship(back_populates="project")
 
 
 class Repository(rx.Model, table=True):
@@ -87,6 +99,8 @@ class TestPlan(rx.Model, table=True):
 
 class Run(rx.Model, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
+    project_id: int = Field(foreign_key="project.id")
+    project: "Project" = Relationship(back_populates="runs")
     test_plan_id: int = Field(foreign_key="testplan.id")
     status: str
     started_at: Optional[datetime.datetime] = None
@@ -94,12 +108,14 @@ class Run(rx.Model, table=True):
     created_at: datetime.datetime = Field(default_factory=datetime.datetime.now)
     coverage_data: list["Coverage"] = Relationship(back_populates="run")
     quality_score: Optional["QualityScore"] = Relationship(back_populates="run")
+    findings: list["Finding"] = Relationship(back_populates="run")
+    artifacts: list["Artifact"] = Relationship(back_populates="run")
 
 
 class Finding(rx.Model, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
     run_id: int = Field(foreign_key="run.id")
-    run: "Run" = Relationship()
+    run: "Run" = Relationship(back_populates="findings")
     description: str
     severity: str
     file_path: str
@@ -152,7 +168,25 @@ class SecurityFinding(rx.Model, table=True):
     status: str = Field(default="new")
     waiver_expiry: Optional[datetime.datetime] = None
     created_at: datetime.datetime = Field(default_factory=datetime.datetime.now)
-    project: "Project" = Relationship()
+    project: "Project" = Relationship(back_populates="security_findings")
+    autofix_runs: list["AutofixRun"] = Relationship(back_populates="finding")
+
+
+class AutofixRun(rx.Model, table=True):
+    id: Optional[int] = Field(default=None, primary_key=True)
+    finding_id: int = Field(foreign_key="securityfinding.id")
+    status: str
+    created_at: datetime.datetime = Field(default_factory=datetime.datetime.now)
+    finding: "SecurityFinding" = Relationship(back_populates="autofix_runs")
+    patch: Optional["AutofixPatch"] = Relationship(back_populates="run")
+
+
+class AutofixPatch(rx.Model, table=True):
+    id: Optional[int] = Field(default=None, primary_key=True)
+    autofix_run_id: int = Field(foreign_key="autofixrun.id", unique=True)
+    diff: str
+    created_at: datetime.datetime = Field(default_factory=datetime.datetime.now)
+    run: "AutofixRun" = Relationship(back_populates="patch")
 
 
 class SBOMComponent(rx.Model, table=True):
@@ -164,7 +198,7 @@ class SBOMComponent(rx.Model, table=True):
     vulnerabilities: list["ComponentVulnerability"] = Relationship(
         back_populates="component"
     )
-    project: "Project" = Relationship()
+    project: "Project" = Relationship(back_populates="sbom_components")
 
 
 class ComponentVulnerability(rx.Model, table=True):
@@ -204,7 +238,7 @@ class QualityScore(rx.Model, table=True):
 class Artifact(rx.Model, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
     run_id: int = Field(foreign_key="run.id")
-    run: "Run" = Relationship()
+    run: "Run" = Relationship(back_populates="artifacts")
     name: str
     storage_path: str
     created_at: datetime.datetime = Field(default_factory=datetime.datetime.now)
@@ -218,33 +252,22 @@ class Policy(rx.Model, table=True):
     created_at: datetime.datetime = Field(default_factory=datetime.datetime.now)
 
 
-class AuditLog(rx.Model, table=True):
+class AuditEvent(rx.Model, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
-    user_id: Optional[int] = Field(default=None, foreign_key="user.id")
-    tenant_id: Optional[int] = Field(default=None, foreign_key="tenant.id")
-    action: str
-    details: Optional[str] = None
-    timestamp: datetime.datetime = Field(default_factory=datetime.datetime.now)
-    user: Optional["User"] = Relationship()
-
-
-class AutofixRun(rx.Model, table=True):
-    id: Optional[int] = Field(default=None, primary_key=True)
-    finding_id: int = Field(foreign_key="securityfinding.id")
-    status: str = Field(default="pending")
-    branch_name: Optional[str] = None
-    pull_request_url: Optional[str] = None
-    created_at: datetime.datetime = Field(default_factory=datetime.datetime.now)
-    updated_at: datetime.datetime = Field(default_factory=datetime.datetime.now)
-    finding: "SecurityFinding" = Relationship()
-
-
-class AutofixPatch(rx.Model, table=True):
-    id: Optional[int] = Field(default=None, primary_key=True)
-    autofix_run_id: int = Field(foreign_key="autofixrun.id")
-    diff: str
-    created_at: datetime.datetime = Field(default_factory=datetime.datetime.now)
-    run: "AutofixRun" = Relationship()
+    timestamp: datetime.datetime = Field(
+        default_factory=datetime.datetime.now, index=True
+    )
+    actor_user_id: Optional[int] = Field(default=None, foreign_key="user.id")
+    tenant_id: int = Field(foreign_key="tenant.id", index=True)
+    action: str = Field(index=True)
+    resource_crn: Optional[str] = Field(default=None, index=True)
+    before_json: Optional[str] = None
+    after_json: Optional[str] = None
+    ip_address: Optional[str] = None
+    user_agent: Optional[str] = None
+    correlation_id: Optional[str] = Field(default=None, index=True)
+    severity: str = Field(default="INFO")
+    actor: Optional["User"] = Relationship()
 
 
 class Session(rx.Model, table=True):
@@ -306,3 +329,17 @@ class ConsumerIdempotency(rx.Model, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
     idempotency_key: str = Field(unique=True, index=True)
     created_at: datetime.datetime = Field(default_factory=datetime.datetime.now)
+
+
+class FeatureFlag(rx.Model, table=True):
+    id: Optional[int] = Field(default=None, primary_key=True)
+    tenant_id: int = Field(foreign_key="tenant.id")
+    key: str
+    value: str
+    source: str
+
+
+class ResidencyPolicy(rx.Model, table=True):
+    id: Optional[int] = Field(default=None, primary_key=True)
+    tenant_id: int = Field(foreign_key="tenant.id")
+    region: str

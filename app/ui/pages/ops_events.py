@@ -2,17 +2,15 @@ import reflex as rx
 from app.ui.states.ops_events_state import OpsEventsState
 from app.core.models import EventOutbox
 from app.ui.pages.index import sidebar
+from app.ui.styles import page_style, page_content_style, header_style
 
 
 def ops_events_page() -> rx.Component:
     return rx.el.div(
-        rx.cond(
-            OpsEventsState.is_logged_in,
-            rx.el.div(sidebar(), ops_events_content(), class_name="flex min-h-screen"),
-            rx.el.p("Unauthorized"),
-        ),
+        sidebar(),
+        ops_events_content(),
+        class_name=page_style,
         on_mount=OpsEventsState.load_events,
-        class_name="colabe-bg text-text-primary",
     )
 
 
@@ -20,46 +18,49 @@ def ops_events_content() -> rx.Component:
     return rx.el.main(
         rx.el.header(
             rx.el.h1(
-                "Operational Events",
-                class_name="text-2xl font-bold text-text-primary title-gradient",
+                "Operational Events", class_name="text-2xl font-bold title-gradient"
             ),
-            class_name="p-4 border-b border-white/10",
+            class_name=header_style,
         ),
         rx.el.div(
-            rx.el.div(
-                rx.el.button(
-                    "Refresh",
-                    on_click=OpsEventsState.load_events,
-                    class_name="px-4 py-2 bg-accent-cyan text-bg-base font-semibold rounded-lg hover:opacity-90",
-                ),
-                class_name="flex items-center space-x-4 mb-4",
-            ),
-            rx.el.div(
-                rx.el.h3("Outbox Events", class_name="text-lg font-semibold mb-2"),
+            rx.cond(
+                OpsEventsState.is_admin,
                 rx.el.div(
-                    rx.el.table(
-                        rx.el.thead(
-                            rx.el.tr(
-                                rx.el.th("Created At"),
-                                rx.el.th("Event ID"),
-                                rx.el.th("Topic"),
-                                rx.el.th("Status"),
-                                rx.el.th("Retries"),
-                                rx.el.th("Actions"),
-                            )
-                        ),
-                        rx.el.tbody(
-                            rx.foreach(OpsEventsState.outbox_events, render_event_row)
-                        ),
-                        class_name="min-w-full divide-y divide-gray-700",
+                    rx.el.button(
+                        "Refresh",
+                        on_click=OpsEventsState.load_events,
+                        class_name="px-4 py-2 bg-accent-cyan text-bg-base font-semibold rounded-lg hover:opacity-90 mb-4",
                     ),
-                    class_name="overflow-x-auto rounded-lg border border-white/10",
+                    rx.el.h3("Outbox Events", class_name="text-lg font-semibold mb-2"),
+                    rx.el.div(
+                        rx.el.table(
+                            rx.el.thead(
+                                rx.el.tr(
+                                    rx.el.th("Created At", class_name="p-3 text-left"),
+                                    rx.el.th("Event ID", class_name="p-3 text-left"),
+                                    rx.el.th("Topic", class_name="p-3 text-left"),
+                                    rx.el.th("Status", class_name="p-3 text-left"),
+                                    rx.el.th("Retries", class_name="p-3 text-left"),
+                                    rx.el.th("Actions", class_name="p-3 text-left"),
+                                )
+                            ),
+                            rx.el.tbody(
+                                rx.foreach(
+                                    OpsEventsState.outbox_events, render_event_row
+                                )
+                            ),
+                        ),
+                        class_name="overflow-x-auto rounded-lg border border-white/10",
+                    ),
                 ),
-                class_name="p-4 bg-bg-elevated rounded-lg",
+                rx.el.div(
+                    "Access Denied. Admin or Owner role required.",
+                    class_name="p-8 text-danger",
+                ),
             ),
             class_name="p-8",
         ),
-        class_name="flex-1",
+        class_name=page_content_style,
     )
 
 
@@ -93,4 +94,5 @@ def render_event_row(event: EventOutbox) -> rx.Component:
             ),
             class_name="p-3 text-sm",
         ),
+        class_name="border-t border-white/10 hover:bg-bg-elevated",
     )
