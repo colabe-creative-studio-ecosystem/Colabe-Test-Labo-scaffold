@@ -13,10 +13,6 @@ class HealthState(AuthState):
     redis_status: str = "Unknown"
     worker_status: str = "Unknown"
     job_id: str = ""
-    sdk_status: str = "OK"
-    sdk_last_publish: str = "2024-10-26 10:00 UTC"
-    embed_status: str = "OK"
-    embed_last_check: str = "2024-10-26 11:00 UTC"
 
     @rx.event
     def check_health(self):
@@ -76,30 +72,25 @@ def health_page_content() -> rx.Component:
         rx.el.header(
             rx.el.div(
                 rx.el.h1(
-                    "System Health",
-                    class_name="text-2xl font-bold text-text-primary title-gradient",
+                    "System Health", class_name="text-2xl font-bold text-gray-900"
                 ),
-                rx.el.p(
-                    "Status of system components.", class_name="text-text-secondary"
-                ),
+                rx.el.p("Status of system components.", class_name="text-gray-500"),
             ),
             user_dropdown(),
-            class_name="flex items-center justify-between p-4 border-b border-white/10",
+            class_name="flex items-center justify-between p-4 border-b bg-white",
         ),
         rx.el.div(
             rx.el.button(
                 "Refresh",
                 on_click=HealthState.check_health,
-                class_name="mb-6 px-4 py-2 bg-accent-cyan text-bg-base font-semibold rounded-lg hover:opacity-90",
+                class_name="mb-6 px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600",
             ),
             rx.el.div(
                 status_card("Overall Status", HealthState.health_status),
                 status_card("Database", HealthState.db_status),
                 status_card("Redis Cache", HealthState.redis_status),
                 status_card("Background Worker", HealthState.worker_status),
-                status_card("SDKs Status", HealthState.sdk_status),
-                status_card("Embeds Status", HealthState.embed_status),
-                class_name="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6",
+                class_name="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6",
             ),
             class_name="p-8",
         ),
