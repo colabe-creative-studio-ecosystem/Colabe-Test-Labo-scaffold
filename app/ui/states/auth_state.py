@@ -31,6 +31,19 @@ class AuthState(rx.State):
     def is_logged_in(self) -> bool:
         return self.user is not None
 
+    @rx.var
+    def is_admin(self) -> bool:
+        """Check if the current user has ADMIN or OWNER role."""
+        if not self.user:
+            return False
+        with rx.session() as session:
+            roles = session.exec(
+                sqlmodel.select(UserRole).where(UserRole.user_id == self.user.id)
+            ).all()
+            return any(
+                (role.role in [RoleEnum.ADMIN, RoleEnum.OWNER] for role in roles)
+            )
+
     @rx.event
     def logout(self):
         self._log_audit("user.logout")

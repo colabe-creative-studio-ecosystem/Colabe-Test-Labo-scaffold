@@ -53,6 +53,21 @@ class Settings:
     SDK_PYPI_PASSWORD: str | None = os.environ.get("SDK_PYPI_PASSWORD")
     SDK_RELEASE_SIGNING_KEY: str | None = os.environ.get("SDK_RELEASE_SIGNING_KEY")
     ORG_EMAIL: str = os.environ.get("ORG_EMAIL", "contact@colabe.ai")
+    TENANT_DEFAULT_REGION: str = os.environ.get("TENANT_DEFAULT_REGION", "eu-central-1")
+    TENANT_MAX_DOMAINS_PER_TENANT: int = int(
+        os.environ.get("TENANT_MAX_DOMAINS_PER_TENANT", 2)
+    )
+    THEME_SAFE_ACCENTS: str = os.environ.get(
+        "THEME_SAFE_ACCENTS", "#00E5FF,#FF3CF7,#FFE600,#D8B76E"
+    )
+    DOMAIN_DNS_PROVIDER: str = os.environ.get("DOMAIN_DNS_PROVIDER", "cloud")
+    ACME_EMAIL: str | None = os.environ.get("ACME_EMAIL")
+    SSO_ENTERPRISE_ENABLED: bool = (
+        os.environ.get("SSO_ENTERPRISE_ENABLED", "false").lower() == "true"
+    )
+    SCIM_ENABLED: bool = os.environ.get("SCIM_ENABLED", "false").lower() == "true"
+    TRIAL_DAYS_DEFAULT: int = int(os.environ.get("TRIAL_DAYS_DEFAULT", 14))
+    QUOTA_DEFAULTS_JSON: str = os.environ.get("QUOTA_DEFAULTS_JSON", "{}")
 
 
 settings = Settings()

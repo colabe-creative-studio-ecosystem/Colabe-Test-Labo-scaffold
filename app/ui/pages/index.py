@@ -87,6 +87,10 @@ def sidebar() -> rx.Component:
             sidebar_link("Who We Are", "/who-we-are", "info"),
             sidebar_link("Sitemap", "/sitemap", "map"),
             sidebar_link("Settings", "/settings", "settings"),
+            rx.cond(
+                AuthState.is_admin,
+                sidebar_link("Admin Tenants", "/admin/tenants", "shield-half"),
+            ),
             class_name="p-4 space-y-2 border-t border-white/10",
         ),
         class_name=sidebar_style,

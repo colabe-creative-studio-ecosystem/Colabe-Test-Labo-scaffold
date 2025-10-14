@@ -10,6 +10,7 @@ from app.ui.pages.policies import policies_page
 from app.ui.pages.billing import billing_page
 from app.ui.pages.api_docs import api_docs_page
 from app.ui.pages.ops_events import ops_events_page
+from app.ui.pages.admin_tenants import admin_tenants_page
 from app.ui.states.auth_state import AuthState
 from app.core.settings import settings
 from app.core import models
@@ -44,3 +45,4 @@ app.add_page(ops_events_page, route="/ops/events", on_load=AuthState.check_login
 app.add_page(who_we_are_page, route="/who-we-are", on_load=AuthState.check_login)
 app.add_page(sitemap_page, route="/sitemap", on_load=AuthState.check_login)
 app.add_page(embed_page, route="/embed/[widget_type]")
+app.add_page(admin_tenants_page, route="/admin/tenants", on_load=AuthState.check_login)

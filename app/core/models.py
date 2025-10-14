@@ -12,11 +12,34 @@ class RoleEnum(str, Enum):
     VIEWER = "viewer"
 
 
+class TenantStatusEnum(str, Enum):
+    ACTIVE = "active"
+    SUSPENDED = "suspended"
+    CLOSING = "closing"
+    CLOSED = "closed"
+
+
+class DomainStatusEnum(str, Enum):
+    PENDING = "pending"
+    VERIFYING = "verifying"
+    ISSUED = "issued"
+    FAILED = "failed"
+
+
 class Tenant(rx.Model, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
     name: str = Field(unique=True)
     created_at: datetime.datetime = Field(default_factory=datetime.datetime.now)
     users: list["User"] = Relationship(back_populates="tenant")
+    status: TenantStatusEnum = Field(default=TenantStatusEnum.ACTIVE)
+    region: str = Field(default="eu-central-1")
+    plan: str = Field(default="Free")
+    feature_flags: str = Field(default="{}")
+    theme: Optional[str] = Field(default=None)
+    trial_ends_at: Optional[datetime.datetime] = None
+    custom_domain: Optional[str] = Field(default=None, unique=True)
+    custom_domain_status: Optional[DomainStatusEnum] = Field(default=None)
+    custom_domain_txt_record: Optional[str] = Field(default=None)
 
 
 class User(rx.Model, table=True):
