@@ -81,6 +81,7 @@ def sidebar() -> rx.Component:
             sidebar_link("API & Webhooks", "/api-docs", "code"),
             sidebar_link("Ops Events", "/ops/events", "webhook"),
             sidebar_link("System Health", "/health", "heart-pulse"),
+            sidebar_link("Ops Dashboard", "/ops/dashboard", "server"),
             class_name="flex-grow p-4 space-y-2",
         ),
         rx.el.div(
