@@ -9,6 +9,8 @@ from app.ui.pages.quality import quality_page
 from app.ui.pages.policies import policies_page
 from app.ui.pages.billing import billing_page
 from app.ui.pages.api_docs import api_docs_page
+from app.ui.pages.privacy_policy import privacy_policy_page
+from app.ui.pages.terms_and_conditions import terms_and_conditions_page
 from app.ui.states.auth_state import AuthState
 from app.core.settings import settings
 from app.core import models
@@ -35,3 +37,5 @@ app.add_page(quality_page, route="/quality", on_load=AuthState.check_login)
 app.add_page(policies_page, route="/policies", on_load=AuthState.check_login)
 app.add_page(billing_page, route="/billing", on_load=AuthState.check_login)
 app.add_page(api_docs_page, route="/api-docs", on_load=AuthState.check_login)
+app.add_page(privacy_policy_page, route="/privacy")
+app.add_page(terms_and_conditions_page, route="/terms")
