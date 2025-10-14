@@ -1,20 +1,24 @@
-import reflex as rx
+from __future__ import annotations
+
+from datetime import datetime, timezone
 from typing import Optional
+
+import bcrypt
+import reflex as rx
+import secrets
+import sqlmodel
+
 from app.core.models import (
-    User,
-    Tenant,
-    UserRole,
-    RoleEnum,
     AuditLog,
+    RoleEnum,
     Session,
-    Wallet,
     Subscription,
+    Tenant,
+    User,
+    UserRole,
+    Wallet,
 )
 from app.core.settings import settings
-import bcrypt
-import secrets
-from datetime import datetime, timedelta
-import sqlmodel
 
 
 class AuthState(rx.State):
@@ -23,7 +27,7 @@ class AuthState(rx.State):
     session_id: str = rx.Cookie(
         "",
         name="session_id",
-        max_age=settings.SESSION_TIMEOUT.total_seconds(),
+        max_age=settings.session_timeout_seconds,
         same_site="lax",
     )
 
@@ -110,12 +114,13 @@ class AuthState(rx.State):
 
     def _create_session(self, user_id: int, session: sqlmodel.Session):
         session_token = secrets.token_urlsafe(32)
-        expires_at = datetime.now() + settings.SESSION_TIMEOUT
+        expires_at = datetime.now(tz=timezone.utc) + settings.SESSION_TIMEOUT
         new_session = Session(
             session_id=session_token, user_id=user_id, expires_at=expires_at
         )
         session.add(new_session)
         session.commit()
+        self._purge_expired_sessions(session)
         self.session_id = session_token
         return rx.redirect("/")
 
@@ -145,7 +150,7 @@ class AuthState(rx.State):
             db_session = session.exec(
                 sqlmodel.select(Session).where(Session.session_id == self.session_id)
             ).first()
-            if db_session and db_session.expires_at > datetime.now():
+            if db_session and db_session.expires_at > datetime.now(tz=timezone.utc):
                 user = session.exec(
                     sqlmodel.select(User).where(User.id == db_session.user_id)
                 ).first()
@@ -153,6 +158,15 @@ class AuthState(rx.State):
                     self.user = user
                     return
         return AuthState.logout()
+
+    def _purge_expired_sessions(self, session: sqlmodel.Session) -> None:
+        """Remove expired sessions to prevent table bloat."""
+
+        utc_now = datetime.now(tz=timezone.utc)
+        session.exec(
+            sqlmodel.delete(Session).where(Session.expires_at < utc_now)
+        )
+        session.commit()
 
     @rx.var
     def current_user_role(self) -> str:
