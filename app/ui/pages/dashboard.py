@@ -3,13 +3,19 @@ from app.ui.pages.index import sidebar, user_dropdown
 from app.ui.states.auth_state import AuthState
 from app.ui.states.dashboard_state import DashboardState
 from app.ui.styles import page_style, page_content_style, header_style, card_style
+from app.ui.components.help_copilot import help_copilot_shell
 
 
 def dashboard_page() -> rx.Component:
     return rx.el.div(
         rx.cond(
             AuthState.is_logged_in,
-            rx.el.div(sidebar(), dashboard_content(), class_name=page_style),
+            rx.el.div(
+                sidebar(),
+                dashboard_content(),
+                help_copilot_shell(),
+                class_name=page_style,
+            ),
             rx.el.div(
                 rx.el.p("Loading..."),
                 class_name="flex items-center justify-center min-h-screen colabe-bg",

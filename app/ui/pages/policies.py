@@ -145,11 +145,24 @@ def policy_form() -> rx.Component:
     )
 
 
-def policy_item(title: str, description: str, control: rx.Component) -> rx.Component:
+def policy_item(
+    title: str, description: str, control: rx.Component, explain_id: str | None = None
+) -> rx.Component:
+    from app.ui.states.help_state import HelpState
+
     return rx.el.div(
         rx.el.div(
             rx.el.h3(title, class_name="font-medium text-gray-900"),
             rx.el.p(description, class_name="text-sm text-gray-500"),
+            rx.cond(
+                explain_id is not None,
+                rx.el.button(
+                    rx.icon("info", size=14, class_name="mr-1"),
+                    "Explain this",
+                    on_click=lambda: HelpState.open_panel_with_context(explain_id),
+                    class_name="mt-1 text-xs text-blue-500 hover:underline flex items-center",
+                ),
+            ),
         ),
         control,
         class_name="grid grid-cols-1 md:grid-cols-2 gap-4 items-center",
