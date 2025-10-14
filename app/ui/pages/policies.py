@@ -11,11 +11,11 @@ def policies_page() -> rx.Component:
             rx.el.div(
                 sidebar(),
                 policies_page_content(),
-                class_name="flex min-h-screen bg-gray-50 font-['Inter']",
+                class_name="flex min-h-screen colabe-bg font-['Inter']",
             ),
             rx.el.div(
                 rx.el.p("Loading..."),
-                class_name="flex items-center justify-center min-h-screen",
+                class_name="flex items-center justify-center min-h-screen colabe-bg",
             ),
         ),
         on_mount=PolicyState.load_policy,
@@ -27,15 +27,16 @@ def policies_page_content() -> rx.Component:
         rx.el.header(
             rx.el.div(
                 rx.el.h1(
-                    "Project Policies", class_name="text-2xl font-bold text-gray-900"
+                    "Project Policies",
+                    class_name="text-2xl font-bold text-text-primary title-gradient",
                 ),
                 rx.el.p(
                     "Manage gates, SLAs, and automation rules for your project.",
-                    class_name="text-gray-500",
+                    class_name="text-text-secondary",
                 ),
             ),
             user_dropdown(),
-            class_name="flex items-center justify-between p-4 border-b bg-white",
+            class_name="flex items-center justify-between p-4 border-b border-white/10",
         ),
         rx.el.div(
             rx.cond(
@@ -45,7 +46,7 @@ def policies_page_content() -> rx.Component:
                     merge_status_card(),
                     class_name="grid grid-cols-1 lg:grid-cols-3 gap-8",
                 ),
-                rx.el.p("Loading policies..."),
+                rx.el.p("Loading policies...", class_name="text-text-secondary"),
             ),
             class_name="p-8",
         ),
@@ -54,9 +55,10 @@ def policies_page_content() -> rx.Component:
 
 
 def policy_form() -> rx.Component:
+    input_style = "w-full mt-1 bg-bg-base border border-white/20 rounded-lg p-3 text-text-primary focus:ring-accent-cyan focus:border-accent-cyan"
     return rx.el.div(
         rx.el.h2(
-            "Policy Configuration", class_name="text-xl font-semibold text-gray-800"
+            "Policy Configuration", class_name="text-xl font-semibold text-text-primary"
         ),
         policy_item(
             "Blocking Severity",
@@ -67,7 +69,7 @@ def policy_form() -> rx.Component:
                 on_change=lambda value: PolicyState.update_policy(
                     "blocking_severity", value
                 ),
-                class_name="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md",
+                class_name=input_style,
             ),
         ),
         policy_item(
@@ -80,9 +82,9 @@ def policy_form() -> rx.Component:
                     on_change=lambda value: PolicyState.update_policy(
                         "min_coverage_percent", value
                     ),
-                    class_name="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md",
+                    class_name=input_style,
                 ),
-                rx.el.p("%", class_name="ml-2 text-gray-500"),
+                rx.el.p("%", class_name="ml-2 text-text-secondary"),
                 class_name="flex items-center",
             ),
         ),
@@ -95,7 +97,7 @@ def policy_form() -> rx.Component:
                 on_change=lambda value: PolicyState.update_policy(
                     "autofix_scope", value
                 ),
-                class_name="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md",
+                class_name=input_style,
             ),
         ),
         policy_item(
@@ -106,8 +108,8 @@ def policy_form() -> rx.Component:
                     "Disabled",
                     class_name=rx.cond(
                         PolicyState.project_policy.auto_merge_enabled,
-                        "text-gray-500",
-                        "font-semibold text-gray-900",
+                        "text-text-secondary",
+                        "font-semibold text-text-primary",
                     ),
                 ),
                 rx.el.button(
@@ -121,10 +123,10 @@ def policy_form() -> rx.Component:
                     ),
                     class_name=rx.cond(
                         PolicyState.project_policy.auto_merge_enabled,
-                        "bg-blue-600",
-                        "bg-gray-200",
+                        "bg-accent-cyan",
+                        "bg-gray-500",
                     )
-                    + " relative inline-flex flex-shrink-0 h-6 w-11 border-2 border-transparent rounded-full cursor-pointer transition-colors ease-in-out duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500",
+                    + " relative inline-flex flex-shrink-0 h-6 w-11 border-2 border-transparent rounded-full cursor-pointer transition-colors ease-in-out duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-accent-cyan",
                     on_click=lambda: PolicyState.update_policy(
                         "auto_merge_enabled",
                         ~PolicyState.project_policy.auto_merge_enabled,
@@ -134,14 +136,14 @@ def policy_form() -> rx.Component:
                     "Enabled",
                     class_name=rx.cond(
                         PolicyState.project_policy.auto_merge_enabled,
-                        "font-semibold text-gray-900",
-                        "text-gray-500",
+                        "font-semibold text-text-primary",
+                        "text-text-secondary",
                     ),
                 ),
                 class_name="flex items-center space-x-3 mt-1",
             ),
         ),
-        class_name="col-span-1 lg:col-span-2 bg-white p-6 rounded-xl border border-gray-200 shadow-sm space-y-6",
+        class_name="col-span-1 lg:col-span-2 bg-bg-elevated p-6 rounded-xl border border-white/10 shadow-sm space-y-6",
     )
 
 
@@ -152,15 +154,15 @@ def policy_item(
 
     return rx.el.div(
         rx.el.div(
-            rx.el.h3(title, class_name="font-medium text-gray-900"),
-            rx.el.p(description, class_name="text-sm text-gray-500"),
+            rx.el.h3(title, class_name="font-medium text-text-primary"),
+            rx.el.p(description, class_name="text-sm text-text-secondary"),
             rx.cond(
                 explain_id is not None,
                 rx.el.button(
                     rx.icon("info", size=14, class_name="mr-1"),
                     "Explain this",
                     on_click=lambda: HelpState.open_panel_with_context(explain_id),
-                    class_name="mt-1 text-xs text-blue-500 hover:underline flex items-center",
+                    class_name="mt-1 text-xs text-accent-cyan hover:underline flex items-center",
                 ),
             ),
         ),
@@ -172,13 +174,13 @@ def policy_item(
 def merge_status_card() -> rx.Component:
     return rx.el.div(
         rx.el.h3(
-            "Demo PR Merge Status", class_name="text-lg font-semibold text-gray-800"
+            "Demo PR Merge Status", class_name="text-lg font-semibold text-text-primary"
         ),
         rx.el.div(
             rx.icon(
                 tag=rx.cond(PolicyState.is_mergeable, "check_circle", "x_circle"),
                 class_name=rx.cond(
-                    PolicyState.is_mergeable, "text-green-500", "text-red-500"
+                    PolicyState.is_mergeable, "text-success", "text-danger"
                 )
                 + " h-16 w-16 mx-auto",
             ),
@@ -186,13 +188,13 @@ def merge_status_card() -> rx.Component:
                 rx.cond(PolicyState.is_mergeable, "Mergeable", "Blocked"),
                 class_name="mt-2 text-2xl font-bold",
             ),
-            class_name=rx.cond(
-                PolicyState.is_mergeable, "text-green-600", "text-red-600"
-            )
+            class_name=rx.cond(PolicyState.is_mergeable, "text-success", "text-danger")
             + " text-center",
         ),
         rx.el.div(
-            rx.el.h4("Conditions:", class_name="font-semibold text-sm mb-2"),
+            rx.el.h4(
+                "Conditions:", class_name="font-semibold text-sm mb-2 text-text-primary"
+            ),
             merge_check_item(
                 "Severity Gate",
                 PolicyState.project_policy.blocking_severity + " or higher",
@@ -207,7 +209,7 @@ def merge_status_card() -> rx.Component:
             ),
             class_name="mt-4 space-y-2 text-sm",
         ),
-        class_name="bg-white p-6 rounded-xl border border-gray-200 shadow-sm",
+        class_name="bg-bg-elevated p-6 rounded-xl border border-white/10 shadow-sm",
     )
 
 
@@ -217,10 +219,9 @@ def merge_check_item(
     return rx.el.div(
         rx.icon(
             tag=rx.cond(is_passing, "check", "x"),
-            class_name=rx.cond(is_passing, "text-green-500", "text-red-500")
-            + " h-5 w-5",
+            class_name=rx.cond(is_passing, "text-success", "text-danger") + " h-5 w-5",
         ),
-        rx.el.p(name, class_name="font-medium"),
-        rx.el.p(condition, class_name="text-gray-500 ml-auto"),
+        rx.el.p(name, class_name="font-medium text-text-primary"),
+        rx.el.p(condition, class_name="text-text-secondary ml-auto"),
         class_name="flex items-center space-x-2",
     )

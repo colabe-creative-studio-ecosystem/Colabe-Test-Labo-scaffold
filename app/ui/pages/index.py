@@ -234,19 +234,22 @@ def value_props_section() -> rx.Component:
     )
 
 
+from app.ui.states.legal_state import LegalState
+
+
 def footer() -> rx.Component:
     links = {
         "Company": [
-            ("Who We Are", "#"),
-            ("Privacy", "/privacy"),
-            ("T&C", "/terms"),
-            ("Contact", "#"),
+            ("Who We Are", "#who-we-are"),
+            ("Privacy Policy", "/legal/privacy"),
+            ("Terms & Conditions", "/legal/terms"),
+            ("Cookie Policy", "/legal/cookies"),
         ],
         "Resources": [
             ("API Center", "/api-docs"),
-            ("Status", "/health"),
-            ("Security", "/security"),
-            ("Compliance", "#"),
+            ("Security Overview", "/security"),
+            ("Privacy Center", "/privacy-center"),
+            ("System Health", "/health"),
         ],
     }
     return rx.el.footer(
@@ -259,8 +262,13 @@ def footer() -> rx.Component:
                     class_name="flex items-center space-x-2 text-text-primary",
                 ),
                 rx.el.p(
-                    "© 2024 Colabe. All rights reserved.",
+                    f"© {LegalState.current_year} {LegalState.org_legal_name}. All rights reserved.",
                     class_name="text-sm text-text-secondary mt-4",
+                ),
+                rx.el.button(
+                    "Change cookie settings",
+                    on_click=LegalState.show_cookie_preferences,
+                    class_name="text-sm text-accent-cyan hover:underline mt-4",
                 ),
                 class_name="max-w-xs",
             ),

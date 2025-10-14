@@ -72,18 +72,21 @@ def health_page_content() -> rx.Component:
         rx.el.header(
             rx.el.div(
                 rx.el.h1(
-                    "System Health", class_name="text-2xl font-bold text-gray-900"
+                    "System Health",
+                    class_name="text-2xl font-bold text-text-primary title-gradient",
                 ),
-                rx.el.p("Status of system components.", class_name="text-gray-500"),
+                rx.el.p(
+                    "Status of system components.", class_name="text-text-secondary"
+                ),
             ),
             user_dropdown(),
-            class_name="flex items-center justify-between p-4 border-b bg-white",
+            class_name="flex items-center justify-between p-4 border-b border-white/10",
         ),
         rx.el.div(
             rx.el.button(
                 "Refresh",
                 on_click=HealthState.check_health,
-                class_name="mb-6 px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600",
+                class_name="mb-6 px-4 py-2 bg-accent-cyan text-bg-base font-semibold rounded-lg hover:opacity-90",
             ),
             rx.el.div(
                 status_card("Overall Status", HealthState.health_status),
@@ -106,11 +109,11 @@ def health_check_page() -> rx.Component:
             rx.el.div(
                 sidebar(),
                 health_page_content(),
-                class_name="flex min-h-screen bg-gray-50 font-['Inter']",
+                class_name="flex min-h-screen colabe-bg font-['Inter']",
             ),
             rx.el.div(
                 rx.el.p("Loading..."),
-                class_name="flex items-center justify-center min-h-screen",
+                class_name="flex items-center justify-center min-h-screen colabe-bg",
             ),
         )
     )
@@ -118,16 +121,16 @@ def health_check_page() -> rx.Component:
 
 def status_card(title: str, status: rx.Var[str]) -> rx.Component:
     return rx.el.div(
-        rx.el.h3(title, class_name="text-lg font-medium text-gray-700"),
+        rx.el.h3(title, class_name="text-lg font-medium text-text-primary"),
         rx.el.div(
             rx.el.div(
                 class_name=rx.cond(
                     status == "OK",
-                    "h-3 w-3 rounded-full bg-green-500",
+                    "h-3 w-3 rounded-full bg-success",
                     rx.cond(
                         (status == "Error") | (status == "Failed"),
-                        "h-3 w-3 rounded-full bg-red-500",
-                        "h-3 w-3 rounded-full bg-yellow-500",
+                        "h-3 w-3 rounded-full bg-danger",
+                        "h-3 w-3 rounded-full bg-warning",
                     ),
                 )
             ),
@@ -135,15 +138,15 @@ def status_card(title: str, status: rx.Var[str]) -> rx.Component:
                 status,
                 class_name=rx.cond(
                     status == "OK",
-                    "text-green-600 font-semibold",
+                    "text-success font-semibold",
                     rx.cond(
                         (status == "Error") | (status == "Failed"),
-                        "text-red-600 font-semibold",
-                        "text-yellow-600 font-semibold",
+                        "text-danger font-semibold",
+                        "text-warning font-semibold",
                     ),
                 ),
             ),
             class_name="mt-2 flex items-center space-x-2",
         ),
-        class_name="bg-white p-6 rounded-xl border border-gray-200 shadow-sm",
+        class_name="bg-bg-elevated p-6 rounded-xl border border-white/10 shadow-sm",
     )

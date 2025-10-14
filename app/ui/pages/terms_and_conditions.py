@@ -1,81 +1,87 @@
 import reflex as rx
 from app.ui.states.legal_state import LegalState
-from app.ui.pages.privacy_policy import legal_page_layout, legal_section
+from app.ui.components.legal_components import legal_page_layout, legal_section
 
 
 def terms_and_conditions_page() -> rx.Component:
     return legal_page_layout(
-        "Terms and Conditions",
-        [
+        title=LegalState.content["terms_title"],
+        last_updated=LegalState.last_updated,
+        toc_items=LegalState.terms_toc,
+        pdf_name="terms_and_conditions.pdf",
+        children=[
             legal_section(
-                "1. Service Description",
-                [
-                    rx.el.p(
-                        "Colabe Test Labo provides a cloud-based platform for automated software testing, analysis, and quality assurance. Services are provided on an 'as is' and 'as available' basis."
-                    )
-                ],
+                "s1",
+                LegalState.content["t_s1_title"],
+                [rx.el.p(LegalState.content["t_s1_p1"])],
             ),
             legal_section(
-                "2. Accounts and Roles",
-                [
-                    rx.el.p(
-                        "You are responsible for maintaining the security of your account and for all activities that occur under the account. You must be a human. Accounts registered by 'bots' or other automated methods are not permitted."
-                    )
-                ],
+                "s2",
+                LegalState.content["t_s2_title"],
+                [rx.el.p(LegalState.content["t_s2_p1"])],
             ),
             legal_section(
-                "3. Pricing and Payments",
-                [
-                    rx.el.p(
-                        "Our services are billed on a subscription basis and/or through a pre-paid 'coins' system. By providing a payment method, you expressly authorize us to charge you for the services. All payments are non-refundable."
-                    )
-                ],
+                "s3",
+                LegalState.content["t_s3_title"],
+                [rx.el.p(LegalState.content["t_s3_p1"])],
             ),
             legal_section(
-                "4. Acceptable Use",
-                [
-                    rx.el.p(
-                        "You may not use our service for any illegal or unauthorized purpose. You must not, in the use of the Service, violate any laws in your jurisdiction. Specifically, you may only scan, test, or analyze repositories and applications for which you have explicit ownership or authorization."
-                    )
-                ],
+                "s4",
+                LegalState.content["t_s4_title"],
+                [rx.el.p(LegalState.content["t_s4_p1"])],
             ),
             legal_section(
-                "5. Intellectual Property",
-                [
-                    rx.el.p(
-                        "We claim no intellectual property rights over the material you provide to the Service. Your profile and materials uploaded remain yours. However, by setting your pages to be viewed publicly, you agree to allow others to view your content."
-                    )
-                ],
+                "s5",
+                LegalState.content["t_s5_title"],
+                [rx.el.p(LegalState.content["t_s5_p1"])],
             ),
             legal_section(
-                "6. Limitation of Liability",
-                [
-                    rx.el.p(
-                        "In no event shall ",
-                        rx.el.strong(LegalState.org_legal_name),
-                        " be liable for any direct, indirect, incidental, special, consequential or exemplary damages, including but not limited to, damages for loss of profits, goodwill, use, data or other intangible losses.",
-                    )
-                ],
+                "s6",
+                LegalState.content["t_s6_title"],
+                [rx.el.p(LegalState.content["t_s6_p1"])],
             ),
             legal_section(
-                "7. Termination",
-                [
-                    rx.el.p(
-                        "We reserve the right to suspend or terminate your account and refuse any and all current or future use of the Service for any reason at any time."
-                    )
-                ],
+                "s7",
+                LegalState.content["t_s7_title"],
+                [rx.el.p(LegalState.content["t_s7_p1"])],
             ),
             legal_section(
-                "8. Governing Law",
+                "s8",
+                LegalState.content["t_s8_title"],
+                [rx.el.p(LegalState.content["t_s8_p1"])],
+            ),
+            legal_section(
+                "s9",
+                LegalState.content["t_s9_title"],
+                [rx.el.p(LegalState.content["t_s9_p1"])],
+            ),
+            legal_section(
+                "s10",
+                LegalState.content["t_s10_title"],
+                [rx.el.p(LegalState.content["t_s10_p1"])],
+            ),
+            legal_section(
+                "s11",
+                LegalState.content["t_s11_title"],
                 [
                     rx.el.p(
-                        "These Terms shall be governed by the laws of ",
+                        LegalState.content["t_s11_p1"],
                         rx.el.strong(LegalState.governing_law),
-                        ", without regard to its conflict of law provisions. Any dispute arising from these Terms shall be resolved in the courts of ",
+                        LegalState.content["t_s11_p2"],
                         rx.el.strong(LegalState.venue),
                         ".",
                     )
                 ],
+            ),
+            legal_section(
+                "s12",
+                LegalState.content["t_s12_title"],
+                [rx.el.p(LegalState.content["t_s12_p1"])],
+            ),
+            legal_section(
+                "s13",
+                LegalState.content["t_s13_title"],
+                [rx.el.p(LegalState.content["t_s13_p1"])],
             ),
         ],
     )

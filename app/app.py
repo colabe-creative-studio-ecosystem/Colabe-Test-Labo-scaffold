@@ -59,8 +59,14 @@ app.add_page(quality_page, route="/quality", on_load=AuthState.check_login)
 app.add_page(policies_page, route="/policies", on_load=AuthState.check_login)
 app.add_page(billing_page, route="/billing", on_load=AuthState.check_login)
 app.add_page(api_docs_page, route="/api-docs", on_load=AuthState.check_login)
-app.add_page(privacy_policy_page, route="/privacy")
-app.add_page(terms_and_conditions_page, route="/terms")
+from app.ui.pages.cookie_policy import cookie_policy_page
+from app.ui.pages.privacy_center import privacy_center_page
+
+app.add_page(security_page, route="/security")
+app.add_page(privacy_policy_page, route="/legal/privacy")
+app.add_page(terms_and_conditions_page, route="/legal/terms")
+app.add_page(cookie_policy_page, route="/legal/cookies")
+app.add_page(privacy_center_page, route="/privacy-center")
 app.add_page(kb_hub_page, route="/kb", on_load=AuthState.check_login)
 app.add_page(kb_article_page, route="/kb/guides/[slug]", on_load=AuthState.check_login)
 app.add_page(kb_search_page, route="/kb/search", on_load=AuthState.check_login)
