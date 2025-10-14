@@ -122,10 +122,10 @@ def status_card(title: str, status: rx.Var[str]) -> rx.Component:
         rx.el.div(
             rx.el.div(
                 class_name=rx.cond(
-                    status.contains("OK"),
+                    status == "OK",
                     "h-3 w-3 rounded-full bg-green-500",
                     rx.cond(
-                        status.contains("Error") | status.contains("Failed"),
+                        (status == "Error") | (status == "Failed"),
                         "h-3 w-3 rounded-full bg-red-500",
                         "h-3 w-3 rounded-full bg-yellow-500",
                     ),
@@ -134,10 +134,10 @@ def status_card(title: str, status: rx.Var[str]) -> rx.Component:
             rx.el.p(
                 status,
                 class_name=rx.cond(
-                    status.contains("OK"),
+                    status == "OK",
                     "text-green-600 font-semibold",
                     rx.cond(
-                        status.contains("Error") | status.contains("Failed"),
+                        (status == "Error") | (status == "Failed"),
                         "text-red-600 font-semibold",
                         "text-yellow-600 font-semibold",
                     ),

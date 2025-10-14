@@ -127,7 +127,7 @@ def policy_form() -> rx.Component:
                     + " relative inline-flex flex-shrink-0 h-6 w-11 border-2 border-transparent rounded-full cursor-pointer transition-colors ease-in-out duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500",
                     on_click=lambda: PolicyState.update_policy(
                         "auto_merge_enabled",
-                        (~PolicyState.project_policy.auto_merge_enabled).to_string(),
+                        ~PolicyState.project_policy.auto_merge_enabled,
                     ),
                 ),
                 rx.el.span(
@@ -182,7 +182,7 @@ def merge_status_card() -> rx.Component:
             rx.el.h4("Conditions:", class_name="font-semibold text-sm mb-2"),
             merge_check_item(
                 "Severity Gate",
-                PolicyState.project_policy.blocking_severity.to_string() + " or higher",
+                PolicyState.project_policy.blocking_severity + " or higher",
                 is_passing=~PolicyState.is_mergeable,
             ),
             merge_check_item(
