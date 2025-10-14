@@ -79,6 +79,7 @@ def sidebar() -> rx.Component:
             sidebar_link("Audit Log", "/audits", "scroll-text"),
             sidebar_link("Billing & Wallet", "/billing", "wallet"),
             sidebar_link("API & Webhooks", "/api-docs", "code"),
+            sidebar_link("GPT Hub", "/gpt-hub", "brain-circuit"),
             sidebar_link("System Health", "/health", "heart-pulse"),
             sidebar_link("Settings", "/settings", "settings"),
             class_name="flex-grow p-4 space-y-2",

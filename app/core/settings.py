@@ -33,6 +33,15 @@ class Settings:
     KEY_ROTATION_DAYS: int = int(os.environ.get("KEY_ROTATION_DAYS", 90))
     ONCALL_PAGER_WEBHOOK_URL: str | None = os.environ.get("ONCALL_PAGER_WEBHOOK_URL")
     STATUS_PAGE_BASE_URL: str | None = os.environ.get("STATUS_PAGE_BASE_URL")
+    GPT_HUB_ENABLED: bool = os.environ.get("GPT_HUB_ENABLED", "true").lower() == "true"
+    GPT_MODEL_DEFAULT_SUMMARY: str = os.environ.get(
+        "GPT_MODEL_DEFAULT_SUMMARY", "claude-3-haiku-20240307"
+    )
+    GPT_MODEL_DEFAULT_PR_REVIEW: str = os.environ.get(
+        "GPT_MODEL_DEFAULT_PR_REVIEW", "claude-3-sonnet-20240229"
+    )
+    GPT_TEMPERATURE: float = float(os.environ.get("GPT_TEMPERATURE", 0.1))
+    GPT_TOP_P: float = float(os.environ.get("GPT_TOP_P", 0.9))
 
 
 settings = Settings()

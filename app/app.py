@@ -9,6 +9,7 @@ from app.ui.pages.quality import quality_page
 from app.ui.pages.policies import policies_page
 from app.ui.pages.billing import billing_page
 from app.ui.pages.api_docs import api_docs_page
+from app.ui.pages.gpt_hub import gpt_hub_page
 from app.ui.states.auth_state import AuthState
 from app.core.settings import settings
 from app.core import models
@@ -35,3 +36,4 @@ app.add_page(quality_page, route="/quality", on_load=AuthState.check_login)
 app.add_page(policies_page, route="/policies", on_load=AuthState.check_login)
 app.add_page(billing_page, route="/billing", on_load=AuthState.check_login)
 app.add_page(api_docs_page, route="/api-docs", on_load=AuthState.check_login)
+app.add_page(gpt_hub_page, route="/gpt-hub", on_load=AuthState.check_login)

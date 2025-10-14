@@ -1,7 +1,7 @@
 import reflex as rx
 import datetime
 from typing import Optional
-from sqlmodel import Field, Relationship
+from sqlmodel import Field, Relationship, JSON, Column
 from enum import Enum
 
 
@@ -265,4 +265,43 @@ class Invoice(rx.Model, table=True):
     due_date: Optional[datetime.date] = None
     paid_at: Optional[datetime.datetime] = None
     download_url: Optional[str] = None
+    created_at: datetime.datetime = Field(default_factory=datetime.datetime.now)
+
+
+class GptModel(rx.Model, table=True):
+    id: Optional[int] = Field(default=None, primary_key=True)
+    model_id: str = Field(unique=True)
+    provider: str
+    context_window: int
+    supports_json: bool = Field(default=False)
+    latency_p50: int
+    cost_tokens_in: float
+    cost_tokens_out: float
+    max_output_tokens: int
+    residency_region: str
+    labels: str
+
+
+class GptRunSummary(rx.Model, table=True):
+    id: Optional[int] = Field(default=None, primary_key=True)
+    run_crn: str = Field(unique=True)
+    project_crn: str
+    status: str
+    headline: str
+    summary_data: dict = Field(default={}, sa_column=Column(JSON))
+    created_at: datetime.datetime = Field(default_factory=datetime.datetime.now)
+
+
+class GptPrReview(rx.Model, table=True):
+    id: Optional[int] = Field(default=None, primary_key=True)
+    pr_crn: str = Field(unique=True)
+    sha: str
+    review_data: dict = Field(default={}, sa_column=Column(JSON))
+    created_at: datetime.datetime = Field(default_factory=datetime.datetime.now)
+
+
+class GptDocDraft(rx.Model, table=True):
+    id: Optional[int] = Field(default=None, primary_key=True)
+    draft_type: str
+    draft_data: dict = Field(default={}, sa_column=Column(JSON))
     created_at: datetime.datetime = Field(default_factory=datetime.datetime.now)
