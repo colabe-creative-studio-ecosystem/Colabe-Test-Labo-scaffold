@@ -8,9 +8,22 @@ from app.ui.pages.security import security_page
 from app.ui.pages.quality import quality_page
 from app.ui.pages.policies import policies_page
 from app.ui.pages.billing import billing_page
+import reflex as rx
+import reflex_enterprise as rxe
+from app.ui.pages.index import index
+from app.ui.pages.health import health_check_page
+from app.ui.pages.auth import login_page, register_page
+from app.ui.pages.audit import audit_log_page
+from app.ui.pages.security import security_page
+from app.ui.pages.quality import quality_page
+from app.ui.pages.policies import policies_page
+from app.ui.pages.billing import billing_page
 from app.ui.pages.api_docs import api_docs_page
 from app.ui.pages.privacy_policy import privacy_policy_page
 from app.ui.pages.terms_and_conditions import terms_and_conditions_page
+from app.ui.pages.user_guide import user_guide_page
+from app.ui.pages.faq import faq_page
+from app.ui.pages.ai_help import ai_help_page
 from app.ui.states.auth_state import AuthState
 from app.core.settings import settings
 from app.core import models
@@ -39,3 +52,6 @@ app.add_page(billing_page, route="/billing", on_load=AuthState.check_login)
 app.add_page(api_docs_page, route="/api-docs", on_load=AuthState.check_login)
 app.add_page(privacy_policy_page, route="/privacy")
 app.add_page(terms_and_conditions_page, route="/terms")
+app.add_page(user_guide_page, route="/guide", on_load=AuthState.check_login)
+app.add_page(faq_page, route="/faq", on_load=AuthState.check_login)
+app.add_page(ai_help_page, route="/help", on_load=AuthState.check_login)

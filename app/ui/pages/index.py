@@ -81,7 +81,11 @@ def sidebar() -> rx.Component:
             sidebar_link("API & Webhooks", "/api-docs", "code"),
             sidebar_link("System Health", "/health", "heart-pulse"),
             sidebar_link("Settings", "/settings", "settings"),
-            class_name="flex-grow p-4 space-y-2",
+            rx.el.div(class_name="flex-grow"),
+            sidebar_link("User Guide", "/guide", "book-open"),
+            sidebar_link("FAQ", "/faq", "circle_plus"),
+            sidebar_link("AI Help", "/help", "sparkles"),
+            class_name="flex-grow p-4 space-y-2 flex flex-col",
         ),
         class_name=sidebar_style,
     )
