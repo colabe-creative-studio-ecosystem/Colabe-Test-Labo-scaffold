@@ -10,6 +10,7 @@ from app.ui.pages.policies import policies_page
 from app.ui.pages.billing import billing_page
 from app.ui.pages.api_docs import api_docs_page
 from app.ui.states.auth_state import AuthState
+from app.ui.states.copilot_state import CopilotState
 from app.core.settings import settings
 from app.core import models
 
@@ -25,13 +26,14 @@ app = rxe.App(
     theme=rx.theme(appearance="dark"),
     stylesheets=["/colabe.css"],
 )
-app.add_page(index, route="/", on_load=AuthState.check_login)
-app.add_page(health_check_page, route="/health", on_load=AuthState.check_login)
+page_load_events = [AuthState.check_login, CopilotState.on_load]
+app.add_page(index, route="/", on_load=page_load_events)
+app.add_page(health_check_page, route="/health", on_load=page_load_events)
 app.add_page(login_page, route="/login")
 app.add_page(register_page, route="/register")
-app.add_page(audit_log_page, route="/audits", on_load=AuthState.check_login)
-app.add_page(security_page, route="/security", on_load=AuthState.check_login)
-app.add_page(quality_page, route="/quality", on_load=AuthState.check_login)
-app.add_page(policies_page, route="/policies", on_load=AuthState.check_login)
-app.add_page(billing_page, route="/billing", on_load=AuthState.check_login)
-app.add_page(api_docs_page, route="/api-docs", on_load=AuthState.check_login)
+app.add_page(audit_log_page, route="/audits", on_load=page_load_events)
+app.add_page(security_page, route="/security", on_load=page_load_events)
+app.add_page(quality_page, route="/quality", on_load=page_load_events)
+app.add_page(policies_page, route="/policies", on_load=page_load_events)
+app.add_page(billing_page, route="/billing", on_load=page_load_events)
+app.add_page(api_docs_page, route="/api-docs", on_load=page_load_events)

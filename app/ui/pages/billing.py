@@ -1,5 +1,6 @@
 import reflex as rx
 from app.ui.states.billing_state import BillingState
+from app.ui.states.copilot_state import CopilotState
 from app.ui.pages.index import sidebar
 from app.ui.styles import page_style, page_content_style, header_style, card_style
 
@@ -49,9 +50,17 @@ def billing_page_content() -> rx.Component:
                 **card_style("gold"),
             ),
             rx.el.div(
-                rx.el.h2(
-                    "Wallet Balance",
-                    class_name="text-xl font-semibold text-text-primary",
+                rx.el.div(
+                    rx.el.h2(
+                        "Wallet Balance",
+                        class_name="text-xl font-semibold text-text-primary",
+                    ),
+                    rx.el.button(
+                        "Explain this",
+                        on_click=lambda: CopilotState.toggle_panel("billing-wallet"),
+                        class_name="text-xs text-blue-400 hover:underline",
+                    ),
+                    class_name="flex items-center justify-between",
                 ),
                 rx.el.p(
                     BillingState.wallet_balance,
