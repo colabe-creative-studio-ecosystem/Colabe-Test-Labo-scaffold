@@ -5,19 +5,6 @@ from sqlmodel import Field, Relationship
 from enum import Enum
 
 
-class DataRequestStatus(str, Enum):
-    RECEIVED = "received"
-    VERIFYING = "verifying"
-    IN_PROGRESS = "in_progress"
-    COMPLETED = "completed"
-    REJECTED = "rejected"
-
-
-class DataRequestType(str, Enum):
-    ACCESS = "access"
-    DELETE = "delete"
-
-
 class RoleEnum(str, Enum):
     OWNER = "owner"
     ADMIN = "admin"
@@ -279,42 +266,3 @@ class Invoice(rx.Model, table=True):
     paid_at: Optional[datetime.datetime] = None
     download_url: Optional[str] = None
     created_at: datetime.datetime = Field(default_factory=datetime.datetime.now)
-
-
-class DataSubjectRequest(rx.Model, table=True):
-    id: Optional[int] = Field(default=None, primary_key=True)
-    email: str = Field(index=True)
-    user_id: Optional[int] = Field(default=None, foreign_key="user.id")
-    tenant_id: Optional[int] = Field(default=None, foreign_key="tenant.id")
-    request_type: DataRequestType
-    status: DataRequestStatus = Field(default=DataRequestStatus.RECEIVED)
-    verification_code: Optional[str] = None
-    verification_expires_at: Optional[datetime.datetime] = None
-    created_at: datetime.datetime = Field(default_factory=datetime.datetime.now)
-    updated_at: datetime.datetime = Field(default_factory=datetime.datetime.now)
-
-
-class ConsentLog(rx.Model, table=True):
-    id: Optional[int] = Field(default=None, primary_key=True)
-    user_id: Optional[int] = Field(default=None, foreign_key="user.id", index=True)
-    anonymous_id: Optional[str] = Field(default=None, index=True)
-    policy_version: str
-    categories_accepted: str
-    ip_address_truncated: str
-    user_agent_hash: str
-    timestamp: datetime.datetime = Field(default_factory=datetime.datetime.now)
-
-
-class ApiKey(rx.Model, table=True):
-    id: Optional[int] = Field(default=None, primary_key=True)
-    user_id: int = Field(foreign_key="user.id")
-    tenant_id: int = Field(foreign_key="tenant.id")
-    name: str
-    key_prefix: str = Field(index=True, unique=True)
-    hashed_key: str
-    scopes: str
-    created_at: datetime.datetime = Field(default_factory=datetime.datetime.now)
-    expires_at: Optional[datetime.datetime] = None
-    last_used_at: Optional[datetime.datetime] = None
-    user: "User" = Relationship()
-    tenant: "Tenant" = Relationship()

@@ -8,14 +8,8 @@ from app.ui.pages.security import security_page
 from app.ui.pages.quality import quality_page
 from app.ui.pages.policies import policies_page
 from app.ui.pages.billing import billing_page
-from app.ui.pages.api_center import api_center_page
-from app.ui.pages.privacy_policy import privacy_policy_page
-from app.ui.pages.terms import terms_page
-from app.ui.pages.privacy_center import privacy_center_page
+from app.ui.pages.api_docs import api_docs_page
 from app.ui.states.auth_state import AuthState
-from app.ui.states.legal_state import LegalState
-from app.ui.states.privacy_center_state import PrivacyCenterState
-from app.ui.states.api_center_state import ApiCenterState
 from app.core.settings import settings
 from app.core import models
 
@@ -40,16 +34,4 @@ app.add_page(security_page, route="/security", on_load=AuthState.check_login)
 app.add_page(quality_page, route="/quality", on_load=AuthState.check_login)
 app.add_page(policies_page, route="/policies", on_load=AuthState.check_login)
 app.add_page(billing_page, route="/billing", on_load=AuthState.check_login)
-app.add_page(
-    api_center_page,
-    route="/api-center",
-    on_load=[AuthState.check_login, ApiCenterState.load_api_center_data],
-)
-app.add_page(privacy_policy_page, route="/legal/privacy", on_load=AuthState.check_login)
-app.add_page(terms_page, route="/legal/terms", on_load=AuthState.check_login)
-app.add_page(lambda: rx.el.p("Cookie Policy Page - TBD"), route="/legal/cookies")
-app.add_page(
-    privacy_center_page,
-    route="/privacy-center",
-    on_load=[AuthState.check_login, PrivacyCenterState.load_requests],
-)
+app.add_page(api_docs_page, route="/api-docs", on_load=AuthState.check_login)

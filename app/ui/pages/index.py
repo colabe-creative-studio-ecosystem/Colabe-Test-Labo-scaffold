@@ -1,7 +1,6 @@
 import reflex as rx
 from app.ui.states.auth_state import AuthState
 from app.ui.states.billing_state import BillingState
-from app.ui.components.footer import footer
 from app.ui.styles import (
     card_style,
     sidebar_style,
@@ -79,7 +78,7 @@ def sidebar() -> rx.Component:
             sidebar_link("Policies", "/policies", "gavel"),
             sidebar_link("Audit Log", "/audits", "scroll-text"),
             sidebar_link("Billing & Wallet", "/billing", "wallet"),
-            sidebar_link("API & Webhooks", "/api-center", "code"),
+            sidebar_link("API & Webhooks", "/api-docs", "code"),
             sidebar_link("System Health", "/health", "heart-pulse"),
             sidebar_link("Settings", "/settings", "settings"),
             class_name="flex-grow p-4 space-y-2",
@@ -131,15 +130,7 @@ def index() -> rx.Component:
     return rx.el.div(
         rx.cond(
             AuthState.is_logged_in,
-            rx.el.div(
-                sidebar(),
-                rx.el.div(
-                    main_content(),
-                    footer(),
-                    class_name="flex flex-col w-full h-screen overflow-y-auto",
-                ),
-                class_name=page_style,
-            ),
+            rx.el.div(sidebar(), main_content(), class_name=page_style),
             rx.el.div(
                 rx.el.p("Loading...", class_name="text-text-primary"),
                 class_name="flex items-center justify-center min-h-screen colabe-bg",
