@@ -30,3 +30,6 @@ PyGithub
 anthropic
 openai
 tiktoken
+lighthouse-python-plus
+cyclonedx-py
+osv
