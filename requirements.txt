@@ -33,3 +33,4 @@ tiktoken
 lighthouse-python-plus
 cyclonedx-py
 osv
+pytest-asyncio
