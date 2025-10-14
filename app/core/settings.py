@@ -42,6 +42,30 @@ class Settings:
     )
     GPT_TEMPERATURE: float = float(os.environ.get("GPT_TEMPERATURE", 0.1))
     GPT_TOP_P: float = float(os.environ.get("GPT_TOP_P", 0.9))
+    PUBLIC_BASE_URL: str = os.environ.get("PUBLIC_BASE_URL", "https://colabe.app")
+    PUBLIC_LOCALES: str = os.environ.get("PUBLIC_LOCALES", "en,es")
+    EDGE_REGION_DEFAULT: str = os.environ.get("EDGE_REGION_DEFAULT", "eu")
+    EDGE_STALE_WHILE_REVALIDATE_SECONDS: int = int(
+        os.environ.get("EDGE_STALE_WHILE_REVALIDATE_SECONDS", 600)
+    )
+    EDGE_CACHE_MAXAGE_SECONDS: int = int(
+        os.environ.get("EDGE_CACHE_MAXAGE_SECONDS", 1800)
+    )
+    OG_IMAGE_FUNCTION_URL: str = os.environ.get("OG_IMAGE_FUNCTION_URL", "")
+    SEO_SITEMAP_CHUNK_SIZE: int = int(os.environ.get("SEO_SITEMAP_CHUNK_SIZE", 1000))
+    SEO_PROGRAMMATIC_PAGES_ENABLED: bool = (
+        os.environ.get("SEO_PROGRAMMATIC_PAGES_ENABLED", "true").lower() == "true"
+    )
+    SEO_TENANT_PROFILES_ENABLED: bool = (
+        os.environ.get("SEO_TENANT_PROFILES_ENABLED", "true").lower() == "true"
+    )
+    TRACKING_CONSENT_REQUIRED: bool = (
+        os.environ.get("TRACKING_CONSENT_REQUIRED", "true").lower() == "true"
+    )
+    ANON_COOKIE_TTL_DAYS: int = int(os.environ.get("ANON_COOKIE_TTL_DAYS", 30))
+    REDIRECTS_JSON: str = os.environ.get(
+        "REDIRECTS_JSON", "content/_data/redirects.json"
+    )
 
 
 settings = Settings()

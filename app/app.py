@@ -10,7 +10,13 @@ from app.ui.pages.policies import policies_page
 from app.ui.pages.billing import billing_page
 from app.ui.pages.api_docs import api_docs_page
 from app.ui.pages.gpt_hub import gpt_hub_page
+from app.ui.pages.public.who_we_are import who_we_are_page
+from app.ui.pages.public.adapters import adapters_page
+from app.ui.pages.public.playbooks import playbooks_page
+from app.ui.pages.public.integrations import integrations_page
+from app.ui.pages.public.sitemap import sitemap_index
 from app.ui.states.auth_state import AuthState
+from app.ui.states.seo_state import SeoState
 from app.core.settings import settings
 from app.core import models
 
@@ -22,6 +28,8 @@ app = rxe.App(
             href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap",
             rel="stylesheet",
         ),
+        rx.el.link(rel="preconnect", href=settings.PUBLIC_BASE_URL),
+        rx.el.link(rel="dns-prefetch", href=settings.PUBLIC_BASE_URL),
     ],
     theme=rx.theme(appearance="dark"),
     stylesheets=["/colabe.css"],
@@ -37,3 +45,15 @@ app.add_page(policies_page, route="/policies", on_load=AuthState.check_login)
 app.add_page(billing_page, route="/billing", on_load=AuthState.check_login)
 app.add_page(api_docs_page, route="/api-docs", on_load=AuthState.check_login)
 app.add_page(gpt_hub_page, route="/gpt-hub", on_load=AuthState.check_login)
+public_routes = {
+    "/who-we-are": who_we_are_page,
+    "/adapters/[adapter]": adapters_page,
+    "/playbooks/[playbook]": playbooks_page,
+    "/integrations/[integration]": integrations_page,
+}
+for lang in settings.PUBLIC_LOCALES.split(","):
+    for route, page_fn in public_routes.items():
+        app.add_page(
+            page_fn, route=f"/{lang}{route}", on_load=SeoState.on_public_page_load
+        )
+app.api.add_api_route("/sitemap.xml", sitemap_index)

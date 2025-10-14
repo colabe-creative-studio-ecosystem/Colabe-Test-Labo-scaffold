@@ -136,6 +136,7 @@ def health_page_content() -> rx.Component:
                 class_name="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6",
             ),
             launch_card(),
+            domains_seo_card(),
             slo_section(),
             class_name="p-8 space-y-8",
         ),
@@ -255,6 +256,32 @@ def launch_card() -> rx.Component:
                 is_green=SystemHealthState.top_open_incident == "None",
                 icon="siren",
             ),
+            class_name="mt-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-4",
+        ),
+        class_name="bg-white p-6 rounded-xl border border-gray-200 shadow-sm",
+    )
+
+
+def domains_seo_card() -> rx.Component:
+    return rx.el.div(
+        rx.el.h2(
+            rx.icon("globe", class_name="mr-2"),
+            "Domains & SEO",
+            class_name="text-xl font-semibold text-gray-800 flex items-center",
+        ),
+        rx.el.div(
+            launch_item(
+                "Last Sitemap Build", "5 minutes ago", is_green=True, icon="file-text"
+            ),
+            launch_item(
+                "hreflang Parity (EN/ES)", "100%", is_green=True, icon="languages"
+            ),
+            launch_item("Lighthouse Score (Public)", "98", is_green=True, icon="siren"),
+            launch_item("Cache Hit % (Edge)", "95.2%", is_green=True, icon="server"),
+            launch_item(
+                "Top Redirect Anomaly", "None", is_green=True, icon="route-off"
+            ),
+            launch_item("Broken Links", "0 errors", is_green=True, icon="link"),
             class_name="mt-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-4",
         ),
         class_name="bg-white p-6 rounded-xl border border-gray-200 shadow-sm",

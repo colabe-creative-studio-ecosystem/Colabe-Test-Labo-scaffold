@@ -44,11 +44,12 @@ class PatchGenerator:
             if response.content and len(response.content) > 0:
                 patched_code_block = response.content[0].text
                 if patched_code_block.strip().startswith(""):
-                    patched_code = """
-""".join(
-                        patched_code_block.strip().split("""
-""")[1:-1]
-                    )
+                    lines = patched_code_block.strip().splitlines()
+                    if len(lines) > 1 and lines[-1].strip() == "":
+                        patched_code = """
+""".join(lines[1:-1])
+                    else:
+                        patched_code = patched_code_block
                 else:
                     patched_code = patched_code_block
                 return patched_code
