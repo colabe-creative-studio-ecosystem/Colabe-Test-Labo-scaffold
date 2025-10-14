@@ -30,3 +30,4 @@ PyGithub
 anthropic
 openai
 tiktoken
+reflex-google-auth
