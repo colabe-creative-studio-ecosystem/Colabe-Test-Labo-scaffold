@@ -1,16 +1,7 @@
 import reflex as rx
 import reflex_enterprise as rxe
 from app.ui.pages.index import index
-from app.ui.pages.health import health_check_page
-from app.ui.pages.auth import login_page, register_page
-from app.ui.pages.audit import audit_log_page
-from app.ui.pages.security import security_page
-from app.ui.pages.quality import quality_page
-from app.ui.pages.policies import policies_page
-from app.ui.pages.billing import billing_page
-import reflex as rx
-import reflex_enterprise as rxe
-from app.ui.pages.index import index
+from app.ui.pages.dashboard import dashboard_page
 from app.ui.pages.health import health_check_page
 from app.ui.pages.auth import login_page, register_page
 from app.ui.pages.audit import audit_log_page
@@ -36,11 +27,23 @@ app = rxe.App(
             href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap",
             rel="stylesheet",
         ),
+        rx.el.script(
+            src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX", async_=True
+        ),
+        rx.el.script("""
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+            gtag('config', 'G-XXXXXXXXXX');
+            """),
     ],
-    theme=rx.theme(appearance="dark"),
+    theme=rx.theme(appearance="dark", accent_color="cyan"),
     stylesheets=["/colabe.css"],
 )
-app.add_page(index, route="/", on_load=AuthState.check_login)
+app.add_page(index, route="/", on_load=AuthState.page_view)
+app.add_page(
+    dashboard_page, route="/app", on_load=[AuthState.check_login, AuthState.page_view]
+)
 app.add_page(health_check_page, route="/health", on_load=AuthState.check_login)
 app.add_page(login_page, route="/login")
 app.add_page(register_page, route="/register")

@@ -96,6 +96,19 @@ class AuthState(rx.State):
             user = session.exec(
                 sqlmodel.select(User).where(User.email == email)
             ).first()
+            if not user:
+                if email == "demo@colabe.ai" and password == "password":
+                    demo_user = session.exec(
+                        sqlmodel.select(User).where(User.username == "demo_user")
+                    ).first()
+                    if demo_user:
+                        self._log_audit(
+                            "user.login.demo",
+                            user_id=demo_user.id,
+                            tenant_id=demo_user.tenant_id,
+                        )
+                        self.user = demo_user
+                        return self._create_session(demo_user.id, session)
             if user and bcrypt.checkpw(password.encode(), user.password_hash.encode()):
                 self._log_audit("user.login", user_id=user.id, tenant_id=user.tenant_id)
                 self.user = user
@@ -117,7 +130,7 @@ class AuthState(rx.State):
         session.add(new_session)
         session.commit()
         self.session_id = session_token
-        return rx.redirect("/")
+        return rx.redirect("/app")
 
     def _log_audit(
         self,
@@ -136,6 +149,35 @@ class AuthState(rx.State):
             )
             session.add(audit_log)
             session.commit()
+
+    @rx.event
+    def page_view(self):
+        tenant_name = "public"
+        if self.is_logged_in and self.user and self.user.tenant:
+            tenant_name = self.user.tenant.name
+        return rx.console_log(
+            f"page_view: route={self.router.page.path}, tenant={tenant_name}"
+        )
+
+    @rx.event
+    def cta_clicked(self, cta_id: str):
+        return rx.console_log(f"cta.clicked: id={cta_id}")
+
+    @rx.event
+    def check_login_for_redirect(self):
+        if not self.session_id:
+            return
+        with rx.session() as session:
+            db_session = session.exec(
+                sqlmodel.select(Session).where(Session.session_id == self.session_id)
+            ).first()
+            if db_session and db_session.expires_at > datetime.now():
+                user = session.exec(
+                    sqlmodel.select(User).where(User.id == db_session.user_id)
+                ).first()
+                if user:
+                    self.user = user
+                    return rx.redirect("/app")
 
     @rx.event
     def check_login(self):
