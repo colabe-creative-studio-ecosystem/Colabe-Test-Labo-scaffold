@@ -18,7 +18,7 @@ def footer() -> rx.Component:
                     ),
                     rx.el.a(
                         "API Center",
-                        href="/api-docs",
+                        href="/api-center",
                         class_name="text-sm text-text-secondary hover:text-accent-cyan",
                     ),
                     rx.el.a(

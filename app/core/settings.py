@@ -34,6 +34,22 @@ class Settings:
     GOVERNING_LAW: str = os.environ.get("GOVERNING_LAW", "Spain")
     VENUE_CITY: str = os.environ.get("VENUE_CITY", "Barcelona")
     CONTACT_FORM_URL: str = os.environ.get("CONTACT_FORM_URL", "/contact")
+    API_RATE_LIMITS_READ_PER_MIN: int = int(
+        os.environ.get("API_RATE_LIMITS_READ_PER_MIN", 600)
+    )
+    API_RATE_LIMITS_WRITE_PER_MIN: int = int(
+        os.environ.get("API_RATE_LIMITS_WRITE_PER_MIN", 120)
+    )
+    API_MAX_REQUEST_BYTES: int = int(os.environ.get("API_MAX_REQUEST_BYTES", 1048576))
+    API_KEYS_SIGNING_SECRET: str = os.environ.get(
+        "API_KEYS_SIGNING_SECRET", "super-secret-key-for-signing"
+    )
+    WEBHOOK_SIGNING_SECRET: str = os.environ.get(
+        "WEBHOOK_SIGNING_SECRET", "super-secret-webhook-key"
+    )
+    PLAYGROUND_TOKEN_TTL_MIN: int = int(os.environ.get("PLAYGROUND_TOKEN_TTL_MIN", 15))
+    OPENAPI_TITLE: str = os.environ.get("OPENAPI_TITLE", "Colabe Test Labo API")
+    OPENAPI_CONTACT_EMAIL: str = os.environ.get("OPENAPI_CONTACT_EMAIL", ORG_EMAIL)
     _subprocessors_json_str = os.environ.get("SUBPROCESSORS_JSON", "[]")
     try:
         SUBPROCESSORS_JSON: list[dict[str, str]] = json.loads(_subprocessors_json_str)

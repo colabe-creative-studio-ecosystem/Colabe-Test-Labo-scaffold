@@ -303,3 +303,18 @@ class ConsentLog(rx.Model, table=True):
     ip_address_truncated: str
     user_agent_hash: str
     timestamp: datetime.datetime = Field(default_factory=datetime.datetime.now)
+
+
+class ApiKey(rx.Model, table=True):
+    id: Optional[int] = Field(default=None, primary_key=True)
+    user_id: int = Field(foreign_key="user.id")
+    tenant_id: int = Field(foreign_key="tenant.id")
+    name: str
+    key_prefix: str = Field(index=True, unique=True)
+    hashed_key: str
+    scopes: str
+    created_at: datetime.datetime = Field(default_factory=datetime.datetime.now)
+    expires_at: Optional[datetime.datetime] = None
+    last_used_at: Optional[datetime.datetime] = None
+    user: "User" = Relationship()
+    tenant: "Tenant" = Relationship()
