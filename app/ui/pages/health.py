@@ -38,6 +38,13 @@ class SystemHealthState(AuthState):
     canary_pass_time: str = "25 minutes ago"
     on_call_schedule_link: str = "#"
     top_open_incident: str = "None"
+    lighthouse_axe_status: str = "Passing"
+    last_sitemap_build: str = "5 minutes ago"
+    form_error_rate: str = "0.5%"
+    crm_api_status: str = "150ms / 0.1% errors"
+    demo_calendar_health: str = "Healthy"
+    ab_experiments_active: str = "3 Active"
+    funnel_snapshot: str = "10k → 200 → 45 → 10"
 
     @rx.event
     def on_load_health(self):
@@ -138,6 +145,7 @@ def health_page_content() -> rx.Component:
             launch_card(),
             domains_seo_card(),
             runners_card(),
+            marketing_sales_card(),
             slo_section(),
             class_name="p-8 space-y-8",
         ),
@@ -408,4 +416,60 @@ def render_sli_row(sli_data: SLIData) -> rx.Component:
             class_name="w-40 text-right",
         ),
         class_name="flex items-center justify-between p-4",
+    )
+
+
+def marketing_sales_card() -> rx.Component:
+    return rx.el.div(
+        rx.el.h2(
+            rx.icon("briefcase", class_name="mr-2"),
+            "Marketing & Sales",
+            class_name="text-xl font-semibold text-gray-800 flex items-center",
+        ),
+        rx.el.div(
+            launch_item(
+                "Lighthouse/axe",
+                SystemHealthState.lighthouse_axe_status,
+                is_green=SystemHealthState.lighthouse_axe_status == "Passing",
+                icon="siren",
+            ),
+            launch_item(
+                "Last Sitemap Build",
+                SystemHealthState.last_sitemap_build,
+                is_green=True,
+                icon="file-text",
+            ),
+            launch_item(
+                "Form Error Rate",
+                SystemHealthState.form_error_rate,
+                is_green=True,
+                icon="alert-circle",
+            ),
+            launch_item(
+                "CRM API Latency/Errors",
+                SystemHealthState.crm_api_status,
+                is_green=True,
+                icon="plug-zap",
+            ),
+            launch_item(
+                "Demo Calendar Health",
+                SystemHealthState.demo_calendar_health,
+                is_green=SystemHealthState.demo_calendar_health == "Healthy",
+                icon="calendar-check",
+            ),
+            launch_item(
+                "A/B Experiments",
+                SystemHealthState.ab_experiments_active,
+                is_green=True,
+                icon="beaker",
+            ),
+            launch_item(
+                "Funnel (V→L→MQL→SQL)",
+                SystemHealthState.funnel_snapshot,
+                is_green=True,
+                icon="filter",
+            ),
+            class_name="mt-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-4",
+        ),
+        class_name="bg-white p-6 rounded-xl border border-gray-200 shadow-sm",
     )
