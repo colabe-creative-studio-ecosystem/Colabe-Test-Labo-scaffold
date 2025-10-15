@@ -63,30 +63,22 @@ class PolicyState(AuthState):
                     self.project_policy = policy_to_update
 
     @rx.var
-    def severity_gate_passed(self) -> bool:
+    def is_mergeable(self) -> bool:
         if not self.project_policy:
             return False
         severity_map = {
-            SeverityEnum.CRITICAL.value: 4,
-            SeverityEnum.HIGH.value: 3,
-            SeverityEnum.MEDIUM.value: 2,
-            SeverityEnum.LOW.value: 1,
+            SeverityEnum.CRITICAL: 4,
+            SeverityEnum.HIGH: 3,
+            SeverityEnum.MEDIUM: 2,
+            SeverityEnum.LOW: 1,
         }
         blocking_severity_level = severity_map.get(
-            self.project_policy.blocking_severity.value, 3
+            self.project_policy.blocking_severity, 3
         )
         for finding in self.mock_pr_findings:
             finding_severity_level = severity_map.get(finding["severity"], 0)
             if finding_severity_level >= blocking_severity_level:
                 return False
-        return True
-
-    @rx.var
-    def coverage_gate_passed(self) -> bool:
-        if not self.project_policy:
+        if self.mock_pr_coverage < self.project_policy.min_coverage_percent:
             return False
-        return self.mock_pr_coverage >= self.project_policy.min_coverage_percent
-
-    @rx.var
-    def is_mergeable(self) -> bool:
-        return self.severity_gate_passed and self.coverage_gate_passed
+        return True

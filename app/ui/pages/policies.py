@@ -183,14 +183,14 @@ def merge_status_card() -> rx.Component:
             merge_check_item(
                 "Severity Gate",
                 PolicyState.project_policy.blocking_severity.to_string() + " or higher",
-                is_passing=PolicyState.severity_gate_passed,
+                is_passing=~PolicyState.is_mergeable,
             ),
             merge_check_item(
                 "Coverage Gate",
-                ">= "
+                "> "
                 + PolicyState.project_policy.min_coverage_percent.to_string()
                 + "%",
-                is_passing=PolicyState.coverage_gate_passed,
+                is_passing=PolicyState.is_mergeable,
             ),
             class_name="mt-4 space-y-2 text-sm",
         ),

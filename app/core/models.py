@@ -1,7 +1,7 @@
 import reflex as rx
 import datetime
 from typing import Optional
-from sqlmodel import Field, Relationship, JSON, Column
+from sqlmodel import Field, Relationship
 from enum import Enum
 
 
@@ -17,7 +17,6 @@ class Tenant(rx.Model, table=True):
     name: str = Field(unique=True)
     created_at: datetime.datetime = Field(default_factory=datetime.datetime.now)
     users: list["User"] = Relationship(back_populates="tenant")
-    runner_pools: list["RunnerPool"] = Relationship(back_populates="tenant")
 
 
 class User(rx.Model, table=True):
@@ -269,217 +268,144 @@ class Invoice(rx.Model, table=True):
     created_at: datetime.datetime = Field(default_factory=datetime.datetime.now)
 
 
-class GptModel(rx.Model, table=True):
-    id: Optional[int] = Field(default=None, primary_key=True)
-    model_id: str = Field(unique=True)
-    provider: str
-    context_window: int
-    supports_json: bool = Field(default=False)
-    latency_p50: int
-    cost_tokens_in: float
-    cost_tokens_out: float
-    max_output_tokens: int
-    residency_region: str
-    labels: str
+class FFTypeEnum(str, Enum):
+    BOOLEAN = "boolean"
+    NUMBER = "number"
+    STRING = "string"
+    JSON = "json"
 
 
-class GptRunSummary(rx.Model, table=True):
-    id: Optional[int] = Field(default=None, primary_key=True)
-    run_crn: str = Field(unique=True)
-    project_crn: str
-    status: str
-    headline: str
-    summary_data: dict = Field(default={}, sa_column=Column(JSON))
-    created_at: datetime.datetime = Field(default_factory=datetime.datetime.now)
-
-
-class GptPrReview(rx.Model, table=True):
-    id: Optional[int] = Field(default=None, primary_key=True)
-    pr_crn: str = Field(unique=True)
-    sha: str
-    review_data: dict = Field(default={}, sa_column=Column(JSON))
-    created_at: datetime.datetime = Field(default_factory=datetime.datetime.now)
-
-
-class GptDocDraft(rx.Model, table=True):
-    id: Optional[int] = Field(default=None, primary_key=True)
-    draft_type: str
-    draft_data: dict = Field(default={}, sa_column=Column(JSON))
-    created_at: datetime.datetime = Field(default_factory=datetime.datetime.now)
-
-
-class RunnerPool(rx.Model, table=True):
-    id: Optional[int] = Field(default=None, primary_key=True)
-    name: str
-    tenant_id: int = Field(foreign_key="tenant.id")
-    pool_type: str = Field(default="private")
-    labels: dict = Field(default={}, sa_column=Column(JSON))
-    region: str
-    min_runners: int = Field(default=0)
-    max_runners: int = Field(default=5)
-    max_concurrency: int = Field(default=5)
-    idle_ttl_seconds: int = Field(default=300)
-    enrollment_token: Optional[str] = Field(default=None)
-    created_at: datetime.datetime = Field(default_factory=datetime.datetime.now)
-    tenant: "Tenant" = Relationship(back_populates="runner_pools")
-    runners: list["Runner"] = Relationship(back_populates="pool")
-
-
-class Runner(rx.Model, table=True):
-    id: Optional[int] = Field(default=None, primary_key=True)
-    runner_crn: str = Field(unique=True)
-    pool_id: int = Field(foreign_key="runnerpool.id")
-    hostname: str
-    os: str
-    arch: str
-    ip_address: str
-    region: str
-    status: str = Field(default="offline")
-    last_heartbeat: Optional[datetime.datetime] = None
-    agent_version: str
-    capabilities: dict = Field(default={}, sa_column=Column(JSON))
-    registered_at: datetime.datetime = Field(default_factory=datetime.datetime.now)
-    pool: "RunnerPool" = Relationship(back_populates="runners")
-
-
-class TicketStatus(str, Enum):
-    NEW = "new"
-    TRIAGED = "triaged"
-    IN_PROGRESS = "in_progress"
-    WAITING_ON_CUSTOMER = "waiting_on_customer"
-    PENDING_EXTERNAL = "pending_external"
-    RESOLVED = "resolved"
-    CLOSED = "closed"
-
-
-class TicketSeverity(str, Enum):
-    SEV1 = "SEV1"
-    SEV2 = "SEV2"
-    SEV3 = "SEV3"
-    SEV4 = "SEV4"
-
-
-class TicketPriority(str, Enum):
-    URGENT = "urgent"
-    HIGH = "high"
-    NORMAL = "normal"
+class FFRiskEnum(str, Enum):
     LOW = "low"
+    MEDIUM = "medium"
+    HIGH = "high"
 
 
-class TicketChannel(str, Enum):
-    WEB = "web"
-    EMAIL = "email"
-    API = "api"
-    SLACK = "slack"
-    TEAMS = "teams"
-    AUTOTICKET = "autoticket"
+class FFEnvEnum(str, Enum):
+    DEV = "dev"
+    STAGE = "stage"
+    PROD = "prod"
 
 
-class TicketAuthorType(str, Enum):
-    USER = "user"
-    AGENT = "agent"
-    SYSTEM = "system"
+class FFRolloutTypeEnum(str, Enum):
+    FIXED = "fixed"
+    PERCENT = "percent"
+    EXPR = "expr"
 
 
-class RunbookVisibility(str, Enum):
-    PUBLIC = "public"
-    INTERNAL = "internal"
+class FFChangesetStatusEnum(str, Enum):
+    DRAFT = "draft"
+    PENDING_APPROVAL = "pending_approval"
+    APPROVED = "approved"
+    APPLIED = "applied"
+    REJECTED = "rejected"
+    ROLLED_BACK = "rolled_back"
 
 
-class BusinessHours(rx.Model, table=True):
+class FFSafeguardActionEnum(str, Enum):
+    ROLLBACK = "rollback"
+    FREEZE = "freeze"
+    ALERT = "alert"
+
+
+class FFFlag(rx.Model, table=True, __tablename__="ff_flags"):
     id: Optional[int] = Field(default=None, primary_key=True)
-    name: str
-    tenant_id: int = Field(foreign_key="tenant.id")
-    tz: str
-    weekdays: list[int] = Field(sa_column=Column(JSON))
-    holidays: list[str] = Field(sa_column=Column(JSON))
-
-
-class SLAPolicy(rx.Model, table=True):
-    id: Optional[int] = Field(default=None, primary_key=True)
-    name: str
-    plan: str
-    severity: TicketSeverity
-    first_response_target_min: int
-    next_response_target_min: int
-    resolution_target_min: int
-    business_hours_id: Optional[int] = Field(
-        default=None, foreign_key="businesshours.id"
-    )
-    pause_on_customer_wait: bool = Field(default=True)
-    business_hours: Optional["BusinessHours"] = Relationship()
-
-
-class Ticket(rx.Model, table=True):
-    id: Optional[int] = Field(default=None, primary_key=True)
-    tenant_id: int = Field(foreign_key="tenant.id")
-    org_id: Optional[int] = Field(default=None)
-    subject: str
-    channel: TicketChannel
-    priority: TicketPriority
-    severity: TicketSeverity
-    status: TicketStatus = Field(default=TicketStatus.NEW)
-    assignee_user_id: Optional[int] = Field(default=None, foreign_key="user.id")
-    group: Optional[str] = None
-    sla_policy_id: Optional[int] = Field(default=None, foreign_key="slapolicy.id")
-    opened_at: datetime.datetime = Field(default_factory=datetime.datetime.now)
-    first_response_at: Optional[datetime.datetime] = None
-    resolved_at: Optional[datetime.datetime] = None
-    last_customer_reply_at: Optional[datetime.datetime] = None
-    language: str = Field(default="en")
-    related_crns: list[str] = Field(default=[], sa_column=Column(JSON))
-    tenant: "Tenant" = Relationship()
-    assignee: Optional["User"] = Relationship()
-    sla_policy: Optional["SLAPolicy"] = Relationship()
-    messages: list["TicketMessage"] = Relationship(back_populates="ticket")
-
-
-class TicketMessage(rx.Model, table=True):
-    id: Optional[int] = Field(default=None, primary_key=True)
-    ticket_id: int = Field(foreign_key="ticket.id")
-    author_type: TicketAuthorType
-    author_id: Optional[int] = Field(default=None, foreign_key="user.id")
-    lang: str = Field(default="en")
-    body_markdown: str
-    attachments: list[str] = Field(default=[], sa_column=Column(JSON))
+    key: str = Field(unique=True)
+    description: str
+    type: FFTypeEnum
+    risk: FFRiskEnum
+    default_value: str
+    allowed_scopes: str
+    created_by_id: int = Field(foreign_key="user.id")
     created_at: datetime.datetime = Field(default_factory=datetime.datetime.now)
-    ticket: "Ticket" = Relationship(back_populates="messages")
-    author: Optional["User"] = Relationship()
+    created_by: "User" = Relationship()
+    rules: list["FFRule"] = Relationship(back_populates="flag")
 
 
-class Runbook(rx.Model, table=True):
+class FFSegment(rx.Model, table=True, __tablename__="ff_segments"):
     id: Optional[int] = Field(default=None, primary_key=True)
-    title: str
-    severity_scope: list[TicketSeverity] = Field(sa_column=Column(JSON))
-    steps_mdx: str
-    linked_crns: list[str] = Field(default=[], sa_column=Column(JSON))
-    visibility: RunbookVisibility = Field(default=RunbookVisibility.INTERNAL)
+    name: str
+    definition_json: str
 
 
-class SupportIntegration(rx.Model, table=True):
+class FFRule(rx.Model, table=True, __tablename__="ff_rules"):
     id: Optional[int] = Field(default=None, primary_key=True)
-    type: str
-    config_json: dict = Field(default={}, sa_column=Column(JSON))
-    enabled: bool = Field(default=False)
-    tenant_id: int = Field(foreign_key="tenant.id")
+    flag_id: int = Field(foreign_key="ff_flags.id")
+    env: FFEnvEnum
+    region: Optional[str] = None
+    tenant_id: Optional[int] = Field(default=None, foreign_key="tenant.id")
+    segment_id: Optional[int] = Field(default=None, foreign_key="ff_segments.id")
+    rollout_type: FFRolloutTypeEnum
+    value: str
+    percent: int = Field(default=0)
+    hash_salt: str
+    start_at: Optional[datetime.datetime] = None
+    end_at: Optional[datetime.datetime] = None
+    precedence: int
+    flag: "FFFlag" = Relationship(back_populates="rules")
+    tenant: Optional["Tenant"] = Relationship()
+    segment: Optional["FFSegment"] = Relationship()
 
 
-class SupportAudit(rx.Model, table=True):
+class FFChangeset(rx.Model, table=True, __tablename__="ff_changesets"):
     id: Optional[int] = Field(default=None, primary_key=True)
-    tenant_id: int = Field(foreign_key="tenant.id")
+    env: FFEnvEnum
+    author_id: int = Field(foreign_key="user.id")
+    status: FFChangesetStatusEnum
+    diff_json: str
+    risk: FFRiskEnum
+    created_at: datetime.datetime = Field(default_factory=datetime.datetime.now)
+    approved_by_id: Optional[int] = Field(default=None, foreign_key="user.id")
+    approved_at: Optional[datetime.datetime] = None
+    applied_at: Optional[datetime.datetime] = None
+    author: "User" = Relationship(
+        sa_relationship_kwargs={"foreign_keys": "FFChangeset.author_id"}
+    )
+    approved_by: Optional["User"] = Relationship(
+        sa_relationship_kwargs={"foreign_keys": "FFChangeset.approved_by_id"}
+    )
+
+
+class FFExperiment(rx.Model, table=True, __tablename__="ff_experiments"):
+    id: Optional[int] = Field(default=None, primary_key=True)
+    key: str
+    env: FFEnvEnum
+    variant_a_pct: int
+    variant_b_pct: int
+    holdout_pct: int
+    primary_metric: str
+    start_at: Optional[datetime.datetime] = None
+    end_at: Optional[datetime.datetime] = None
+    guardrails_json: str
+    status: str
+    assignments: list["FFAssignment"] = Relationship(back_populates="experiment")
+
+
+class FFAssignment(rx.Model, table=True, __tablename__="ff_assignments"):
+    id: Optional[int] = Field(default=None, primary_key=True)
+    experiment_id: int = Field(foreign_key="ff_experiments.id")
+    subject_key: str
+    variant: str
+    hash: str
+    ts: datetime.datetime = Field(default_factory=datetime.datetime.now)
+    experiment: "FFExperiment" = Relationship(back_populates="assignments")
+
+
+class FFAudit(rx.Model, table=True, __tablename__="ff_audit"):
+    id: Optional[int] = Field(default=None, primary_key=True)
     actor_crn: str
     action: str
-    before_json: Optional[dict] = Field(default=None, sa_column=Column(JSON))
-    after_json: Optional[dict] = Field(default=None, sa_column=Column(JSON))
-    timestamp: datetime.datetime = Field(default_factory=datetime.datetime.now)
-
-
-class CSATResponse(rx.Model, table=True):
-    id: Optional[int] = Field(default=None, primary_key=True)
-    ticket_id: int = Field(foreign_key="ticket.id")
-    rating: int
-    comment: Optional[str] = None
-    lang: str = Field(default="en")
+    before_json: str
+    after_json: str
     ts: datetime.datetime = Field(default_factory=datetime.datetime.now)
-    hashed_email: str
-    ticket: "Ticket" = Relationship()
+
+
+class FFSafeguard(rx.Model, table=True, __tablename__="ff_safeguards"):
+    id: Optional[int] = Field(default=None, primary_key=True)
+    name: str
+    env: FFEnvEnum
+    condition: str
+    threshold_json: str
+    action: FFSafeguardActionEnum
+    cooldown_min: int
+    enabled: bool = Field(default=True)

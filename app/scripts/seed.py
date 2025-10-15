@@ -93,65 +93,6 @@ def seed_data():
             finding = SecurityFinding(project_id=sample_project.id, **data)
             session.add(finding)
         print(f"Created {len(findings_data)} sample security findings.")
-        from app.core.models import (
-            Ticket,
-            TicketMessage,
-            TicketStatus,
-            TicketSeverity,
-            TicketPriority,
-            TicketChannel,
-            TicketAuthorType,
-            Runbook,
-            RunbookVisibility,
-            SLAPolicy,
-        )
-
-        ticket1 = Ticket(
-            tenant_id=demo_tenant.id,
-            subject="Cannot connect to database",
-            channel=TicketChannel.WEB,
-            priority=TicketPriority.HIGH,
-            severity=TicketSeverity.SEV2,
-            status=TicketStatus.IN_PROGRESS,
-            assignee_user_id=demo_user.id,
-            language="en",
-        )
-        session.add(ticket1)
-        session.commit()
-        session.refresh(ticket1)
-        msg1 = TicketMessage(
-            ticket_id=ticket1.id,
-            author_type=TicketAuthorType.USER,
-            author_id=demo_user.id,
-            body_markdown="I'm getting a connection timeout error when trying to access the production database.",
-        )
-        msg2 = TicketMessage(
-            ticket_id=ticket1.id,
-            author_type=TicketAuthorType.AGENT,
-            author_id=demo_user.id,
-            body_markdown="I'm looking into this now. Can you provide the exact error message?",
-        )
-        session.add(msg1)
-        session.add(msg2)
-        runbook1 = Runbook(
-            title="Database Connectivity Issues",
-            severity_scope=[TicketSeverity.SEV1, TicketSeverity.SEV2],
-            steps_mdx="""1. Check firewall rules.
-2. Verify DB credentials.
-3. Restart the database server.""",
-            visibility=RunbookVisibility.INTERNAL,
-        )
-        session.add(runbook1)
-        sla_policy1 = SLAPolicy(
-            name="Enterprise 24x7 SEV1",
-            plan="Enterprise",
-            severity=TicketSeverity.SEV1,
-            first_response_target_min=30,
-            next_response_target_min=60,
-            resolution_target_min=240,
-        )
-        session.add(sla_policy1)
-        print("Created sample support ticket, runbook, and SLA policy.")
         session.commit()
         print("Database seeding completed successfully.")
 

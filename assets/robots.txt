@@ -1,8 +1,0 @@
-# https://www.robotstxt.org/robotstxt.html
-User-agent: *
-Disallow: /app
-Disallow: /embed/
-Disallow: /ops/
-Disallow: /admin/
-Allow: /
-Sitemap: https://colabe.app/sitemap.xml

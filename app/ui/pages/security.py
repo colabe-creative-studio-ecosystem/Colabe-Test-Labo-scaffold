@@ -64,6 +64,7 @@ def security_findings_table() -> rx.Component:
                         rx.el.th("Severity"),
                         rx.el.th("Description"),
                         rx.el.th("OWASP"),
+                        rx.el.th("OWASP"),
                         rx.el.th("File"),
                         rx.el.th("Status"),
                         rx.el.th("Actions"),
@@ -96,7 +97,7 @@ def render_finding_row(finding: SecurityFinding) -> rx.Component:
             )
         ),
         rx.el.td(finding.description),
-        rx.el.td(finding.owasp_category.to_string()),
+        rx.el.td(finding.owasp_category),
         rx.el.td(f"{finding.file_path}:{finding.line_number.to_string()}"),
         rx.el.td(finding.status),
         rx.el.td(
