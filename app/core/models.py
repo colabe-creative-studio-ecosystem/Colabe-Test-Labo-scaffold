@@ -268,32 +268,32 @@ class Invoice(rx.Model, table=True):
     created_at: datetime.datetime = Field(default_factory=datetime.datetime.now)
 
 
-class FFTypeEnum(str, Enum):
+class FlagTypeEnum(str, Enum):
     BOOLEAN = "boolean"
     NUMBER = "number"
     STRING = "string"
     JSON = "json"
 
 
-class FFRiskEnum(str, Enum):
+class FlagRiskEnum(str, Enum):
     LOW = "low"
     MEDIUM = "medium"
     HIGH = "high"
 
 
-class FFEnvEnum(str, Enum):
+class EnvironmentEnum(str, Enum):
     DEV = "dev"
     STAGE = "stage"
     PROD = "prod"
 
 
-class FFRolloutTypeEnum(str, Enum):
+class RolloutTypeEnum(str, Enum):
     FIXED = "fixed"
     PERCENT = "percent"
     EXPR = "expr"
 
 
-class FFChangesetStatusEnum(str, Enum):
+class ChangesetStatusEnum(str, Enum):
     DRAFT = "draft"
     PENDING_APPROVAL = "pending_approval"
     APPROVED = "approved"
@@ -302,74 +302,72 @@ class FFChangesetStatusEnum(str, Enum):
     ROLLED_BACK = "rolled_back"
 
 
-class FFSafeguardActionEnum(str, Enum):
+class SafeguardConditionEnum(str, Enum):
+    SLO = "slo"
+    METRIC = "metric"
+    ERROR = "error"
+    PRIVACY = "privacy"
+
+
+class SafeguardActionEnum(str, Enum):
     ROLLBACK = "rollback"
     FREEZE = "freeze"
     ALERT = "alert"
 
 
-class FFFlag(rx.Model, table=True, __tablename__="ff_flags"):
+class FF_Flag(rx.Model, table=True, __tablename__="ff_flags"):
     id: Optional[int] = Field(default=None, primary_key=True)
     key: str = Field(unique=True)
-    description: str
-    type: FFTypeEnum
-    risk: FFRiskEnum
+    description: Optional[str] = None
+    type: FlagTypeEnum = Field(default=FlagTypeEnum.BOOLEAN)
+    risk: FlagRiskEnum = Field(default=FlagRiskEnum.LOW)
     default_value: str
     allowed_scopes: str
-    created_by_id: int = Field(foreign_key="user.id")
+    created_by: int = Field(foreign_key="user.id")
     created_at: datetime.datetime = Field(default_factory=datetime.datetime.now)
-    created_by: "User" = Relationship()
-    rules: list["FFRule"] = Relationship(back_populates="flag")
+    rules: list["FF_Rule"] = Relationship(back_populates="flag")
 
 
-class FFSegment(rx.Model, table=True, __tablename__="ff_segments"):
+class FF_Rule(rx.Model, table=True, __tablename__="ff_rules"):
+    id: Optional[int] = Field(default=None, primary_key=True)
+    flag_id: int = Field(foreign_key="ff_flags.id")
+    env: EnvironmentEnum = Field(default=EnvironmentEnum.PROD)
+    region: Optional[str] = None
+    tenant_id: Optional[int] = Field(default=None, foreign_key="tenant.id")
+    segment_id: Optional[int] = Field(default=None, foreign_key="ff_segments.id")
+    rollout: RolloutTypeEnum = Field(default=RolloutTypeEnum.FIXED)
+    value: str
+    percent: Optional[int] = None
+    hash_salt: Optional[str] = None
+    start_at: Optional[datetime.datetime] = None
+    end_at: Optional[datetime.datetime] = None
+    precedence: int
+    flag: "FF_Flag" = Relationship(back_populates="rules")
+
+
+class FF_Segment(rx.Model, table=True, __tablename__="ff_segments"):
     id: Optional[int] = Field(default=None, primary_key=True)
     name: str
     definition_json: str
 
 
-class FFRule(rx.Model, table=True, __tablename__="ff_rules"):
+class FF_Changeset(rx.Model, table=True, __tablename__="ff_changesets"):
     id: Optional[int] = Field(default=None, primary_key=True)
-    flag_id: int = Field(foreign_key="ff_flags.id")
-    env: FFEnvEnum
-    region: Optional[str] = None
-    tenant_id: Optional[int] = Field(default=None, foreign_key="tenant.id")
-    segment_id: Optional[int] = Field(default=None, foreign_key="ff_segments.id")
-    rollout_type: FFRolloutTypeEnum
-    value: str
-    percent: int = Field(default=0)
-    hash_salt: str
-    start_at: Optional[datetime.datetime] = None
-    end_at: Optional[datetime.datetime] = None
-    precedence: int
-    flag: "FFFlag" = Relationship(back_populates="rules")
-    tenant: Optional["Tenant"] = Relationship()
-    segment: Optional["FFSegment"] = Relationship()
-
-
-class FFChangeset(rx.Model, table=True, __tablename__="ff_changesets"):
-    id: Optional[int] = Field(default=None, primary_key=True)
-    env: FFEnvEnum
+    env: EnvironmentEnum
     author_id: int = Field(foreign_key="user.id")
-    status: FFChangesetStatusEnum
+    status: ChangesetStatusEnum = Field(default=ChangesetStatusEnum.DRAFT)
     diff_json: str
-    risk: FFRiskEnum
+    risk: FlagRiskEnum
     created_at: datetime.datetime = Field(default_factory=datetime.datetime.now)
     approved_by_id: Optional[int] = Field(default=None, foreign_key="user.id")
     approved_at: Optional[datetime.datetime] = None
     applied_at: Optional[datetime.datetime] = None
-    author: "User" = Relationship(
-        sa_relationship_kwargs={"foreign_keys": "FFChangeset.author_id"}
-    )
-    approved_by: Optional["User"] = Relationship(
-        sa_relationship_kwargs={"foreign_keys": "FFChangeset.approved_by_id"}
-    )
 
 
-class FFExperiment(rx.Model, table=True, __tablename__="ff_experiments"):
+class FF_Experiment(rx.Model, table=True, __tablename__="ff_experiments"):
     id: Optional[int] = Field(default=None, primary_key=True)
-    key: str
-    env: FFEnvEnum
+    key: str = Field(unique=True)
+    env: EnvironmentEnum
     variant_a_pct: int
     variant_b_pct: int
     holdout_pct: int
@@ -378,20 +376,18 @@ class FFExperiment(rx.Model, table=True, __tablename__="ff_experiments"):
     end_at: Optional[datetime.datetime] = None
     guardrails_json: str
     status: str
-    assignments: list["FFAssignment"] = Relationship(back_populates="experiment")
 
 
-class FFAssignment(rx.Model, table=True, __tablename__="ff_assignments"):
+class FF_Assignment(rx.Model, table=True, __tablename__="ff_assignments"):
     id: Optional[int] = Field(default=None, primary_key=True)
     experiment_id: int = Field(foreign_key="ff_experiments.id")
     subject_key: str
     variant: str
     hash: str
     ts: datetime.datetime = Field(default_factory=datetime.datetime.now)
-    experiment: "FFExperiment" = Relationship(back_populates="assignments")
 
 
-class FFAudit(rx.Model, table=True, __tablename__="ff_audit"):
+class FF_Audit(rx.Model, table=True, __tablename__="ff_audit"):
     id: Optional[int] = Field(default=None, primary_key=True)
     actor_crn: str
     action: str
@@ -400,12 +396,12 @@ class FFAudit(rx.Model, table=True, __tablename__="ff_audit"):
     ts: datetime.datetime = Field(default_factory=datetime.datetime.now)
 
 
-class FFSafeguard(rx.Model, table=True, __tablename__="ff_safeguards"):
+class FF_Safeguard(rx.Model, table=True, __tablename__="ff_safeguards"):
     id: Optional[int] = Field(default=None, primary_key=True)
     name: str
-    env: FFEnvEnum
-    condition: str
+    env: EnvironmentEnum
+    condition: SafeguardConditionEnum
     threshold_json: str
-    action: FFSafeguardActionEnum
+    action: SafeguardActionEnum
     cooldown_min: int
     enabled: bool = Field(default=True)
