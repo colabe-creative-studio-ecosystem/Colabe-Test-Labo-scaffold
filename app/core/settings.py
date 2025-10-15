@@ -1,4 +1,5 @@
 import os
+import json
 from dotenv import load_dotenv
 from datetime import timedelta
 
@@ -65,6 +66,13 @@ class Settings:
     ANON_COOKIE_TTL_DAYS: int = int(os.environ.get("ANON_COOKIE_TTL_DAYS", 30))
     REDIRECTS_JSON: str = os.environ.get(
         "REDIRECTS_JSON", "content/_data/redirects.json"
+    )
+    SUPPORT_WEBHOOK_SIGNING_SECRET: str = os.environ.get(
+        "SUPPORT_WEBHOOK_SIGNING_SECRET", "change-this-secret-in-production"
+    )
+    SUPPORT_DEFAULT_TZ: str = os.environ.get("SUPPORT_DEFAULT_TZ", "Europe/Madrid")
+    SUPPORT_AI_SUMMARIES_ENABLED: bool = (
+        os.environ.get("SUPPORT_AI_SUMMARIES_ENABLED", "true").lower() == "true"
     )
 
 

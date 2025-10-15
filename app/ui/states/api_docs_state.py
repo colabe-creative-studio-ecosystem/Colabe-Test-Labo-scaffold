@@ -152,6 +152,34 @@ class ApiDocsState(AuthState):
                     },
                 }
             },
+            "/support/v1/tickets": {
+                "post": {
+                    "summary": "Create Support Ticket",
+                    "description": "Creates a new support ticket.",
+                    "requestBody": {
+                        "required": True,
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/SupportTicketInput"
+                                }
+                            }
+                        },
+                    },
+                    "responses": {
+                        "201": {
+                            "description": "Ticket Created",
+                            "content": {
+                                "application/json": {
+                                    "schema": {
+                                        "$ref": "#/components/schemas/SupportTicket"
+                                    }
+                                }
+                            },
+                        }
+                    },
+                }
+            },
         }
 
     def _get_components(self) -> dict:
@@ -214,6 +242,36 @@ class ApiDocsState(AuthState):
                         },
                     },
                 },
+                "SupportTicket": {
+                    "type": "object",
+                    "properties": {
+                        "id": {"type": "integer"},
+                        "subject": {"type": "string"},
+                        "status": {"type": "string"},
+                        "opened_at": {"type": "string", "format": "date-time"},
+                    },
+                },
+                "SupportTicketInput": {
+                    "type": "object",
+                    "properties": {
+                        "subject": {"type": "string"},
+                        "body": {"type": "string"},
+                        "severity": {
+                            "type": "string",
+                            "enum": ["SEV1", "SEV2", "SEV3", "SEV4"],
+                        },
+                    },
+                    "required": ["subject", "body"],
+                },
+                "SupportTicketEvent": {
+                    "type": "object",
+                    "properties": {
+                        "event_type": {"type": "string"},
+                        "ticket_id": {"type": "integer"},
+                        "status": {"type": "string"},
+                        "timestamp": {"type": "string", "format": "date-time"},
+                    },
+                },
             },
         }
 
@@ -243,6 +301,23 @@ class ApiDocsState(AuthState):
                         "content": {
                             "application/json": {
                                 "schema": {"$ref": "#/components/schemas/PREvent"}
+                            }
+                        },
+                    },
+                    "responses": {"200": {"description": "Webhook received."}},
+                }
+            },
+            "supportTicketUpdate": {
+                "post": {
+                    "summary": "Webhook for Support Ticket Updates",
+                    "description": "Fired when a support ticket is created, updated, resolved, or closed.",
+                    "requestBody": {
+                        "description": "Support ticket event payload",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/SupportTicketEvent"
+                                }
                             }
                         },
                     },

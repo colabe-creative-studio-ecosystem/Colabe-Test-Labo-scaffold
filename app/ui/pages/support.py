@@ -262,7 +262,30 @@ def ticket_detail_content() -> rx.Component:
                             class_name="text-text-secondary",
                         ),
                     ),
-                    status_badge(SupportState.selected_ticket.status),
+                    rx.el.div(
+                        status_badge(SupportState.selected_ticket.status),
+                        rx.cond(
+                            SupportState.selected_ticket.status != "closed",
+                            rx.el.div(
+                                rx.el.button(
+                                    "Resolve",
+                                    on_click=lambda: SupportState.update_ticket_status(
+                                        SupportState.selected_ticket.id, "resolved"
+                                    ),
+                                    class_name="px-3 py-1 bg-green-500/20 text-green-300 rounded-md text-sm",
+                                ),
+                                rx.el.button(
+                                    "Close",
+                                    on_click=lambda: SupportState.update_ticket_status(
+                                        SupportState.selected_ticket.id, "closed"
+                                    ),
+                                    class_name="px-3 py-1 bg-gray-500/20 text-gray-300 rounded-md text-sm",
+                                ),
+                                class_name="flex items-center gap-2 mt-2",
+                            ),
+                        ),
+                        class_name="flex flex-col items-end",
+                    ),
                     class_name="flex items-start justify-between px-8",
                 ),
                 rx.el.div(
