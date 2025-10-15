@@ -9,11 +9,6 @@ class HreflangLink(TypedDict):
     hreflang: str
 
 
-class NavLink(TypedDict):
-    text: str
-    href: str
-
-
 class SeoState(rx.State):
     """Manages SEO metadata for public-facing pages."""
 
@@ -24,7 +19,6 @@ class SeoState(rx.State):
     og_title: str = "Colabe Test Labo"
     og_description: str = "The next-generation test automation platform."
     og_image: str = f"{settings.PUBLIC_BASE_URL}/placeholder.svg"
-    public_nav_links: list[NavLink] = []
 
     @rx.var
     def current_lang(self) -> str:
@@ -39,9 +33,9 @@ class SeoState(rx.State):
     def path_without_lang(self) -> str:
         """Returns the URL path without the language prefix."""
         path = self.router.page.path
-        lang = self.current_lang
-        if path.startswith(f"/{lang}"):
-            return path[len(lang) + 1 :]
+        parts = path.strip("/").split("/")
+        if parts and parts[0] in settings.PUBLIC_LOCALES.split(","):
+            return "/" + "/".join(parts[1:])
         return path
 
     @rx.event
@@ -49,20 +43,24 @@ class SeoState(rx.State):
         """Event handler to set SEO metadata when a public page loads."""
         base_url = settings.PUBLIC_BASE_URL
         path = self.path_without_lang
-        self.canonical_url = f"{base_url}{path}"
+        if path == "/":
+            self.canonical_url = f"{base_url}/"
+        else:
+            self.canonical_url = f"{base_url}{path}"
         self.hreflang_links = []
-        for lang in settings.PUBLIC_LOCALES.split(","):
+        locales = settings.PUBLIC_LOCALES.split(",")
+        for lang in locales:
+            if lang == settings.EDGE_REGION_DEFAULT:
+                href = f"{base_url}{path}"
+            else:
+                href = f"{base_url}/{lang}{path}"
             self.hreflang_links.append(
-                {
-                    "rel": "alternate",
-                    "href": f"{base_url}/{lang}{path}",
-                    "hreflang": lang,
-                }
+                {"rel": "alternate", "href": href, "hreflang": lang}
             )
         self.hreflang_links.append(
             {"rel": "alternate", "href": f"{base_url}{path}", "hreflang": "x-default"}
         )
-        page_title = path.strip("/").replace("-", " ").title()
+        page_title = path.strip("/").replace("/", " ").replace("-", " ").title()
         if not page_title:
             page_title = "Home"
         self.meta_title = f"{page_title} | Colabe"
@@ -73,10 +71,3 @@ class SeoState(rx.State):
             self.og_image = f"{settings.OG_IMAGE_FUNCTION_URL}?title={self.meta_title}"
         else:
             self.og_image = f"{settings.PUBLIC_BASE_URL}/placeholder.svg"
-        lang = self.current_lang
-        self.public_nav_links = [
-            {"text": "Who We Are", "href": f"/{lang}/who-we-are"},
-            {"text": "Adapters", "href": f"/{lang}/adapters/python"},
-            {"text": "Playbooks", "href": f"/{lang}/playbooks/web-perf"},
-            {"text": "Integrations", "href": f"/{lang}/integrations/github"},
-        ]
