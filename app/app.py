@@ -25,6 +25,7 @@ from app.ui.pages.public.adapters import adapters_page
 from app.ui.pages.public.playbooks import playbooks_page
 from app.ui.pages.public.integrations import integrations_page
 from app.ui.pages.runners import runners_page
+from app.ui.pages.support import support_page, support_ticket_detail_page
 from app.ui.pages.public.sitemap import sitemap_index
 from app.ui.states.auth_state import AuthState
 from app.ui.states.seo_state import SeoState
@@ -59,6 +60,12 @@ app.add_page(billing_page, route="/app/billing", on_load=AuthState.check_login)
 app.add_page(api_docs_page, route="/app/api-docs", on_load=AuthState.check_login)
 app.add_page(gpt_hub_page, route="/app/gpt-hub", on_load=AuthState.check_login)
 app.add_page(runners_page, route="/app/runners", on_load=AuthState.check_login)
+app.add_page(support_page, route="/support", on_load=AuthState.check_login)
+app.add_page(
+    support_ticket_detail_page,
+    route="/support/tickets/[ticket_id]",
+    on_load=AuthState.check_login,
+)
 app.add_page(login_page, route="/login")
 app.add_page(register_page, route="/register")
 public_routes = {

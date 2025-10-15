@@ -81,6 +81,7 @@ def sidebar() -> rx.Component:
             sidebar_link("API & Webhooks", "/api-docs", "code"),
             sidebar_link("GPT Hub", "/gpt-hub", "brain-circuit"),
             sidebar_link("Runners", "/runners", "server"),
+            sidebar_link("Support", "/support", "life-buoy"),
             sidebar_link("System Health", "/health", "heart-pulse"),
             sidebar_link("Settings", "/settings", "settings"),
             class_name="flex-grow p-4 space-y-2",

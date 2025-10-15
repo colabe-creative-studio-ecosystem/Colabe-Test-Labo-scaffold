@@ -340,3 +340,146 @@ class Runner(rx.Model, table=True):
     capabilities: dict = Field(default={}, sa_column=Column(JSON))
     registered_at: datetime.datetime = Field(default_factory=datetime.datetime.now)
     pool: "RunnerPool" = Relationship(back_populates="runners")
+
+
+class TicketStatus(str, Enum):
+    NEW = "new"
+    TRIAGED = "triaged"
+    IN_PROGRESS = "in_progress"
+    WAITING_ON_CUSTOMER = "waiting_on_customer"
+    PENDING_EXTERNAL = "pending_external"
+    RESOLVED = "resolved"
+    CLOSED = "closed"
+
+
+class TicketSeverity(str, Enum):
+    SEV1 = "SEV1"
+    SEV2 = "SEV2"
+    SEV3 = "SEV3"
+    SEV4 = "SEV4"
+
+
+class TicketPriority(str, Enum):
+    URGENT = "urgent"
+    HIGH = "high"
+    NORMAL = "normal"
+    LOW = "low"
+
+
+class TicketChannel(str, Enum):
+    WEB = "web"
+    EMAIL = "email"
+    API = "api"
+    SLACK = "slack"
+    TEAMS = "teams"
+    AUTOTICKET = "autoticket"
+
+
+class TicketAuthorType(str, Enum):
+    USER = "user"
+    AGENT = "agent"
+    SYSTEM = "system"
+
+
+class RunbookVisibility(str, Enum):
+    PUBLIC = "public"
+    INTERNAL = "internal"
+
+
+class BusinessHours(rx.Model, table=True):
+    id: Optional[int] = Field(default=None, primary_key=True)
+    name: str
+    tenant_id: int = Field(foreign_key="tenant.id")
+    tz: str
+    weekdays: list[int] = Field(sa_column=Column(JSON))
+    holidays: list[str] = Field(sa_column=Column(JSON))
+
+
+class SLAPolicy(rx.Model, table=True):
+    id: Optional[int] = Field(default=None, primary_key=True)
+    name: str
+    plan: str
+    severity: TicketSeverity
+    first_response_target_min: int
+    next_response_target_min: int
+    resolution_target_min: int
+    business_hours_id: Optional[int] = Field(
+        default=None, foreign_key="businesshours.id"
+    )
+    pause_on_customer_wait: bool = Field(default=True)
+    business_hours: Optional["BusinessHours"] = Relationship()
+
+
+class Ticket(rx.Model, table=True):
+    id: Optional[int] = Field(default=None, primary_key=True)
+    tenant_id: int = Field(foreign_key="tenant.id")
+    org_id: Optional[int] = Field(default=None)
+    subject: str
+    channel: TicketChannel
+    priority: TicketPriority
+    severity: TicketSeverity
+    status: TicketStatus = Field(default=TicketStatus.NEW)
+    assignee_user_id: Optional[int] = Field(default=None, foreign_key="user.id")
+    group: Optional[str] = None
+    sla_policy_id: Optional[int] = Field(default=None, foreign_key="slapolicy.id")
+    opened_at: datetime.datetime = Field(default_factory=datetime.datetime.now)
+    first_response_at: Optional[datetime.datetime] = None
+    resolved_at: Optional[datetime.datetime] = None
+    last_customer_reply_at: Optional[datetime.datetime] = None
+    language: str = Field(default="en")
+    related_crns: list[str] = Field(default=[], sa_column=Column(JSON))
+    tenant: "Tenant" = Relationship()
+    assignee: Optional["User"] = Relationship()
+    sla_policy: Optional["SLAPolicy"] = Relationship()
+    messages: list["TicketMessage"] = Relationship(back_populates="ticket")
+
+
+class TicketMessage(rx.Model, table=True):
+    id: Optional[int] = Field(default=None, primary_key=True)
+    ticket_id: int = Field(foreign_key="ticket.id")
+    author_type: TicketAuthorType
+    author_id: Optional[int] = Field(default=None, foreign_key="user.id")
+    lang: str = Field(default="en")
+    body_markdown: str
+    attachments: list[str] = Field(default=[], sa_column=Column(JSON))
+    created_at: datetime.datetime = Field(default_factory=datetime.datetime.now)
+    ticket: "Ticket" = Relationship(back_populates="messages")
+    author: Optional["User"] = Relationship()
+
+
+class Runbook(rx.Model, table=True):
+    id: Optional[int] = Field(default=None, primary_key=True)
+    title: str
+    severity_scope: list[TicketSeverity] = Field(sa_column=Column(JSON))
+    steps_mdx: str
+    linked_crns: list[str] = Field(default=[], sa_column=Column(JSON))
+    visibility: RunbookVisibility = Field(default=RunbookVisibility.INTERNAL)
+
+
+class SupportIntegration(rx.Model, table=True):
+    id: Optional[int] = Field(default=None, primary_key=True)
+    type: str
+    config_json: dict = Field(default={}, sa_column=Column(JSON))
+    enabled: bool = Field(default=False)
+    tenant_id: int = Field(foreign_key="tenant.id")
+
+
+class SupportAudit(rx.Model, table=True):
+    id: Optional[int] = Field(default=None, primary_key=True)
+    tenant_id: int = Field(foreign_key="tenant.id")
+    actor_crn: str
+    action: str
+    before_json: Optional[dict] = Field(default=None, sa_column=Column(JSON))
+    after_json: Optional[dict] = Field(default=None, sa_column=Column(JSON))
+    timestamp: datetime.datetime = Field(default_factory=datetime.datetime.now)
+
+
+class CSATResponse(rx.Model, table=True):
+    id: Optional[int] = Field(default=None, primary_key=True)
+    ticket_id: int = Field(foreign_key="ticket.id")
+    rating: int
+    comment: Optional[str] = None
+    lang: str = Field(default="en")
+    ts: datetime.datetime = Field(default_factory=datetime.datetime.now)
+    hashed_email: str
+    ticket: "Ticket" = Relationship()
