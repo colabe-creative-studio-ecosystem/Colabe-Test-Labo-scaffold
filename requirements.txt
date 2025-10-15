@@ -92,7 +92,7 @@ narwhals==2.7.0
 networkx==3.5
 nltk==3.9.2
 numpy==2.3.3
-openai==2.2.0
+openai
 opentelemetry-api==1.37.0
 opentelemetry-exporter-otlp==1.37.0
 opentelemetry-exporter-otlp-proto-common==1.37.0

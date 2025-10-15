@@ -77,7 +77,6 @@ def sidebar() -> rx.Component:
             sidebar_link("Performance", "/performance", "gauge"),
             sidebar_link("Policies", "/policies", "gavel"),
             sidebar_link("Audit Log", "/audits", "scroll-text"),
-            sidebar_link("Governance", "/ops/governance", "shield-check"),
             sidebar_link("Billing & Wallet", "/billing", "wallet"),
             sidebar_link("API & Webhooks", "/api-docs", "code"),
             sidebar_link("System Health", "/health", "heart-pulse"),
