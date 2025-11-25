@@ -42,12 +42,10 @@ class PatchGenerator:
                 messages=[{"role": "user", "content": prompt}],
             )
             if response.content and len(response.content) > 0:
-                patched_code_block = response.content[0].text
-                if patched_code_block.strip().startswith(""):
-                    patched_code = """
-""".join(
-                        patched_code_block.strip().split("""
-""")[1:-1]
+                patched_code_block = response.content[0].text.strip()
+                if patched_code_block.startswith("```"):
+                    patched_code = "\n".join(
+                        patched_code_block.split("\n")[1:-1]
                     )
                 else:
                     patched_code = patched_code_block
