@@ -72,7 +72,8 @@ class HealthState(AuthState):
                 job.refresh()
                 if job.is_finished:
                     self.worker_status = f"OK ({job.result})"
-                    self.health_status = "OK"
+                    if self.db_status == "OK" and self.redis_status == "OK":
+                        self.health_status = "OK"
                     return
                 elif job.is_failed:
                     self.worker_status = "Job Failed"
