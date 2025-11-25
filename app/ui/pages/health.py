@@ -1,10 +1,12 @@
-import reflex as rx
-import logging
 import asyncio
+import logging
+
+import reflex as rx
 from sqlalchemy import text
-from app.ui.states.auth_state import AuthState
-from app.orchestrator.tasks import enqueue_health_check
+
+from app.orchestrator.tasks import enqueue_health_check, fetch_job
 from app.ui.pages.index import sidebar, user_dropdown
+from app.ui.states.auth_state import AuthState
 
 
 class HealthState(AuthState):
@@ -16,6 +18,8 @@ class HealthState(AuthState):
 
     @rx.event
     def check_health(self):
+        """Perform synchronous health checks and enqueue worker probe."""
+
         try:
             with rx.session() as session:
                 session.exec(text("SELECT 1"))
@@ -23,6 +27,8 @@ class HealthState(AuthState):
         except Exception as e:
             logging.exception(e)
             self.db_status = "Error"
+
+        redis_healthy = False
         try:
             import redis
             from app.core.settings import settings
@@ -30,15 +36,21 @@ class HealthState(AuthState):
             r = redis.from_url(settings.REDIS_URL)
             r.ping()
             self.redis_status = "OK"
+            redis_healthy = True
         except Exception as e:
             logging.exception(e)
             self.redis_status = "Error"
-        try:
-            self.job_id = enqueue_health_check()
-            self.worker_status = "Job Enqueued"
-        except Exception as e:
-            logging.exception(e)
-            self.worker_status = "Enqueue Failed"
+
+        if redis_healthy:
+            try:
+                self.job_id = enqueue_health_check()
+                self.worker_status = "Job Enqueued"
+            except Exception as e:
+                logging.exception(e)
+                self.worker_status = "Enqueue Failed"
+        else:
+            self.worker_status = "Skipped (Redis unavailable)"
+
         if self.db_status == "OK" and self.redis_status == "OK":
             self.health_status = "OK"
         else:
@@ -47,24 +59,29 @@ class HealthState(AuthState):
 
     @rx.event(background=True)
     async def check_job_status(self):
-        import time
-        from rq.job import Job
-        from app.orchestrator.tasks import redis_conn
-
         if not self.job_id:
             return
-        job = Job.fetch(self.job_id, connection=redis_conn)
+        job = fetch_job(self.job_id)
+        if job is None:
+            async with self:
+                self.worker_status = "Job Missing"
+                self.health_status = "Degraded"
+            return
         for _ in range(10):
             async with self:
+                job.refresh()
                 if job.is_finished:
                     self.worker_status = f"OK ({job.result})"
+                    self.health_status = "OK"
                     return
                 elif job.is_failed:
                     self.worker_status = "Job Failed"
+                    self.health_status = "Degraded"
                     return
             await asyncio.sleep(1)
         async with self:
             self.worker_status = "Job Timed Out"
+            self.health_status = "Degraded"
 
 
 def health_page_content() -> rx.Component:
