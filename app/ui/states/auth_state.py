@@ -152,7 +152,8 @@ class AuthState(rx.State):
                 if user:
                     self.user = user
                     return
-        return AuthState.logout()
+        return self.logout()
+
 
     @rx.var
     def current_user_role(self) -> str:
