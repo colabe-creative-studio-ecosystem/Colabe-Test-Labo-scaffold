@@ -59,12 +59,13 @@ class SecurityState(AuthState):
                     )
                 ).all()
                 session.commit()
-        yield self._run_bandit_scan(repo_path, self.current_project_id)
-        yield self._run_cyclonedx_scan(repo_path, self.current_project_id)
+        self.run_bandit_scan(repo_path, self.current_project_id)
+        self.run_cyclonedx_scan(repo_path, self.current_project_id)
         async with self:
             self.load_security_data()
 
-    def _run_bandit_scan(self, repo_path: str, project_id: int):
+    @rx.event
+    def run_bandit_scan(self, repo_path: str, project_id: int):
         result = subprocess.run(
             ["bandit", "-r", repo_path, "-f", "json"], capture_output=True, text=True
         )
@@ -91,7 +92,8 @@ class SecurityState(AuthState):
             except json.JSONDecodeError:
                 logging.exception("Error decoding bandit JSON output")
 
-    def _run_cyclonedx_scan(self, repo_path: str, project_id: int):
+    @rx.event
+    def run_cyclonedx_scan(self, repo_path: str, project_id: int):
         req_file = os.path.join(repo_path, "requirements.txt")
         if not os.path.exists(req_file):
             return

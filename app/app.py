@@ -22,7 +22,7 @@ app = rxe.App(
             rel="stylesheet",
         ),
     ],
-    theme=rx.theme(appearance="dark"),
+    theme=rx.theme(appearance="light"),
     stylesheets=["/colabe.css"],
 )
 app.add_page(index, route="/", on_load=AuthState.check_login)

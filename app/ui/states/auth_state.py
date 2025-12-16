@@ -19,6 +19,7 @@ import sqlmodel
 
 class AuthState(rx.State):
     user: Optional[User] = None
+    _user_id: Optional[int] = None
     error_message: str = ""
     session_id: str = rx.Cookie(
         "",
@@ -35,6 +36,7 @@ class AuthState(rx.State):
     def logout(self):
         self._log_audit("user.logout")
         self.user = None
+        self._user_id = None
         self.session_id = ""
         return rx.redirect("/login")
 
@@ -86,7 +88,8 @@ class AuthState(rx.State):
                 "user.register", user_id=new_user.id, tenant_id=new_tenant.id
             )
             self.user = new_user
-            return self._create_session(new_user.id, session)
+            self._user_id = new_user.id
+            return AuthState.create_session(new_user.id, session)
 
     @rx.event
     def login(self, form_data: dict):
@@ -99,7 +102,8 @@ class AuthState(rx.State):
             if user and bcrypt.checkpw(password.encode(), user.password_hash.encode()):
                 self._log_audit("user.login", user_id=user.id, tenant_id=user.tenant_id)
                 self.user = user
-                return self._create_session(user.id, session)
+                self._user_id = user.id
+                return AuthState.create_session(user.id, session)
             else:
                 self.error_message = "Invalid email or password."
                 self._log_audit(
@@ -108,7 +112,8 @@ class AuthState(rx.State):
                 )
                 return rx.toast("Invalid email or password", duration=3000)
 
-    def _create_session(self, user_id: int, session: sqlmodel.Session):
+    @rx.event
+    def create_session(self, user_id: int, session: sqlmodel.Session):
         session_token = secrets.token_urlsafe(32)
         expires_at = datetime.now() + settings.SESSION_TIMEOUT
         new_session = Session(
@@ -127,8 +132,8 @@ class AuthState(rx.State):
         details: str | None = None,
     ):
         with rx.session() as session:
-            if user_id is None and self.user:
-                user_id = self.user.id
+            if user_id is None and self._user_id:
+                user_id = self._user_id
             if tenant_id is None and self.user:
                 tenant_id = self.user.tenant_id
             audit_log = AuditLog(
@@ -151,15 +156,16 @@ class AuthState(rx.State):
                 ).first()
                 if user:
                     self.user = user
+                    self._user_id = user.id
                     return
         return AuthState.logout()
 
     @rx.var
     def current_user_role(self) -> str:
-        if not self.user:
+        if not self._user_id:
             return "Not logged in"
         with rx.session() as session:
             role = session.exec(
-                sqlmodel.select(UserRole).where(UserRole.user_id == self.user.id)
+                sqlmodel.select(UserRole).where(UserRole.user_id == self._user_id)
             ).first()
             return role.role.value if role else "No role"

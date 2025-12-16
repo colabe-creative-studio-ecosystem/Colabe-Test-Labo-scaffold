@@ -1,7 +1,7 @@
 import reflex as rx
 import datetime
 from typing import Optional
-from sqlmodel import Field, Relationship
+from sqlmodel import Field, Relationship, SQLModel
 from enum import Enum
 
 
@@ -12,14 +12,14 @@ class RoleEnum(str, Enum):
     VIEWER = "viewer"
 
 
-class Tenant(rx.Model, table=True):
+class Tenant(SQLModel, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
     name: str = Field(unique=True)
     created_at: datetime.datetime = Field(default_factory=datetime.datetime.now)
     users: list["User"] = Relationship(back_populates="tenant")
 
 
-class User(rx.Model, table=True):
+class User(SQLModel, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
     username: str = Field(unique=True)
     email: str = Field(unique=True)
@@ -30,7 +30,7 @@ class User(rx.Model, table=True):
     created_at: datetime.datetime = Field(default_factory=datetime.datetime.now)
 
 
-class Project(rx.Model, table=True):
+class Project(SQLModel, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
     name: str
     tenant_id: int = Field(foreign_key="tenant.id")
@@ -39,7 +39,7 @@ class Project(rx.Model, table=True):
     policy: Optional["ProjectPolicy"] = Relationship(back_populates="project")
 
 
-class UserRole(rx.Model, table=True):
+class UserRole(SQLModel, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
     user_id: int = Field(foreign_key="user.id")
     project_id: Optional[int] = Field(default=None, foreign_key="project.id")
@@ -48,21 +48,21 @@ class UserRole(rx.Model, table=True):
     project: Optional["Project"] = Relationship(back_populates="user_roles")
 
 
-class Repository(rx.Model, table=True):
+class Repository(SQLModel, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
     url: str
     project_id: int = Field(foreign_key="project.id")
     created_at: datetime.datetime = Field(default_factory=datetime.datetime.now)
 
 
-class TestPlan(rx.Model, table=True):
+class TestPlan(SQLModel, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
     name: str
     project_id: int = Field(foreign_key="project.id")
     created_at: datetime.datetime = Field(default_factory=datetime.datetime.now)
 
 
-class Run(rx.Model, table=True):
+class Run(SQLModel, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
     test_plan_id: int = Field(foreign_key="testplan.id")
     status: str
@@ -73,7 +73,7 @@ class Run(rx.Model, table=True):
     quality_score: Optional["QualityScore"] = Relationship(back_populates="run")
 
 
-class Finding(rx.Model, table=True):
+class Finding(SQLModel, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
     run_id: int = Field(foreign_key="run.id")
     run: "Run" = Relationship()
@@ -98,7 +98,7 @@ class AutofixScopeEnum(str, Enum):
     NONE = "none"
 
 
-class ProjectPolicy(rx.Model, table=True):
+class ProjectPolicy(SQLModel, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
     project_id: int = Field(foreign_key="project.id", unique=True)
     blocking_severity: SeverityEnum = Field(default=SeverityEnum.HIGH)
@@ -115,7 +115,7 @@ class ProjectPolicy(rx.Model, table=True):
     project: "Project" = Relationship(back_populates="policy")
 
 
-class SecurityFinding(rx.Model, table=True):
+class SecurityFinding(SQLModel, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
     project_id: int = Field(foreign_key="project.id")
     scanner: str
@@ -132,7 +132,7 @@ class SecurityFinding(rx.Model, table=True):
     project: "Project" = Relationship()
 
 
-class SBOMComponent(rx.Model, table=True):
+class SBOMComponent(SQLModel, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
     project_id: int = Field(foreign_key="project.id")
     name: str
@@ -144,7 +144,7 @@ class SBOMComponent(rx.Model, table=True):
     project: "Project" = Relationship()
 
 
-class ComponentVulnerability(rx.Model, table=True):
+class ComponentVulnerability(SQLModel, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
     component_id: int = Field(foreign_key="sbomcomponent.id")
     osv_id: str = Field(unique=True)
@@ -155,7 +155,7 @@ class ComponentVulnerability(rx.Model, table=True):
     component: "SBOMComponent" = Relationship(back_populates="vulnerabilities")
 
 
-class Coverage(rx.Model, table=True):
+class Coverage(SQLModel, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
     run_id: int = Field(foreign_key="run.id")
     file_path: str
@@ -165,7 +165,7 @@ class Coverage(rx.Model, table=True):
     run: "Run" = Relationship(back_populates="coverage_data")
 
 
-class QualityScore(rx.Model, table=True):
+class QualityScore(SQLModel, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
     run_id: int = Field(foreign_key="run.id", unique=True)
     static_issues_score: float
@@ -178,7 +178,7 @@ class QualityScore(rx.Model, table=True):
     run: "Run" = Relationship(back_populates="quality_score")
 
 
-class Artifact(rx.Model, table=True):
+class Artifact(SQLModel, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
     run_id: int = Field(foreign_key="run.id")
     run: "Run" = Relationship()
@@ -187,7 +187,7 @@ class Artifact(rx.Model, table=True):
     created_at: datetime.datetime = Field(default_factory=datetime.datetime.now)
 
 
-class Policy(rx.Model, table=True):
+class Policy(SQLModel, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
     name: str
     description: str
@@ -195,7 +195,7 @@ class Policy(rx.Model, table=True):
     created_at: datetime.datetime = Field(default_factory=datetime.datetime.now)
 
 
-class AuditLog(rx.Model, table=True):
+class AuditLog(SQLModel, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
     user_id: Optional[int] = Field(default=None, foreign_key="user.id")
     tenant_id: Optional[int] = Field(default=None, foreign_key="tenant.id")
@@ -205,7 +205,7 @@ class AuditLog(rx.Model, table=True):
     user: Optional["User"] = Relationship()
 
 
-class AutofixRun(rx.Model, table=True):
+class AutofixRun(SQLModel, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
     finding_id: int = Field(foreign_key="securityfinding.id")
     status: str = Field(default="pending")
@@ -216,7 +216,7 @@ class AutofixRun(rx.Model, table=True):
     finding: "SecurityFinding" = Relationship()
 
 
-class AutofixPatch(rx.Model, table=True):
+class AutofixPatch(SQLModel, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
     autofix_run_id: int = Field(foreign_key="autofixrun.id")
     diff: str
@@ -224,7 +224,7 @@ class AutofixPatch(rx.Model, table=True):
     run: "AutofixRun" = Relationship()
 
 
-class Session(rx.Model, table=True):
+class Session(SQLModel, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
     session_id: str = Field(unique=True)
     user_id: int = Field(foreign_key="user.id")
@@ -232,14 +232,14 @@ class Session(rx.Model, table=True):
     expires_at: datetime.datetime
 
 
-class Wallet(rx.Model, table=True):
+class Wallet(SQLModel, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
     tenant_id: int = Field(foreign_key="tenant.id", unique=True)
     coins: int = Field(default=500)
     tenant: "Tenant" = Relationship()
 
 
-class Subscription(rx.Model, table=True):
+class Subscription(SQLModel, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
     tenant_id: int = Field(foreign_key="tenant.id", unique=True)
     plan: str = Field(default="Free")
@@ -248,7 +248,7 @@ class Subscription(rx.Model, table=True):
     tenant: "Tenant" = Relationship()
 
 
-class CoinPack(rx.Model, table=True):
+class CoinPack(SQLModel, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
     name: str
     amount: int
@@ -256,7 +256,7 @@ class CoinPack(rx.Model, table=True):
     volume_discount: float = Field(default=0.0)
 
 
-class Invoice(rx.Model, table=True):
+class Invoice(SQLModel, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
     tenant_id: int = Field(foreign_key="tenant.id")
     amount: float
