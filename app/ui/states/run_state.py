@@ -1,5 +1,6 @@
 import reflex as rx
 import sqlmodel
+from sqlalchemy.orm import selectinload
 from datetime import datetime
 from app.core.models import Run, TestPlan, Project
 from app.ui.states.auth_state import AuthState
@@ -36,9 +37,7 @@ class RunState(rx.State):
                 .join(Project)
                 .where(Project.tenant_id == auth_state.user.tenant_id)
                 .order_by(sqlmodel.desc(Run.created_at))
-                .options(
-                    sqlmodel.selectinload(Run.test_plan).selectinload(TestPlan.project)
-                )
+                .options(selectinload(Run.test_plan).selectinload(TestPlan.project))
             ).all()
             self.runs = [
                 RunDisplay(

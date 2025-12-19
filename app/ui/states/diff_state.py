@@ -1,5 +1,6 @@
 import reflex as rx
 import sqlmodel
+from sqlalchemy.orm import selectinload
 from app.core.models import AutofixPatch, AutofixRun, SecurityFinding, Project
 from app.ui.states.auth_state import AuthState
 
@@ -37,9 +38,7 @@ class DiffState(rx.State):
                 .where(Project.tenant_id == auth_state.user.tenant_id)
                 .order_by(sqlmodel.desc(AutofixPatch.created_at))
                 .options(
-                    sqlmodel.selectinload(AutofixPatch.run).selectinload(
-                        AutofixRun.finding
-                    )
+                    selectinload(AutofixPatch.run).selectinload(AutofixRun.finding)
                 )
             ).all()
             self.patches = [

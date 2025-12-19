@@ -1,5 +1,6 @@
 import reflex as rx
 import sqlmodel
+from sqlalchemy.orm import selectinload
 from app.core.models import TestPlan, Project
 from app.ui.states.auth_state import AuthState
 
@@ -37,7 +38,7 @@ class TestPlanState(rx.State):
                 .join(Project)
                 .where(Project.tenant_id == auth_state.user.tenant_id)
                 .order_by(sqlmodel.desc(TestPlan.created_at))
-                .options(sqlmodel.selectinload(TestPlan.project))
+                .options(selectinload(TestPlan.project))
             ).all()
             self.test_plans = [
                 TestPlanDisplay(

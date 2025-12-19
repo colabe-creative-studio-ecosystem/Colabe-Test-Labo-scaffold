@@ -1,5 +1,6 @@
 import reflex as rx
 import sqlmodel
+from sqlalchemy.orm import selectinload
 from app.ui.states.auth_state import AuthState
 from app.core.models import AuditLog
 
@@ -27,7 +28,7 @@ class AuditState(rx.State):
             logs = session.exec(
                 sqlmodel.select(AuditLog)
                 .where(AuditLog.tenant_id == auth_state.user.tenant_id)
-                .options(sqlmodel.selectinload(AuditLog.user))
+                .options(selectinload(AuditLog.user))
                 .order_by(sqlmodel.desc(AuditLog.timestamp))
             ).all()
             self.audit_logs = [

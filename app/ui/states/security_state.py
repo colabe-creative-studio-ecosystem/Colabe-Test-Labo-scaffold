@@ -7,6 +7,7 @@ from app.core.models import (
     Project,
 )
 import sqlmodel
+from sqlalchemy.orm import selectinload
 import subprocess
 import json
 import os
@@ -47,7 +48,7 @@ class SecurityState(rx.State):
             components = session.exec(
                 sqlmodel.select(SBOMComponent)
                 .where(SBOMComponent.project_id == self.current_project_id)
-                .options(sqlmodel.selectinload(SBOMComponent.vulnerabilities))
+                .options(selectinload(SBOMComponent.vulnerabilities))
             ).all()
             self.sbom_components = [
                 SBOMComponentDisplay(
