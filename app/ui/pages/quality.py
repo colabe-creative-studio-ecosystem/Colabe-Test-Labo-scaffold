@@ -71,7 +71,7 @@ def quality_score_card() -> rx.Component:
             rx.el.div(
                 rx.el.div(
                     rx.el.p(
-                        QualityState.quality_score.composite_score.to_string(),
+                        f"{QualityState.quality_score.composite_score:.1f}",
                         class_name="text-5xl font-bold text-[#00E5FF]",
                     ),
                     rx.el.p("out of 100", class_name="text-[#A9B3C1]"),
@@ -96,7 +96,7 @@ def quality_score_card() -> rx.Component:
                     quality_score_item(
                         "Security", QualityState.quality_score.security_score
                     ),
-                    class_name="mt-6 grid grid-cols-2 gap-4 text-sm",
+                    class_name="mt-6 grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-4 text-sm",
                 ),
             ),
             rx.el.div(
@@ -113,9 +113,11 @@ def quality_score_card() -> rx.Component:
 
 def quality_score_item(name: str, score: rx.Var[float]) -> rx.Component:
     return rx.el.div(
-        rx.el.p(name, class_name="text-[#A9B3C1]"),
-        rx.el.p(score.to_string(), class_name="font-semibold text-[#E8F0FF]"),
-        class_name="flex justify-between",
+        rx.el.p(name, class_name="text-[#A9B3C1] truncate mr-2"),
+        rx.el.p(
+            f"{score:.1f}", class_name="font-semibold text-[#E8F0FF] whitespace-nowrap"
+        ),
+        class_name="flex justify-between items-center",
     )
 
 
