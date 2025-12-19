@@ -54,15 +54,16 @@ class HealthState(rx.State):
 
         if not self.job_id:
             return
-        job = Job.fetch(self.job_id, connection=redis_conn)
         for _ in range(10):
-            async with self:
-                if job.is_finished:
+            job = Job.fetch(self.job_id, connection=redis_conn)
+            if job.is_finished:
+                async with self:
                     self.worker_status = f"OK ({job.result})"
-                    return
-                elif job.is_failed:
+                return
+            elif job.is_failed:
+                async with self:
                     self.worker_status = "Job Failed"
-                    return
+                return
             await asyncio.sleep(1)
         async with self:
             self.worker_status = "Job Timed Out"

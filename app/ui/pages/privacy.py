@@ -63,7 +63,7 @@ def privacy_content() -> rx.Component:
 
 
 def section_title(title: str) -> rx.Component:
-    return rx.el.h2(title, class_name="text-xl font-bold text-text-primary mt-8 mb-4")
+    return rx.el.h2(title, class_name="text-xl font-bold text-[#E8F0FF] mt-8 mb-4")
 
 
 def privacy_page() -> rx.Component:

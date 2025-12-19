@@ -36,13 +36,7 @@ class BillingState(rx.State):
         },
     ]
 
-    @rx.event
-    async def load_billing_data(self):
-        await self.load_wallet()
-        await self.check_payment_status()
-
-    @rx.event
-    async def load_wallet(self):
+    async def _load_wallet(self):
         auth_state = await self.get_state(AuthState)
         if not auth_state.is_logged_in or not auth_state.user:
             return
@@ -80,8 +74,7 @@ class BillingState(rx.State):
                 for inv in db_invoices
             ]
 
-    @rx.event
-    async def check_payment_status(self):
+    async def _check_payment_status(self):
         query_params = self.router.url.query_parameters
         if "success" in query_params:
             self.payment_status_message = (
@@ -99,6 +92,19 @@ class BillingState(rx.State):
                 description="No charges were made.",
                 style={"background_color": "#FF3B3B", "color": "white"},
             )
+
+    @rx.event
+    async def load_billing_data(self):
+        await self._load_wallet()
+        await self._check_payment_status()
+
+    @rx.event
+    async def load_wallet(self):
+        await self._load_wallet()
+
+    @rx.event
+    async def check_payment_status(self):
+        await self._check_payment_status()
 
     @rx.event
     async def buy_coins(self, amount: int, price: float):

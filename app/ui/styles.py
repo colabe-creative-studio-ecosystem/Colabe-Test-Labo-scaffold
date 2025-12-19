@@ -31,8 +31,8 @@ def card_style(accent_color: str) -> dict:
     }
 
 
-page_style = "flex min-h-screen colabe-bg font-['Inter'] text-text-primary"
+page_style = "flex min-h-screen colabe-bg font-['Inter'] text-[#E8F0FF]"
 page_content_style = "flex-1 flex flex-col"
 header_style = "flex items-center justify-between p-4 border-b border-white/10"
-sidebar_style = "hidden md:flex flex-col w-64 bg-bg-elevated border-r border-white/10"
-sidebar_button_style = "flex items-center space-x-3 text-text-secondary hover:text-text-primary hover:bg-white/5 px-3 py-2 rounded-lg transition-colors"
+sidebar_style = "hidden md:flex flex-col w-64 bg-[#0E1520] border-r border-white/10"
+sidebar_button_style = "flex items-center space-x-3 text-[#A9B3C1] hover:text-[#E8F0FF] hover:bg-white/5 px-3 py-2 rounded-lg transition-colors"

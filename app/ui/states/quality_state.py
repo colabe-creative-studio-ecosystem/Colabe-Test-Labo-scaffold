@@ -1,7 +1,7 @@
 import reflex as rx
 import sqlmodel
 from app.ui.states.auth_state import AuthState
-from app.core.models import Coverage, QualityScore, Run
+from app.core.models import Coverage, QualityScore
 import random
 import plotly.graph_objects as go
 from typing import Optional
@@ -12,8 +12,7 @@ class QualityState(rx.State):
     quality_score: Optional[QualityScore] = None
     current_run_id: int | None = None
 
-    @rx.event
-    async def load_quality_data(self, run_id: int):
+    async def _load_quality_data(self, run_id: int):
         self.current_run_id = run_id
         auth_state = await self.get_state(AuthState)
         if not auth_state.is_logged_in:
@@ -27,14 +26,16 @@ class QualityState(rx.State):
             ).first()
 
     @rx.event
+    async def load_quality_data(self, run_id: int):
+        await self._load_quality_data(run_id)
+
+    @rx.event
     async def generate_quality_report(self, run_id: int):
         with rx.session() as session:
-            session.exec(
-                sqlmodel.delete(Coverage).where(Coverage.run_id == run_id)
-            ).all()
+            session.exec(sqlmodel.delete(Coverage).where(Coverage.run_id == run_id))
             session.exec(
                 sqlmodel.delete(QualityScore).where(QualityScore.run_id == run_id)
-            ).all()
+            )
             session.commit()
             files = [
                 "app/ui/pages/index.py",
@@ -77,7 +78,7 @@ class QualityState(rx.State):
             )
             session.add(qs)
             session.commit()
-            await self.load_quality_data(run_id)
+        await self._load_quality_data(run_id)
 
     @rx.var
     def coverage_heatmap_fig(self) -> go.Figure:

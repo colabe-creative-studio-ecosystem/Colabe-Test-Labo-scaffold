@@ -22,7 +22,7 @@ def footer() -> rx.Component:
                         rx.el.a(
                             "Colabe@mail.com",
                             href="mailto:Colabe@mail.com",
-                            class_name="text-accent-cyan hover:underline ml-4",
+                            class_name="text-[#00E5FF] hover:underline ml-4",
                         ),
                         class_name="flex flex-wrap items-center mt-2 gap-y-2",
                     ),
@@ -31,12 +31,12 @@ def footer() -> rx.Component:
                     rx.el.a(
                         "Terms and Conditions",
                         href="/terms",
-                        class_name="text-gray-500 hover:text-text-primary transition-colors",
+                        class_name="text-gray-500 hover:text-[#E8F0FF] transition-colors",
                     ),
                     rx.el.a(
                         "Privacy Policy",
                         href="/privacy",
-                        class_name="text-gray-500 hover:text-text-primary transition-colors",
+                        class_name="text-gray-500 hover:text-[#E8F0FF] transition-colors",
                     ),
                     class_name="flex space-x-6 mt-4 md:mt-0",
                 ),
@@ -44,5 +44,5 @@ def footer() -> rx.Component:
             ),
             class_name="max-w-7xl mx-auto px-6",
         ),
-        class_name="w-full border-t border-white/10 py-8 bg-bg-elevated mt-auto",
+        class_name="w-full border-t border-white/10 py-8 bg-[#0E1520] mt-auto",
     )

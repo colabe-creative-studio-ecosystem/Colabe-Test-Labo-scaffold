@@ -1,5 +1,4 @@
 import reflex as rx
-import reflex_enterprise as rxe
 from app.ui.pages.index import index
 from app.ui.pages.health import health_check_page
 from app.ui.pages.auth import login_page, register_page
@@ -16,12 +15,12 @@ from app.core.settings import settings
 from app.integrations.webhook_handler import stripe_webhook
 
 
-def api_transformer(api):
+def api_routes(api):
     api.add_api_route("/api/webhook/stripe", stripe_webhook, methods=["POST"])
     return api
 
 
-app = rxe.App(
+app = rx.App(
     head_components=[
         rx.el.link(rel="preconnect", href="https://fonts.googleapis.com"),
         rx.el.link(rel="preconnect", href="https://fonts.gstatic.com", cross_origin=""),
@@ -32,7 +31,7 @@ app = rxe.App(
     ],
     theme=rx.theme(appearance="light"),
     stylesheets=["/colabe.css"],
-    api_transformer=api_transformer,
+    api_transformer=api_routes,
 )
 app.add_page(index, route="/", on_load=AuthState.check_login)
 app.add_page(health_check_page, route="/health", on_load=AuthState.check_login)

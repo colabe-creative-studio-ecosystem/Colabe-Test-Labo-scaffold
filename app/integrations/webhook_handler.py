@@ -1,6 +1,5 @@
 from starlette.requests import Request
 from starlette.responses import JSONResponse
-from starlette.routing import Route
 import reflex as rx
 from app.integrations.stripe_service import StripeService
 from app.core.models import Tenant, Wallet, Subscription, Invoice, CoinPack, AuditLog
@@ -37,11 +36,6 @@ async def stripe_webhook(request: Request):
     except Exception as e:
         logger.exception(f"Error processing webhook: {e}")
         return JSONResponse({"detail": "Internal server error"}, status_code=500)
-
-
-stripe_webhook_routes = [
-    Route("/api/webhook/stripe", endpoint=stripe_webhook, methods=["POST"])
-]
 
 
 async def handle_checkout_completed(session: dict):

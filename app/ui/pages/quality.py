@@ -1,5 +1,4 @@
 import reflex as rx
-import plotly.graph_objects as go
 from app.ui.components.footer import footer
 from app.ui.states.quality_state import QualityState
 from app.ui.states.auth_state import AuthState
@@ -45,7 +44,7 @@ def quality_page_content() -> rx.Component:
         rx.el.div(
             rx.el.button(
                 "Generate Report for Run 1",
-                on_click=lambda: QualityState.generate_quality_report(1),
+                on_click=QualityState.generate_quality_report(1),
                 class_name="mb-6 px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600",
             ),
             rx.el.div(
@@ -56,7 +55,7 @@ def quality_page_content() -> rx.Component:
             class_name="p-8",
         ),
         class_name="flex-1 flex flex-col",
-        on_mount=lambda: QualityState.load_quality_data(1),
+        on_mount=QualityState.load_quality_data(1),
     )
 
 

@@ -34,11 +34,11 @@ def billing_page_content() -> rx.Component:
             rx.el.div(
                 rx.el.h1(
                     "Billing & Wallet",
-                    class_name="text-2xl font-bold text-text-primary title-gradient",
+                    class_name="text-2xl font-bold text-[#E8F0FF] title-gradient",
                 ),
                 rx.el.p(
                     "Manage your subscription, coins, and view invoices.",
-                    class_name="text-text-secondary",
+                    class_name="text-[#A9B3C1]",
                 ),
             ),
             class_name=header_style,
@@ -56,15 +56,15 @@ def billing_page_content() -> rx.Component:
                     rx.el.div(
                         rx.el.h2(
                             "Current Plan",
-                            class_name="text-xl font-semibold text-text-primary",
+                            class_name="text-xl font-semibold text-[#E8F0FF]",
                         ),
                         rx.el.p(
                             BillingState.subscription_plan,
-                            class_name="text-3xl font-bold text-accent-gold mt-2",
+                            class_name="text-3xl font-bold text-[#D8B76E] mt-2",
                         ),
                         rx.el.p(
                             f"Renews on: {BillingState.renewal_date}",
-                            class_name="text-text-secondary",
+                            class_name="text-[#A9B3C1]",
                         ),
                     ),
                     rx.cond(
@@ -92,13 +92,13 @@ def billing_page_content() -> rx.Component:
                 rx.el.div(
                     rx.el.h2(
                         "Wallet Balance",
-                        class_name="text-xl font-semibold text-text-primary",
+                        class_name="text-xl font-semibold text-[#E8F0FF]",
                     ),
                     rx.el.p(
                         BillingState.wallet_balance,
-                        class_name="text-3xl font-bold text-accent-cyan mt-2",
+                        class_name="text-3xl font-bold text-[#00E5FF] mt-2",
                     ),
-                    rx.el.p("coins available", class_name="text-text-secondary mb-6"),
+                    rx.el.p("coins available", class_name="text-[#A9B3C1] mb-6"),
                     rx.el.h3("Purchase Coins", class_name="text-lg font-semibold mb-4"),
                     rx.el.div(
                         rx.foreach(BillingState.coin_packs, render_coin_pack),
@@ -111,7 +111,7 @@ def billing_page_content() -> rx.Component:
             rx.el.div(
                 rx.el.h2(
                     "Invoice History",
-                    class_name="text-xl font-semibold text-text-primary mb-4",
+                    class_name="text-xl font-semibold text-[#E8F0FF] mb-4",
                 ),
                 rx.el.div(
                     rx.el.table(
@@ -156,24 +156,28 @@ def render_tier_card(tier: dict) -> rx.Component:
     return rx.el.div(
         rx.el.div(
             rx.el.h4(tier["name"], class_name="font-bold text-lg"),
-            rx.el.span(f"€{tier['price']}/mo", class_name="text-accent-gold"),
+            rx.el.span(
+                "€" + tier["price"].to_string() + "/mo", class_name="text-[#D8B76E]"
+            ),
             class_name="flex justify-between items-center",
         ),
         rx.el.button(
             "Upgrade",
-            on_click=lambda: BillingState.subscribe(tier["name"], tier["price"]),
-            class_name="mt-2 w-full py-1 text-sm bg-accent-gold text-bg-base font-bold rounded hover:opacity-90",
+            on_click=BillingState.subscribe(tier["name"], tier["price"]),
+            class_name="mt-2 w-full py-1 text-sm bg-[#D8B76E] text-[#0A0F14] font-bold rounded hover:opacity-90",
         ),
-        class_name="p-3 rounded-lg bg-bg-base border border-white/10",
+        class_name="p-3 rounded-lg bg-[#0A0F14] border border-white/10",
     )
 
 
 def render_coin_pack(pack: dict) -> rx.Component:
     return rx.el.button(
-        rx.el.div(f"{pack['coins']} Coins", class_name="font-bold text-accent-cyan"),
-        rx.el.div(f"€{pack['price']}", class_name="text-sm text-text-secondary"),
-        on_click=lambda: BillingState.buy_coins(pack["coins"], pack["price"]),
-        class_name="flex flex-col items-center justify-center p-3 rounded-lg bg-bg-base border border-white/10 hover:border-accent-cyan transition-colors",
+        rx.el.div(
+            pack["coins"].to_string() + " Coins", class_name="font-bold text-[#00E5FF]"
+        ),
+        rx.el.div("€" + pack["price"].to_string(), class_name="text-sm text-[#A9B3C1]"),
+        on_click=BillingState.buy_coins(pack["coins"], pack["price"]),
+        class_name="flex flex-col items-center justify-center p-3 rounded-lg bg-[#0A0F14] border border-white/10 hover:border-[#00E5FF] transition-colors",
     )
 
 

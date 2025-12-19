@@ -48,14 +48,14 @@ class PatchGenerator:
             )
             if response.content and len(response.content) > 0:
                 patched_code_block = response.content[0].text
-                if patched_code_block.strip().startswith(""):
+                content = patched_code_block.strip()
+                if content.startswith("") and content.endswith(""):
+                    lines = content.split("""
+""")
                     patched_code = """
-""".join(
-                        patched_code_block.strip().split("""
-""")[1:-1]
-                    )
+""".join(lines[1:-1])
                 else:
-                    patched_code = patched_code_block
+                    patched_code = content
                 return patched_code
             else:
                 logger.error("Anthropic API returned an empty content block.")

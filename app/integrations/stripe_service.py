@@ -17,6 +17,8 @@ class StripeService:
 
     def create_customer(self, name: str, email: str, tenant_id: int) -> Optional[str]:
         """Creates a new Stripe customer for the tenant."""
+        if not stripe.api_key:
+            return None
         try:
             customer = stripe.Customer.create(
                 name=name, email=email, metadata={"tenant_id": str(tenant_id)}
@@ -36,6 +38,8 @@ class StripeService:
         cancel_url: str,
     ) -> Optional[str]:
         """Creates a Stripe Checkout Session."""
+        if not stripe.api_key:
+            return None
         try:
             session = stripe.checkout.Session.create(
                 customer=customer_id,
@@ -53,6 +57,8 @@ class StripeService:
 
     def create_portal_session(self, customer_id: str, return_url: str) -> Optional[str]:
         """Creates a Billing Portal session for managing subscriptions."""
+        if not stripe.api_key:
+            return None
         try:
             session = stripe.billing_portal.Session.create(
                 customer=customer_id, return_url=return_url

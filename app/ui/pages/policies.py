@@ -5,6 +5,9 @@ from app.ui.states.auth_state import AuthState
 from app.core.models import SeverityEnum, AutofixScopeEnum
 from app.ui.pages.index import sidebar, user_dropdown
 
+SEVERITY_OPTIONS = [s.value for s in SeverityEnum]
+AUTOFIX_SCOPE_OPTIONS = [s.value for s in AutofixScopeEnum]
+
 
 def policies_page() -> rx.Component:
     return rx.el.div(
@@ -68,7 +71,7 @@ def policy_form() -> rx.Component:
             "Blocking Severity",
             "Block merges if findings of this severity or higher are present.",
             rx.el.select(
-                [s.value for s in SeverityEnum],
+                rx.foreach(SEVERITY_OPTIONS, lambda x: rx.el.option(x, value=x)),
                 default_value=PolicyState.project_policy.blocking_severity,
                 on_change=lambda value: PolicyState.update_policy(
                     "blocking_severity", value
@@ -96,7 +99,7 @@ def policy_form() -> rx.Component:
             "Autofix Scope",
             "Define which categories of issues are eligible for autofix.",
             rx.el.select(
-                [s.value for s in AutofixScopeEnum],
+                rx.foreach(AUTOFIX_SCOPE_OPTIONS, lambda x: rx.el.option(x, value=x)),
                 default_value=PolicyState.project_policy.autofix_scope,
                 on_change=lambda value: PolicyState.update_policy(
                     "autofix_scope", value
@@ -120,20 +123,22 @@ def policy_form() -> rx.Component:
                     rx.el.span(
                         class_name=rx.cond(
                             PolicyState.project_policy.auto_merge_enabled,
-                            "translate-x-5",
-                            "translate-x-0",
+                            "translate-x-5 inline-block h-5 w-5 rounded-full bg-white transform ring-0 transition ease-in-out duration-200",
+                            "translate-x-0 inline-block h-5 w-5 rounded-full bg-white transform ring-0 transition ease-in-out duration-200",
                         )
-                        + " inline-block h-5 w-5 rounded-full bg-white transform ring-0 transition ease-in-out duration-200"
                     ),
                     class_name=rx.cond(
                         PolicyState.project_policy.auto_merge_enabled,
-                        "bg-blue-600",
-                        "bg-gray-200",
-                    )
-                    + " relative inline-flex flex-shrink-0 h-6 w-11 border-2 border-transparent rounded-full cursor-pointer transition-colors ease-in-out duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500",
-                    on_click=lambda: PolicyState.update_policy(
+                        "bg-blue-600 relative inline-flex flex-shrink-0 h-6 w-11 border-2 border-transparent rounded-full cursor-pointer transition-colors ease-in-out duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500",
+                        "bg-gray-200 relative inline-flex flex-shrink-0 h-6 w-11 border-2 border-transparent rounded-full cursor-pointer transition-colors ease-in-out duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500",
+                    ),
+                    on_click=PolicyState.update_policy(
                         "auto_merge_enabled",
-                        (~PolicyState.project_policy.auto_merge_enabled).to_string(),
+                        rx.cond(
+                            PolicyState.project_policy.auto_merge_enabled,
+                            "false",
+                            "true",
+                        ),
                     ),
                 ),
                 rx.el.span(

@@ -12,6 +12,7 @@ import json
 import os
 import tempfile
 import requests
+import asyncio
 from typing import TypedDict
 import logging
 
@@ -58,23 +59,34 @@ class SecurityState(rx.State):
                     sqlmodel.delete(SecurityFinding).where(
                         SecurityFinding.project_id == self.current_project_id
                     )
-                ).all()
+                )
                 session.commit()
-        self.run_bandit_scan(repo_path, self.current_project_id)
-        self.run_cyclonedx_scan(repo_path, self.current_project_id)
+        await asyncio.to_thread(
+            self._run_bandit_scan, repo_path, self.current_project_id
+        )
+        await asyncio.to_thread(
+            self._run_cyclonedx_scan, repo_path, self.current_project_id
+        )
         async with self:
             await self.load_security_data()
 
-    @rx.event
-    def run_bandit_scan(self, repo_path: str, project_id: int):
-        result = subprocess.run(
-            ["bandit", "-r", repo_path, "-f", "json"], capture_output=True, text=True
-        )
+    def _run_bandit_scan(self, repo_path: str, project_id: int):
+        try:
+            result = subprocess.run(
+                ["bandit", "-r", repo_path, "-f", "json"],
+                capture_output=True,
+                text=True,
+            )
+        except Exception as e:
+            logging.exception(f"Bandit scan error: {e}")
+            return
         if result.returncode > 0 and result.stdout:
             try:
                 report = json.loads(result.stdout)
                 with rx.session() as session:
                     for finding_data in report.get("results", []):
+                        cwe_id = finding_data.get("cwe", {}).get("id")
+                        cwe_val = str(cwe_id) if cwe_id is not None else None
                         finding = SecurityFinding(
                             project_id=project_id,
                             scanner="bandit",
@@ -83,7 +95,7 @@ class SecurityState(rx.State):
                             severity=finding_data["issue_severity"],
                             file_path=finding_data["filename"].replace(repo_path, ""),
                             line_number=finding_data["line_number"],
-                            cwe=str(finding_data.get("cwe", {}).get("id")),
+                            cwe=cwe_val,
                             owasp_category=self._map_cwe_to_owasp(
                                 finding_data.get("cwe", {}).get("id")
                             ),
@@ -93,8 +105,7 @@ class SecurityState(rx.State):
             except json.JSONDecodeError:
                 logging.exception("Error decoding bandit JSON output")
 
-    @rx.event
-    def run_cyclonedx_scan(self, repo_path: str, project_id: int):
+    def _run_cyclonedx_scan(self, repo_path: str, project_id: int):
         req_file = os.path.join(repo_path, "requirements.txt")
         if not os.path.exists(req_file):
             return
@@ -102,33 +113,38 @@ class SecurityState(rx.State):
             mode="w", suffix=".json", delete=False
         ) as outf:
             output_file = outf.name
-        subprocess.run(
-            ["cyclonedx-py", "requirements", req_file, "-o", output_file],
-            capture_output=True,
-            text=True,
-        )
-        if os.path.exists(output_file):
-            with open(output_file, "r") as f:
-                sbom = json.load(f)
-            with rx.session() as session:
-                session.exec(
-                    sqlmodel.delete(SBOMComponent).where(
-                        SBOMComponent.project_id == project_id
+        try:
+            subprocess.run(
+                ["cyclonedx-py", "requirements", req_file, "-o", output_file],
+                capture_output=True,
+                text=True,
+            )
+            if os.path.exists(output_file):
+                with open(output_file, "r") as f:
+                    sbom = json.load(f)
+                with rx.session() as session:
+                    session.exec(
+                        sqlmodel.delete(SBOMComponent).where(
+                            SBOMComponent.project_id == project_id
+                        )
                     )
-                ).all()
-                session.commit()
-                components = sbom.get("components", [])
-                for comp_data in components:
-                    comp = SBOMComponent(
-                        project_id=project_id,
-                        name=comp_data["name"],
-                        version=comp_data["version"],
-                        purl=comp_data["purl"],
-                    )
-                    session.add(comp)
-                session.commit()
-                self._check_osv(project_id)
-            os.unlink(output_file)
+                    session.commit()
+                    components = sbom.get("components", [])
+                    for comp_data in components:
+                        comp = SBOMComponent(
+                            project_id=project_id,
+                            name=comp_data["name"],
+                            version=comp_data["version"],
+                            purl=comp_data["purl"],
+                        )
+                        session.add(comp)
+                    session.commit()
+                    self._check_osv(project_id)
+        except Exception as e:
+            logging.exception(f"CycloneDX scan error: {e}")
+        finally:
+            if os.path.exists(output_file):
+                os.unlink(output_file)
 
     def _check_osv(self, project_id: int):
         with rx.session() as session:

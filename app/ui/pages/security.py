@@ -1,5 +1,4 @@
 import reflex as rx
-import sqlmodel
 from app.ui.components.footer import footer
 from app.ui.states.security_state import SecurityState
 from app.ui.states.autofix_state import AutofixState
@@ -104,14 +103,13 @@ def render_finding_row(finding: SecurityFinding) -> rx.Component:
         ),
         rx.el.td(finding.description),
         rx.el.td(finding.owasp_category),
-        rx.el.td(f"{finding.file_path}:{finding.line_number.to_string()}"),
+        rx.el.td(finding.file_path + ":" + finding.line_number.to_string()),
         rx.el.td(finding.status),
         rx.el.td(
             rx.el.button(
                 "Fix",
-                on_click=lambda: AutofixState.trigger_autofix(finding.id),
+                on_click=AutofixState.trigger_autofix(finding.id),
                 class_name="px-2 py-1 text-xs font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700",
-                size="1",
             )
         ),
         class_name="text-sm text-gray-600",
