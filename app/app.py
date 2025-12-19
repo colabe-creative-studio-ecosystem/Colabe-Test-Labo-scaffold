@@ -13,13 +13,11 @@ from app.ui.pages.terms import terms_page
 from app.ui.pages.privacy import privacy_page
 from app.ui.states.auth_state import AuthState
 from app.core.settings import settings
-from app.core import models
-from app.integrations.webhook_handler import stripe_webhook_routes
+from app.integrations.webhook_handler import stripe_webhook
 
 
-def register_routes(api):
-    for route in stripe_webhook_routes:
-        api.routes.append(route)
+def api_transformer(api):
+    api.add_api_route("/api/webhook/stripe", stripe_webhook, methods=["POST"])
     return api
 
 
@@ -34,7 +32,7 @@ app = rxe.App(
     ],
     theme=rx.theme(appearance="light"),
     stylesheets=["/colabe.css"],
-    api_transformer=register_routes,
+    api_transformer=api_transformer,
 )
 app.add_page(index, route="/", on_load=AuthState.check_login)
 app.add_page(health_check_page, route="/health", on_load=AuthState.check_login)

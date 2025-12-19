@@ -70,7 +70,7 @@ def sidebar() -> rx.Component:
             sidebar_link("Dashboard", "/", "layout-dashboard"),
             sidebar_link("Projects", "/projects", "folder-kanban"),
             sidebar_link("Test Plans", "/test-plans", "file-check"),
-            sidebar_link("Live Runs", "/runs", "circle_play"),
+            sidebar_link("Live Runs", "/runs", "circle-play"),
             sidebar_link("Diffs", "/diffs", "git-compare"),
             sidebar_link("Coverage", "/quality", "pie-chart"),
             sidebar_link("Security", "/security", "shield"),

@@ -8,13 +8,14 @@ from app.autofix.patch_generator import PatchGenerator
 logger = logging.getLogger(__name__)
 
 
-class AutofixState(AuthState):
+class AutofixState(rx.State):
     autofix_runs: list[AutofixRun] = []
 
     @rx.event(background=True)
     async def trigger_autofix(self, finding_id: int):
         async with self:
-            if not self.is_logged_in or not self.user:
+            auth_state = await self.get_state(AuthState)
+            if not auth_state.is_logged_in or not auth_state.user:
                 return
             with rx.session() as session:
                 finding = session.exec(

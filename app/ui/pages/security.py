@@ -3,6 +3,7 @@ import sqlmodel
 from app.ui.components.footer import footer
 from app.ui.states.security_state import SecurityState
 from app.ui.states.autofix_state import AutofixState
+from app.ui.states.auth_state import AuthState
 from app.core.models import SecurityFinding, SBOMComponent
 from app.ui.pages.index import sidebar, user_dropdown
 
@@ -10,7 +11,7 @@ from app.ui.pages.index import sidebar, user_dropdown
 def security_page() -> rx.Component:
     return rx.el.div(
         rx.cond(
-            SecurityState.is_logged_in,
+            AuthState.is_logged_in,
             rx.el.div(
                 sidebar(),
                 rx.el.div(

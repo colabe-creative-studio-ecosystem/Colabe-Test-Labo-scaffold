@@ -8,7 +8,7 @@ from app.orchestrator.tasks import enqueue_health_check
 from app.ui.pages.index import sidebar, user_dropdown
 
 
-class HealthState(AuthState):
+class HealthState(rx.State):
     health_status: str = "Checking..."
     db_status: str = "Unknown"
     redis_status: str = "Unknown"
@@ -103,7 +103,7 @@ def health_page_content() -> rx.Component:
 def health_check_page() -> rx.Component:
     return rx.el.div(
         rx.cond(
-            HealthState.is_logged_in,
+            AuthState.is_logged_in,
             rx.el.div(
                 sidebar(),
                 rx.el.div(

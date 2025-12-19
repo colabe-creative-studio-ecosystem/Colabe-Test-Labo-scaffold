@@ -1,6 +1,7 @@
 import reflex as rx
 from app.ui.components.footer import footer
 from app.ui.states.billing_state import BillingState
+from app.ui.states.auth_state import AuthState
 from app.ui.pages.index import sidebar
 from app.ui.styles import page_style, page_content_style, header_style, card_style
 
@@ -8,7 +9,7 @@ from app.ui.styles import page_style, page_content_style, header_style, card_sty
 def billing_page() -> rx.Component:
     return rx.el.div(
         rx.cond(
-            BillingState.is_logged_in,
+            AuthState.is_logged_in,
             rx.el.div(
                 sidebar(),
                 rx.el.div(

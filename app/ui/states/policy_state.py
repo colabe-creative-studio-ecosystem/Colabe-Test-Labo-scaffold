@@ -5,7 +5,7 @@ from app.core.models import Project, ProjectPolicy, SeverityEnum
 import sqlmodel
 
 
-class PolicyState(AuthState):
+class PolicyState(rx.State):
     project_policy: Optional[ProjectPolicy] = None
     current_project_id: int = 1
     mock_pr_findings: list[dict] = [
@@ -15,8 +15,9 @@ class PolicyState(AuthState):
     mock_pr_coverage: float = 85.0
 
     @rx.event
-    def load_policy(self):
-        if not self.is_logged_in:
+    async def load_policy(self):
+        auth_state = await self.get_state(AuthState)
+        if not auth_state.is_logged_in:
             return
         with rx.session() as session:
             policy = session.exec(

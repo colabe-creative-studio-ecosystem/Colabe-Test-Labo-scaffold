@@ -13,7 +13,7 @@ from app.core.models import (
 from app.core.settings import settings
 import bcrypt
 import secrets
-from datetime import datetime, timedelta
+from datetime import datetime
 import sqlmodel
 
 
@@ -24,7 +24,7 @@ class AuthState(rx.State):
     session_id: str = rx.Cookie(
         "",
         name="session_id",
-        max_age=settings.SESSION_TIMEOUT.total_seconds(),
+        max_age=int(settings.SESSION_TIMEOUT.total_seconds()),
         same_site="lax",
     )
 

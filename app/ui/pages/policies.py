@@ -1,6 +1,7 @@
 import reflex as rx
 from app.ui.components.footer import footer
 from app.ui.states.policy_state import PolicyState
+from app.ui.states.auth_state import AuthState
 from app.core.models import SeverityEnum, AutofixScopeEnum
 from app.ui.pages.index import sidebar, user_dropdown
 
@@ -8,7 +9,7 @@ from app.ui.pages.index import sidebar, user_dropdown
 def policies_page() -> rx.Component:
     return rx.el.div(
         rx.cond(
-            PolicyState.is_logged_in,
+            AuthState.is_logged_in,
             rx.el.div(
                 sidebar(),
                 rx.el.div(
@@ -168,7 +169,7 @@ def merge_status_card() -> rx.Component:
         ),
         rx.el.div(
             rx.icon(
-                tag=rx.cond(PolicyState.is_mergeable, "check_circle", "x_circle"),
+                rx.cond(PolicyState.is_mergeable, "check-circle", "x-circle"),
                 class_name=rx.cond(
                     PolicyState.is_mergeable, "text-green-500", "text-red-500"
                 )
@@ -188,7 +189,7 @@ def merge_status_card() -> rx.Component:
             merge_check_item(
                 "Severity Gate",
                 PolicyState.project_policy.blocking_severity.to_string() + " or higher",
-                is_passing=~PolicyState.is_mergeable,
+                is_passing=PolicyState.is_mergeable,
             ),
             merge_check_item(
                 "Coverage Gate",
@@ -208,7 +209,7 @@ def merge_check_item(
 ) -> rx.Component:
     return rx.el.div(
         rx.icon(
-            tag=rx.cond(is_passing, "check", "x"),
+            rx.cond(is_passing, "check", "x"),
             class_name=rx.cond(is_passing, "text-green-500", "text-red-500")
             + " h-5 w-5",
         ),

@@ -7,7 +7,7 @@ from app.integrations.stripe_service import StripeService
 from app.core.settings import settings
 
 
-class BillingState(AuthState):
+class BillingState(rx.State):
     wallet_balance: int = 0
     subscription_plan: str = "Free"
     renewal_date: str = "N/A"
@@ -37,23 +37,26 @@ class BillingState(AuthState):
     ]
 
     @rx.event
-    def load_billing_data(self):
-        self.load_wallet()
-        self.check_payment_status()
+    async def load_billing_data(self):
+        await self.load_wallet()
+        await self.check_payment_status()
 
     @rx.event
-    def load_wallet(self):
-        if not self.is_logged_in or not self.user:
+    async def load_wallet(self):
+        auth_state = await self.get_state(AuthState)
+        if not auth_state.is_logged_in or not auth_state.user:
             return
         with rx.session() as session:
             wallet = session.exec(
-                sqlmodel.select(Wallet).where(Wallet.tenant_id == self.user.tenant_id)
+                sqlmodel.select(Wallet).where(
+                    Wallet.tenant_id == auth_state.user.tenant_id
+                )
             ).first()
             if wallet:
                 self.wallet_balance = wallet.coins
             subscription = session.exec(
                 sqlmodel.select(Subscription).where(
-                    Subscription.tenant_id == self.user.tenant_id
+                    Subscription.tenant_id == auth_state.user.tenant_id
                 )
             ).first()
             if subscription:
@@ -64,7 +67,7 @@ class BillingState(AuthState):
                     self.renewal_date = "N/A"
             db_invoices = session.exec(
                 sqlmodel.select(Invoice)
-                .where(Invoice.tenant_id == self.user.tenant_id)
+                .where(Invoice.tenant_id == auth_state.user.tenant_id)
                 .order_by(sqlmodel.desc(Invoice.created_at))
             ).all()
             self.invoices = [
@@ -78,7 +81,7 @@ class BillingState(AuthState):
             ]
 
     @rx.event
-    def check_payment_status(self):
+    async def check_payment_status(self):
         query_params = self.router.url.query_parameters
         if "success" in query_params:
             self.payment_status_message = (
@@ -99,7 +102,8 @@ class BillingState(AuthState):
 
     @rx.event
     async def buy_coins(self, amount: int, price: float):
-        if not self.user:
+        auth_state = await self.get_state(AuthState)
+        if not auth_state.user:
             return
         service = StripeService()
         customer_id = await self._ensure_customer_id()
@@ -117,7 +121,7 @@ class BillingState(AuthState):
         }
         metadata = {
             "type": "coin_pack",
-            "tenant_id": str(self.user.tenant_id),
+            "tenant_id": str(auth_state.user.tenant_id),
             "coins": str(amount),
         }
         url = service.create_checkout_session(
@@ -135,7 +139,8 @@ class BillingState(AuthState):
 
     @rx.event
     async def subscribe(self, plan_name: str, price: float):
-        if not self.user:
+        auth_state = await self.get_state(AuthState)
+        if not auth_state.user:
             return
         service = StripeService()
         customer_id = await self._ensure_customer_id()
@@ -154,7 +159,7 @@ class BillingState(AuthState):
         }
         metadata = {
             "type": "subscription",
-            "tenant_id": str(self.user.tenant_id),
+            "tenant_id": str(auth_state.user.tenant_id),
             "plan": plan_name,
         }
         url = service.create_checkout_session(
@@ -170,7 +175,8 @@ class BillingState(AuthState):
 
     @rx.event
     async def manage_subscription(self):
-        if not self.user:
+        auth_state = await self.get_state(AuthState)
+        if not auth_state.user:
             return
         service = StripeService()
         customer_id = await self._ensure_customer_id()
@@ -184,9 +190,12 @@ class BillingState(AuthState):
 
     async def _ensure_customer_id(self) -> Optional[str]:
         """Ensures the tenant has a Stripe Customer ID."""
+        auth_state = await self.get_state(AuthState)
+        if not auth_state.user:
+            return None
         with rx.session() as session:
             tenant = session.exec(
-                sqlmodel.select(Tenant).where(Tenant.id == self.user.tenant_id)
+                sqlmodel.select(Tenant).where(Tenant.id == auth_state.user.tenant_id)
             ).first()
             if not tenant:
                 return None
@@ -194,7 +203,7 @@ class BillingState(AuthState):
                 return tenant.stripe_customer_id
             service = StripeService()
             c_id = service.create_customer(
-                name=tenant.name, email=self.user.email, tenant_id=tenant.id
+                name=tenant.name, email=auth_state.user.email, tenant_id=tenant.id
             )
             if c_id:
                 tenant.stripe_customer_id = c_id

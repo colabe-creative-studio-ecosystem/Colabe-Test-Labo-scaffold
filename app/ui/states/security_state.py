@@ -25,14 +25,15 @@ class BanditFinding(TypedDict):
     cwe: dict[str, int]
 
 
-class SecurityState(AuthState):
+class SecurityState(rx.State):
     security_findings: list[SecurityFinding] = []
     sbom_components: list[SBOMComponent] = []
     current_project_id: int | None = 1
 
     @rx.event
-    def load_security_data(self):
-        if not self.is_logged_in or not self.current_project_id:
+    async def load_security_data(self):
+        auth_state = await self.get_state(AuthState)
+        if not auth_state.is_logged_in or not self.current_project_id:
             return
         with rx.session() as session:
             self.security_findings = session.exec(
@@ -62,7 +63,7 @@ class SecurityState(AuthState):
         self.run_bandit_scan(repo_path, self.current_project_id)
         self.run_cyclonedx_scan(repo_path, self.current_project_id)
         async with self:
-            self.load_security_data()
+            await self.load_security_data()
 
     @rx.event
     def run_bandit_scan(self, repo_path: str, project_id: int):

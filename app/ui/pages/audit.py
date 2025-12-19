@@ -7,17 +7,18 @@ import sqlmodel
 from datetime import datetime
 
 
-class AuditState(AuthState):
+class AuditState(rx.State):
     audit_logs: list[AuditLog] = []
 
     @rx.event
-    def load_audit_logs(self):
+    async def load_audit_logs(self):
         with rx.session() as session:
-            if not self.user:
+            auth_state = await self.get_state(AuthState)
+            if not auth_state.user:
                 return rx.redirect("/login")
             logs = session.exec(
                 sqlmodel.select(AuditLog)
-                .where(AuditLog.tenant_id == self.user.tenant_id)
+                .where(AuditLog.tenant_id == auth_state.user.tenant_id)
                 .options(sqlmodel.selectinload(AuditLog.user))
                 .order_by(sqlmodel.desc(AuditLog.timestamp))
             ).all()
@@ -27,7 +28,7 @@ class AuditState(AuthState):
 def audit_log_page() -> rx.Component:
     return rx.el.div(
         rx.cond(
-            AuditState.is_logged_in,
+            AuthState.is_logged_in,
             rx.el.div(
                 sidebar(),
                 rx.el.div(

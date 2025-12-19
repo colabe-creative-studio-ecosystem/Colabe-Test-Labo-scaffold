@@ -7,15 +7,16 @@ import plotly.graph_objects as go
 from typing import Optional
 
 
-class QualityState(AuthState):
+class QualityState(rx.State):
     coverage_data: list[Coverage] = []
     quality_score: Optional[QualityScore] = None
     current_run_id: int | None = None
 
     @rx.event
-    def load_quality_data(self, run_id: int):
+    async def load_quality_data(self, run_id: int):
         self.current_run_id = run_id
-        if not self.is_logged_in:
+        auth_state = await self.get_state(AuthState)
+        if not auth_state.is_logged_in:
             return
         with rx.session() as session:
             self.coverage_data = session.exec(
@@ -40,7 +41,7 @@ class QualityState(AuthState):
                 "app/ui/pages/auth.py",
                 "app/core/models.py",
                 "app/ui/states/auth_state.py",
-                "app/adapters/runner.py",
+                "app/app.py",
                 "app/orchestrator/tasks.py",
                 "app/ui/pages/security.py",
                 "app/ui/states/security_state.py",
@@ -76,7 +77,7 @@ class QualityState(AuthState):
             )
             session.add(qs)
             session.commit()
-            self.load_quality_data(run_id)
+            await self.load_quality_data(run_id)
 
     @rx.var
     def coverage_heatmap_fig(self) -> go.Figure:

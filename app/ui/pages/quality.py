@@ -2,13 +2,14 @@ import reflex as rx
 import plotly.graph_objects as go
 from app.ui.components.footer import footer
 from app.ui.states.quality_state import QualityState
+from app.ui.states.auth_state import AuthState
 from app.ui.pages.index import sidebar, user_dropdown
 
 
 def quality_page() -> rx.Component:
     return rx.el.div(
         rx.cond(
-            QualityState.is_logged_in,
+            AuthState.is_logged_in,
             rx.el.div(
                 sidebar(),
                 rx.el.div(

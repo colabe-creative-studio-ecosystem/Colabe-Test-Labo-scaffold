@@ -9,7 +9,12 @@ logger = logging.getLogger(__name__)
 
 class PatchGenerator:
     def __init__(self):
-        self.client = anthropic.Anthropic(api_key=os.getenv("ANTHROPIC_API_KEY"))
+        api_key = os.getenv("ANTHROPIC_API_KEY")
+        if api_key:
+            self.client = anthropic.Anthropic(api_key=api_key)
+        else:
+            self.client = None
+            logger.warning("ANTHROPIC_API_KEY not set. Patch generator disabled.")
 
     def _get_file_content(self, file_path: str) -> str | None:
         """Reads content from a file within the project."""

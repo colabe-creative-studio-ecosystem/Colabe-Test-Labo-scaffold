@@ -1,9 +1,8 @@
 import reflex as rx
 import json
-from app.ui.states.auth_state import AuthState
 
 
-class ApiDocsState(AuthState):
+class ApiDocsState(rx.State):
     openapi_json_str: str = ""
 
     @rx.event
