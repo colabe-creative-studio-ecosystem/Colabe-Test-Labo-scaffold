@@ -2,6 +2,7 @@ import reflex as rx
 import logging
 import asyncio
 from sqlalchemy import text
+from app.ui.components.footer import footer
 from app.ui.states.auth_state import AuthState
 from app.orchestrator.tasks import enqueue_health_check
 from app.ui.pages.index import sidebar, user_dropdown
@@ -105,7 +106,11 @@ def health_check_page() -> rx.Component:
             HealthState.is_logged_in,
             rx.el.div(
                 sidebar(),
-                health_page_content(),
+                rx.el.div(
+                    health_page_content(),
+                    footer(),
+                    class_name="flex-1 flex flex-col min-w-0",
+                ),
                 class_name="flex min-h-screen bg-gray-50 font-['Inter']",
             ),
             rx.el.div(

@@ -1,4 +1,5 @@
 import reflex as rx
+from app.ui.components.footer import footer
 from app.ui.states.auth_state import AuthState
 from app.ui.states.billing_state import BillingState
 from app.ui.styles import (
@@ -130,7 +131,13 @@ def index() -> rx.Component:
     return rx.el.div(
         rx.cond(
             AuthState.is_logged_in,
-            rx.el.div(sidebar(), main_content(), class_name=page_style),
+            rx.el.div(
+                sidebar(),
+                rx.el.div(
+                    main_content(), footer(), class_name="flex-1 flex flex-col min-w-0"
+                ),
+                class_name=page_style,
+            ),
             rx.el.div(
                 rx.el.p("Loading...", class_name="text-text-primary"),
                 class_name="flex items-center justify-center min-h-screen colabe-bg",

@@ -1,4 +1,5 @@
 import reflex as rx
+from app.ui.components.footer import footer
 from app.ui.states.billing_state import BillingState
 from app.ui.pages.index import sidebar
 from app.ui.styles import page_style, page_content_style, header_style, card_style
@@ -8,7 +9,15 @@ def billing_page() -> rx.Component:
     return rx.el.div(
         rx.cond(
             BillingState.is_logged_in,
-            rx.el.div(sidebar(), billing_page_content(), class_name=page_style),
+            rx.el.div(
+                sidebar(),
+                rx.el.div(
+                    billing_page_content(),
+                    footer(),
+                    class_name="flex-1 flex flex-col min-w-0",
+                ),
+                class_name=page_style,
+            ),
             rx.el.div(
                 rx.el.p("Loading..."),
                 class_name="flex items-center justify-center min-h-screen colabe-bg",

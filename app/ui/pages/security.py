@@ -1,5 +1,6 @@
 import reflex as rx
 import sqlmodel
+from app.ui.components.footer import footer
 from app.ui.states.security_state import SecurityState
 from app.ui.states.autofix_state import AutofixState
 from app.core.models import SecurityFinding, SBOMComponent
@@ -12,7 +13,11 @@ def security_page() -> rx.Component:
             SecurityState.is_logged_in,
             rx.el.div(
                 sidebar(),
-                security_page_content(),
+                rx.el.div(
+                    security_page_content(),
+                    footer(),
+                    class_name="flex-1 flex flex-col min-w-0",
+                ),
                 class_name="flex min-h-screen bg-gray-50 font-['Inter']",
             ),
             rx.el.div(

@@ -1,4 +1,6 @@
 import reflex as rx
+from app.ui.components.footer import footer
+from app.ui.pages.index import sidebar
 from app.ui.states.auth_state import AuthState
 from app.core.models import AuditLog, User
 import sqlmodel
@@ -24,48 +26,70 @@ class AuditState(AuthState):
 
 def audit_log_page() -> rx.Component:
     return rx.el.div(
-        rx.el.div(
-            rx.el.h1("Audit Trail", class_name="text-3xl font-bold text-gray-800"),
-            rx.el.p(
-                "A log of all significant actions within your tenant.",
-                class_name="text-gray-500 mt-1",
-            ),
-        ),
-        rx.el.div(
+        rx.cond(
+            AuditState.is_logged_in,
             rx.el.div(
-                rx.el.table(
-                    rx.el.thead(
-                        rx.el.tr(
-                            rx.el.th(
-                                "Timestamp",
-                                class_name="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider",
+                sidebar(),
+                rx.el.div(
+                    rx.el.main(
+                        rx.el.div(
+                            rx.el.h1(
+                                "Audit Trail",
+                                class_name="text-3xl font-bold text-gray-800",
                             ),
-                            rx.el.th(
-                                "User",
-                                class_name="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider",
+                            rx.el.p(
+                                "A log of all significant actions within your tenant.",
+                                class_name="text-gray-500 mt-1",
                             ),
-                            rx.el.th(
-                                "Action",
-                                class_name="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider",
+                        ),
+                        rx.el.div(
+                            rx.el.div(
+                                rx.el.table(
+                                    rx.el.thead(
+                                        rx.el.tr(
+                                            rx.el.th(
+                                                "Timestamp",
+                                                class_name="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider",
+                                            ),
+                                            rx.el.th(
+                                                "User",
+                                                class_name="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider",
+                                            ),
+                                            rx.el.th(
+                                                "Action",
+                                                class_name="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider",
+                                            ),
+                                            rx.el.th(
+                                                "Details",
+                                                class_name="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider",
+                                            ),
+                                        )
+                                    ),
+                                    rx.el.tbody(
+                                        rx.foreach(
+                                            AuditState.audit_logs, render_audit_row
+                                        ),
+                                        class_name="bg-white divide-y divide-gray-200",
+                                    ),
+                                    class_name="min-w-full divide-y divide-gray-200",
+                                ),
+                                class_name="shadow overflow-hidden border-b border-gray-200 sm:rounded-lg",
                             ),
-                            rx.el.th(
-                                "Details",
-                                class_name="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider",
-                            ),
-                        )
+                            class_name="mt-8",
+                        ),
+                        class_name="flex-1 p-8",
                     ),
-                    rx.el.tbody(
-                        rx.foreach(AuditState.audit_logs, render_audit_row),
-                        class_name="bg-white divide-y divide-gray-200",
-                    ),
-                    class_name="min-w-full divide-y divide-gray-200",
+                    footer(),
+                    class_name="flex-1 flex flex-col min-w-0",
                 ),
-                class_name="shadow overflow-hidden border-b border-gray-200 sm:rounded-lg",
+                class_name="flex min-h-screen bg-gray-50 font-['Inter']",
             ),
-            class_name="mt-8",
+            rx.el.div(
+                rx.el.p("Loading..."),
+                class_name="flex items-center justify-center min-h-screen",
+            ),
         ),
         on_mount=AuditState.load_audit_logs,
-        class_name="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:px-8 font-['Inter']",
     )
 
 
