@@ -5,7 +5,7 @@ from app.ui.states.auth_state import AuthState
 def auth_layout(child: rx.Component) -> rx.Component:
     return rx.el.div(
         child,
-        class_name="min-h-screen flex items-center justify-center bg-gray-50 font-['Inter']",
+        class_name="min-h-screen flex items-center justify-center bg-[#0A0F14] font-['Inter']",
     )
 
 
@@ -19,11 +19,11 @@ def auth_card(
 ) -> rx.Component:
     return rx.el.div(
         rx.el.div(
-            rx.icon("flask-conical", size=32, class_name="text-blue-500"),
-            class_name="mx-auto mb-6 w-fit p-3 rounded-full bg-blue-100",
+            rx.icon("flask-conical", size=32, class_name="text-[#00E5FF]"),
+            class_name="mx-auto mb-6 w-fit p-3 rounded-full bg-[#00E5FF]/20",
         ),
-        rx.el.h1(title, class_name="text-2xl font-bold text-center text-gray-900"),
-        rx.el.p(subtitle, class_name="text-sm text-gray-500 text-center mt-1"),
+        rx.el.h1(title, class_name="text-2xl font-bold text-center text-[#E8F0FF]"),
+        rx.el.p(subtitle, class_name="text-sm text-[#A9B3C1] text-center mt-1"),
         form,
         rx.el.p(
             link_prompt,
@@ -31,43 +31,45 @@ def auth_card(
             rx.el.a(
                 link_text,
                 href=link_href,
-                class_name="text-blue-500 hover:underline font-medium",
+                class_name="text-[#00E5FF] hover:underline font-medium",
             ),
-            class_name="text-center text-sm text-gray-600 mt-6",
+            class_name="text-center text-sm text-[#A9B3C1] mt-6",
         ),
         rx.el.p(
             AuthState.error_message, class_name="text-red-500 text-sm mt-4 text-center"
         ),
-        class_name="w-full max-w-md p-8 space-y-6 bg-white rounded-xl shadow-lg border border-gray-200",
+        class_name="w-full max-w-md p-8 space-y-6 bg-[#0E1520] rounded-xl shadow-lg border border-white/10",
     )
 
 
 def login_form() -> rx.Component:
     return rx.el.form(
         rx.el.div(
-            rx.el.label("Email", class_name="text-sm font-medium text-gray-700"),
+            rx.el.label("Email", class_name="text-sm font-medium text-[#A9B3C1]"),
             rx.el.input(
                 placeholder="user@example.com",
                 type="email",
                 id="email",
-                class_name="w-full px-4 py-2 mt-1 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500",
+                name="email",
+                class_name="w-full px-4 py-2 mt-1 bg-[#0A0F14] border border-white/10 rounded-lg text-[#E8F0FF] placeholder-gray-600 focus:outline-none focus:ring-2 focus:ring-[#00E5FF]",
             ),
             class_name="space-y-1",
         ),
         rx.el.div(
-            rx.el.label("Password", class_name="text-sm font-medium text-gray-700"),
+            rx.el.label("Password", class_name="text-sm font-medium text-[#A9B3C1]"),
             rx.el.input(
                 placeholder="••••••••",
                 type="password",
                 id="password",
-                class_name="w-full px-4 py-2 mt-1 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500",
+                name="password",
+                class_name="w-full px-4 py-2 mt-1 bg-[#0A0F14] border border-white/10 rounded-lg text-[#E8F0FF] placeholder-gray-600 focus:outline-none focus:ring-2 focus:ring-[#00E5FF]",
             ),
             class_name="space-y-1",
         ),
         rx.el.button(
             "Sign In",
             type="submit",
-            class_name="w-full py-2 px-4 bg-blue-500 text-white font-semibold rounded-lg hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50",
+            class_name="w-full py-2 px-4 bg-[#00E5FF] text-[#0A0F14] font-bold rounded-lg hover:opacity-90 transition-opacity focus:outline-none focus:ring-2 focus:ring-[#00E5FF] focus:ring-opacity-50",
         ),
         on_submit=AuthState.login,
         class_name="mt-6 space-y-4",
@@ -77,45 +79,49 @@ def login_form() -> rx.Component:
 def register_form() -> rx.Component:
     return rx.el.form(
         rx.el.div(
-            rx.el.label("Tenant Name", class_name="text-sm font-medium text-gray-700"),
+            rx.el.label("Tenant Name", class_name="text-sm font-medium text-[#A9B3C1]"),
             rx.el.input(
                 placeholder="Your Company Inc.",
                 id="tenant_name",
-                class_name="w-full px-4 py-2 mt-1 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500",
+                name="tenant_name",
+                class_name="w-full px-4 py-2 mt-1 bg-[#0A0F14] border border-white/10 rounded-lg text-[#E8F0FF] placeholder-gray-600 focus:outline-none focus:ring-2 focus:ring-[#00E5FF]",
             ),
         ),
         rx.el.div(
-            rx.el.label("Username", class_name="text-sm font-medium text-gray-700"),
+            rx.el.label("Username", class_name="text-sm font-medium text-[#A9B3C1]"),
             rx.el.input(
                 placeholder="john_doe",
                 id="username",
-                class_name="w-full px-4 py-2 mt-1 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500",
+                name="username",
+                class_name="w-full px-4 py-2 mt-1 bg-[#0A0F14] border border-white/10 rounded-lg text-[#E8F0FF] placeholder-gray-600 focus:outline-none focus:ring-2 focus:ring-[#00E5FF]",
             ),
         ),
         rx.el.div(
             rx.el.label(
-                "Email address", class_name="text-sm font-medium text-gray-700"
+                "Email address", class_name="text-sm font-medium text-[#A9B3C1]"
             ),
             rx.el.input(
                 placeholder="user@example.com",
                 type="email",
                 id="email",
-                class_name="w-full px-4 py-2 mt-1 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500",
+                name="email",
+                class_name="w-full px-4 py-2 mt-1 bg-[#0A0F14] border border-white/10 rounded-lg text-[#E8F0FF] placeholder-gray-600 focus:outline-none focus:ring-2 focus:ring-[#00E5FF]",
             ),
         ),
         rx.el.div(
-            rx.el.label("Password", class_name="text-sm font-medium text-gray-700"),
+            rx.el.label("Password", class_name="text-sm font-medium text-[#A9B3C1]"),
             rx.el.input(
                 placeholder="••••••••",
                 type="password",
                 id="password",
-                class_name="w-full px-4 py-2 mt-1 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500",
+                name="password",
+                class_name="w-full px-4 py-2 mt-1 bg-[#0A0F14] border border-white/10 rounded-lg text-[#E8F0FF] placeholder-gray-600 focus:outline-none focus:ring-2 focus:ring-[#00E5FF]",
             ),
         ),
         rx.el.button(
             "Create Account",
             type="submit",
-            class_name="w-full py-2 px-4 bg-blue-500 text-white font-semibold rounded-lg hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50",
+            class_name="w-full py-2 px-4 bg-[#00E5FF] text-[#0A0F14] font-bold rounded-lg hover:opacity-90 transition-opacity focus:outline-none focus:ring-2 focus:ring-[#00E5FF] focus:ring-opacity-50",
         ),
         on_submit=AuthState.register,
         class_name="mt-6 space-y-4",

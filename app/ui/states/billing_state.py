@@ -7,33 +7,48 @@ from app.integrations.stripe_service import StripeService
 from app.core.settings import settings
 
 
+class InvoiceDisplay(rx.Base):
+    date: str
+    amount: str
+    status: str
+    pdf_url: str = ""
+
+
+class CoinPackDisplay(rx.Base):
+    coins: int
+    price: float
+    label: str
+
+
+class TierDisplay(rx.Base):
+    name: str
+    price: float
+    features: list[str]
+
+
 class BillingState(rx.State):
     wallet_balance: int = 0
     subscription_plan: str = "Free"
     renewal_date: str = "N/A"
-    invoices: list[dict] = []
+    invoices: list[InvoiceDisplay] = []
     payment_status_message: str = ""
-    coin_packs: list[dict] = [
-        {"coins": 500, "price": 10.0, "label": "Starter Pack"},
-        {"coins": 1000, "price": 18.0, "label": "Standard Pack"},
-        {"coins": 2500, "price": 40.0, "label": "Pro Pack"},
-        {"coins": 5000, "price": 75.0, "label": "Enterprise Pack"},
+    coin_packs: list[CoinPackDisplay] = [
+        CoinPackDisplay(coins=500, price=10.0, label="Starter Pack"),
+        CoinPackDisplay(coins=1000, price=18.0, label="Standard Pack"),
+        CoinPackDisplay(coins=2500, price=40.0, label="Pro Pack"),
+        CoinPackDisplay(coins=5000, price=75.0, label="Enterprise Pack"),
     ]
-    subscription_tiers: list[dict] = [
-        {
-            "name": "Pro",
-            "price": 29.0,
-            "features": [
-                "Unlimited Projects",
-                "Priority Support",
-                "Advanced Analytics",
-            ],
-        },
-        {
-            "name": "Enterprise",
-            "price": 99.0,
-            "features": ["SSO", "Dedicated Account Manager", "Custom Integrations"],
-        },
+    subscription_tiers: list[TierDisplay] = [
+        TierDisplay(
+            name="Pro",
+            price=29.0,
+            features=["Unlimited Projects", "Priority Support", "Advanced Analytics"],
+        ),
+        TierDisplay(
+            name="Enterprise",
+            price=99.0,
+            features=["SSO", "Dedicated Account Manager", "Custom Integrations"],
+        ),
     ]
 
     async def _load_wallet(self):
@@ -65,12 +80,12 @@ class BillingState(rx.State):
                 .order_by(sqlmodel.desc(Invoice.created_at))
             ).all()
             self.invoices = [
-                {
-                    "date": inv.created_at.strftime("%Y-%m-%d"),
-                    "amount": f"€{inv.amount:.2f}",
-                    "status": inv.status.title(),
-                    "pdf_url": inv.download_url,
-                }
+                InvoiceDisplay(
+                    date=inv.created_at.strftime("%Y-%m-%d"),
+                    amount=f"€{inv.amount:.2f}",
+                    status=inv.status.title(),
+                    pdf_url=inv.download_url or "",
+                )
                 for inv in db_invoices
             ]
 

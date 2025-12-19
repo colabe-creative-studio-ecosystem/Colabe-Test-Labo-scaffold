@@ -5,7 +5,8 @@ from sqlalchemy import text
 from app.ui.components.footer import footer
 from app.ui.states.auth_state import AuthState
 from app.orchestrator.tasks import enqueue_health_check
-from app.ui.pages.index import sidebar, user_dropdown
+from app.ui.components.sidebar import sidebar, user_dropdown
+from app.ui.styles import page_style
 
 
 class HealthState(rx.State):
@@ -79,18 +80,19 @@ def health_page_content() -> rx.Component:
         rx.el.header(
             rx.el.div(
                 rx.el.h1(
-                    "System Health", class_name="text-2xl font-bold text-gray-900"
+                    "System Health",
+                    class_name="text-2xl font-bold text-[#E8F0FF] title-gradient",
                 ),
-                rx.el.p("Status of system components.", class_name="text-gray-500"),
+                rx.el.p("Status of system components.", class_name="text-[#A9B3C1]"),
             ),
             user_dropdown(),
-            class_name="flex items-center justify-between p-4 border-b bg-white",
+            class_name="flex items-center justify-between p-4 border-b border-white/10",
         ),
         rx.el.div(
             rx.el.button(
                 "Refresh",
                 on_click=HealthState.check_health,
-                class_name="mb-6 px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600",
+                class_name="mb-6 px-4 py-2 bg-[#00E5FF] text-[#0A0F14] font-semibold rounded-lg hover:opacity-90",
             ),
             rx.el.div(
                 status_card("Overall Status", HealthState.health_status),
@@ -117,11 +119,11 @@ def health_check_page() -> rx.Component:
                     footer(),
                     class_name="flex-1 flex flex-col min-w-0",
                 ),
-                class_name="flex min-h-screen bg-gray-50 font-['Inter']",
+                class_name=page_style,
             ),
             rx.el.div(
-                rx.el.p("Loading..."),
-                class_name="flex items-center justify-center min-h-screen",
+                rx.el.p("Loading...", class_name="text-[#E8F0FF]"),
+                class_name="flex items-center justify-center min-h-screen colabe-bg",
             ),
         )
     )
@@ -129,7 +131,7 @@ def health_check_page() -> rx.Component:
 
 def status_card(title: str, status: rx.Var[str]) -> rx.Component:
     return rx.el.div(
-        rx.el.h3(title, class_name="text-lg font-medium text-gray-700"),
+        rx.el.h3(title, class_name="text-lg font-medium text-[#E8F0FF]"),
         rx.el.div(
             rx.el.div(
                 class_name=rx.cond(
@@ -156,5 +158,5 @@ def status_card(title: str, status: rx.Var[str]) -> rx.Component:
             ),
             class_name="mt-2 flex items-center space-x-2",
         ),
-        class_name="bg-white p-6 rounded-xl border border-gray-200 shadow-sm",
+        class_name="bg-[#0E1520] p-6 rounded-xl border border-white/10 shadow-sm",
     )

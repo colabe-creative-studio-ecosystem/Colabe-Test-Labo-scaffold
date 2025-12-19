@@ -2,7 +2,8 @@ import reflex as rx
 from app.ui.components.footer import footer
 from app.ui.states.quality_state import QualityState
 from app.ui.states.auth_state import AuthState
-from app.ui.pages.index import sidebar, user_dropdown
+from app.ui.components.sidebar import sidebar, user_dropdown
+from app.ui.styles import page_style, page_content_style, header_style, card_style
 
 
 def quality_page() -> rx.Component:
@@ -16,11 +17,11 @@ def quality_page() -> rx.Component:
                     footer(),
                     class_name="flex-1 flex flex-col min-w-0",
                 ),
-                class_name="flex min-h-screen bg-gray-50 font-['Inter']",
+                class_name=page_style,
             ),
             rx.el.div(
-                rx.el.p("Loading..."),
-                class_name="flex items-center justify-center min-h-screen",
+                rx.el.p("Loading...", class_name="text-[#E8F0FF]"),
+                class_name="flex items-center justify-center min-h-screen colabe-bg",
             ),
         )
     )
@@ -31,21 +32,22 @@ def quality_page_content() -> rx.Component:
         rx.el.header(
             rx.el.div(
                 rx.el.h1(
-                    "Quality & Coverage", class_name="text-2xl font-bold text-gray-900"
+                    "Quality & Coverage",
+                    class_name="text-2xl font-bold text-[#E8F0FF] title-gradient",
                 ),
                 rx.el.p(
                     "Composite quality score and per-file coverage heatmap.",
-                    class_name="text-gray-500",
+                    class_name="text-[#A9B3C1]",
                 ),
             ),
             user_dropdown(),
-            class_name="flex items-center justify-between p-4 border-b bg-white",
+            class_name=header_style,
         ),
         rx.el.div(
             rx.el.button(
                 "Generate Report for Run 1",
                 on_click=QualityState.generate_quality_report(1),
-                class_name="mb-6 px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600",
+                class_name="mb-6 px-4 py-2 bg-[#00E5FF] text-[#0A0F14] font-semibold rounded-lg hover:opacity-90",
             ),
             rx.el.div(
                 quality_score_card(),
@@ -54,23 +56,26 @@ def quality_page_content() -> rx.Component:
             ),
             class_name="p-8",
         ),
-        class_name="flex-1 flex flex-col",
+        class_name=page_content_style,
         on_mount=QualityState.load_quality_data(1),
     )
 
 
 def quality_score_card() -> rx.Component:
     return rx.el.div(
-        rx.el.h2("Composite Quality Score", class_name="text-xl font-semibold mb-4"),
+        rx.el.h2(
+            "Composite Quality Score",
+            class_name="text-xl font-semibold text-[#E8F0FF] mb-4",
+        ),
         rx.cond(
             QualityState.quality_score,
             rx.el.div(
                 rx.el.div(
                     rx.el.p(
                         QualityState.quality_score.composite_score.to_string(),
-                        class_name="text-5xl font-bold text-blue-600",
+                        class_name="text-5xl font-bold text-[#00E5FF]",
                     ),
-                    rx.el.p("out of 100", class_name="text-gray-500"),
+                    rx.el.p("out of 100", class_name="text-[#A9B3C1]"),
                     class_name="text-center",
                 ),
                 rx.el.div(
@@ -98,36 +103,38 @@ def quality_score_card() -> rx.Component:
             rx.el.div(
                 rx.el.p(
                     "No quality data available for this run. Generate a report to see the score.",
-                    class_name="text-gray-500",
+                    class_name="text-[#A9B3C1]",
                 ),
                 class_name="flex items-center justify-center h-full",
             ),
         ),
-        class_name="bg-white p-6 rounded-xl border border-gray-200 shadow-sm",
+        **card_style("cyan"),
     )
 
 
 def quality_score_item(name: str, score: rx.Var[float]) -> rx.Component:
     return rx.el.div(
-        rx.el.p(name, class_name="text-gray-600"),
-        rx.el.p(score.to_string(), class_name="font-semibold text-gray-800"),
+        rx.el.p(name, class_name="text-[#A9B3C1]"),
+        rx.el.p(score.to_string(), class_name="font-semibold text-[#E8F0FF]"),
         class_name="flex justify-between",
     )
 
 
 def coverage_heatmap() -> rx.Component:
     return rx.el.div(
-        rx.el.h2("Coverage Heatmap", class_name="text-xl font-semibold mb-4"),
+        rx.el.h2(
+            "Coverage Heatmap", class_name="text-xl font-semibold text-[#E8F0FF] mb-4"
+        ),
         rx.cond(
             QualityState.coverage_data.length() > 0,
             rx.plotly(data=QualityState.coverage_heatmap_fig),
             rx.el.div(
                 rx.el.p(
                     "No coverage data available for this run. Generate a report to see the heatmap.",
-                    class_name="text-gray-500",
+                    class_name="text-[#A9B3C1]",
                 ),
                 class_name="flex items-center justify-center h-full",
             ),
         ),
-        class_name="bg-white p-6 rounded-xl border border-gray-200 shadow-sm",
+        **card_style("magenta"),
     )

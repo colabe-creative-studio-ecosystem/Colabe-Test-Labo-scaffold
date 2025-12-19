@@ -10,6 +10,13 @@ from app.ui.pages.billing import billing_page
 from app.ui.pages.api_docs import api_docs_page
 from app.ui.pages.terms import terms_page
 from app.ui.pages.privacy import privacy_page
+from app.ui.pages.projects import projects_page
+from app.ui.pages.test_plans import test_plans_page
+from app.ui.pages.runs import runs_page
+from app.ui.pages.diffs import diffs_page
+from app.ui.pages.settings import settings_page
+from app.ui.pages.performance import performance_page
+from app.ui.pages.accessibility import accessibility_page
 from app.ui.states.auth_state import AuthState
 from app.core.settings import settings
 from app.integrations.webhook_handler import stripe_webhook
@@ -19,7 +26,7 @@ initialize_db()
 
 
 def api_routes(api):
-    api.add_route("/api/webhook/stripe", stripe_webhook, methods=["POST"])
+    api.add_api_route("/api/webhook/stripe", stripe_webhook, methods=["POST"])
     return api
 
 
@@ -46,5 +53,12 @@ app.add_page(quality_page, route="/quality", on_load=AuthState.check_login)
 app.add_page(policies_page, route="/policies", on_load=AuthState.check_login)
 app.add_page(billing_page, route="/billing", on_load=AuthState.check_login)
 app.add_page(api_docs_page, route="/api-docs", on_load=AuthState.check_login)
+app.add_page(projects_page, route="/projects", on_load=AuthState.check_login)
+app.add_page(test_plans_page, route="/test-plans", on_load=AuthState.check_login)
+app.add_page(runs_page, route="/runs", on_load=AuthState.check_login)
+app.add_page(diffs_page, route="/diffs", on_load=AuthState.check_login)
+app.add_page(settings_page, route="/settings", on_load=AuthState.check_login)
+app.add_page(performance_page, route="/performance", on_load=AuthState.check_login)
+app.add_page(accessibility_page, route="/accessibility", on_load=AuthState.check_login)
 app.add_page(terms_page, route="/terms")
 app.add_page(privacy_page, route="/privacy")

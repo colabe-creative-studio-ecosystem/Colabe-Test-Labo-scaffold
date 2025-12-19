@@ -2,7 +2,7 @@ import reflex as rx
 from app.ui.components.footer import footer
 from app.ui.states.billing_state import BillingState
 from app.ui.states.auth_state import AuthState
-from app.ui.pages.index import sidebar
+from app.ui.components.sidebar import sidebar
 from app.ui.styles import page_style, page_content_style, header_style, card_style
 
 
@@ -143,8 +143,8 @@ def billing_page_content() -> rx.Component:
                     ),
                     class_name="overflow-hidden rounded-lg border border-white/10",
                 ),
-                class_name="mt-8",
-                **card_style("magenta"),
+                class_name="mt-8 " + card_style("magenta")["class_name"],
+                style=card_style("magenta")["style"],
             ),
             class_name="p-8 max-w-7xl mx-auto",
         ),
@@ -152,62 +152,64 @@ def billing_page_content() -> rx.Component:
     )
 
 
-def render_tier_card(tier: dict) -> rx.Component:
+from app.ui.states.billing_state import CoinPackDisplay, TierDisplay, InvoiceDisplay
+
+
+def render_tier_card(tier: TierDisplay) -> rx.Component:
     return rx.el.div(
         rx.el.div(
-            rx.el.h4(tier["name"], class_name="font-bold text-lg"),
+            rx.el.h4(tier.name, class_name="font-bold text-lg"),
             rx.el.span(
-                "€" + tier["price"].to_string() + "/mo", class_name="text-[#D8B76E]"
+                "€" + tier.price.to_string() + "/mo", class_name="text-[#D8B76E]"
             ),
             class_name="flex justify-between items-center",
         ),
         rx.el.button(
             "Upgrade",
-            on_click=BillingState.subscribe(tier["name"], tier["price"]),
+            on_click=BillingState.subscribe(tier.name, tier.price),
             class_name="mt-2 w-full py-1 text-sm bg-[#D8B76E] text-[#0A0F14] font-bold rounded hover:opacity-90",
         ),
         class_name="p-3 rounded-lg bg-[#0A0F14] border border-white/10",
     )
 
 
-def render_coin_pack(pack: dict) -> rx.Component:
+def render_coin_pack(pack: CoinPackDisplay) -> rx.Component:
     return rx.el.button(
         rx.el.div(
-            pack["coins"].to_string() + " Coins", class_name="font-bold text-[#00E5FF]"
+            pack.coins.to_string() + " Coins", class_name="font-bold text-[#00E5FF]"
         ),
-        rx.el.div("€" + pack["price"].to_string(), class_name="text-sm text-[#A9B3C1]"),
-        on_click=BillingState.buy_coins(pack["coins"], pack["price"]),
+        rx.el.div("€" + pack.price.to_string(), class_name="text-sm text-[#A9B3C1]"),
+        on_click=BillingState.buy_coins(pack.coins, pack.price),
         class_name="flex flex-col items-center justify-center p-3 rounded-lg bg-[#0A0F14] border border-white/10 hover:border-[#00E5FF] transition-colors",
     )
 
 
-def render_invoice_row(inv: dict) -> rx.Component:
+def render_invoice_row(inv: InvoiceDisplay) -> rx.Component:
     return rx.el.tr(
         rx.el.td(
-            inv["date"], class_name="px-6 py-4 whitespace-nowrap text-sm text-gray-300"
+            inv.date, class_name="px-6 py-4 whitespace-nowrap text-sm text-[#A9B3C1]"
         ),
         rx.el.td(
-            inv["amount"],
-            class_name="px-6 py-4 whitespace-nowrap text-sm text-gray-300",
+            inv.amount, class_name="px-6 py-4 whitespace-nowrap text-sm text-[#E8F0FF]"
         ),
         rx.el.td(
             rx.el.span(
-                inv["status"],
-                class_name="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-900 text-green-200",
+                inv.status,
+                class_name="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-900/50 text-green-200",
             ),
             class_name="px-6 py-4 whitespace-nowrap",
         ),
         rx.el.td(
             rx.cond(
-                inv["pdf_url"],
+                inv.pdf_url != "",
                 rx.el.a(
                     rx.icon("download", size=16),
                     " PDF",
-                    href=inv["pdf_url"],
+                    href=inv.pdf_url,
                     target="_blank",
-                    class_name="text-accent-cyan hover:underline flex items-center gap-1",
+                    class_name="text-[#00E5FF] hover:underline flex items-center gap-1",
                 ),
-                rx.el.span("Processing", class_name="text-gray-500 italic"),
+                rx.el.span("Processing", class_name="text-[#A9B3C1] italic"),
             ),
             class_name="px-6 py-4 whitespace-nowrap text-sm",
         ),

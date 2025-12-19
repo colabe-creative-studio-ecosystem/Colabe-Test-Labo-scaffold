@@ -38,6 +38,7 @@ class Project(SQLModel, table=True):
     created_at: datetime.datetime = Field(default_factory=datetime.datetime.now)
     user_roles: list["UserRole"] = Relationship(back_populates="project")
     policy: Optional["ProjectPolicy"] = Relationship(back_populates="project")
+    test_plans: list["TestPlan"] = Relationship(back_populates="project")
 
 
 class UserRole(SQLModel, table=True):
@@ -61,6 +62,8 @@ class TestPlan(SQLModel, table=True):
     name: str
     project_id: int = Field(foreign_key="project.id")
     created_at: datetime.datetime = Field(default_factory=datetime.datetime.now)
+    project: "Project" = Relationship(back_populates="test_plans")
+    runs: list["Run"] = Relationship(back_populates="test_plan")
 
 
 class Run(SQLModel, table=True):
@@ -72,6 +75,7 @@ class Run(SQLModel, table=True):
     created_at: datetime.datetime = Field(default_factory=datetime.datetime.now)
     coverage_data: list["Coverage"] = Relationship(back_populates="run")
     quality_score: Optional["QualityScore"] = Relationship(back_populates="run")
+    test_plan: "TestPlan" = Relationship(back_populates="runs")
 
 
 class Finding(SQLModel, table=True):

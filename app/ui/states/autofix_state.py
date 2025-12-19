@@ -1,6 +1,7 @@
 import reflex as rx
 import sqlmodel
 import logging
+import asyncio
 from app.ui.states.auth_state import AuthState
 from app.core.models import SecurityFinding, AutofixRun, AutofixPatch
 from app.autofix.patch_generator import PatchGenerator
@@ -32,7 +33,9 @@ class AutofixState(rx.State):
                 session.refresh(autofix_run)
         try:
             patch_generator = PatchGenerator()
-            patched_code = patch_generator.generate_patch(finding)
+            patched_code = await asyncio.to_thread(
+                patch_generator.generate_patch, finding
+            )
             async with self:
                 with rx.session() as session:
                     autofix_run = session.get(AutofixRun, autofix_run.id)

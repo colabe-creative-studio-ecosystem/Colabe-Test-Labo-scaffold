@@ -2,7 +2,7 @@ import reflex as rx
 from app.ui.components.footer import footer
 from app.ui.states.api_docs_state import ApiDocsState
 from app.ui.states.auth_state import AuthState
-from app.ui.pages.index import sidebar
+from app.ui.components.sidebar import sidebar
 from app.ui.styles import page_style, page_content_style, header_style, card_style
 
 

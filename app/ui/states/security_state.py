@@ -13,22 +13,24 @@ import os
 import tempfile
 import requests
 import asyncio
-from typing import TypedDict
 import logging
 
 
-class BanditFinding(TypedDict):
-    test_id: str
-    issue_text: str
-    issue_severity: str
-    filename: str
-    line_number: int
-    cwe: dict[str, int]
+class VulnerabilityDisplay(rx.Base):
+    id: int | None = None
+    severity: str
+    summary: str
+
+
+class SBOMComponentDisplay(rx.Base):
+    name: str
+    version: str
+    vulnerabilities: list[VulnerabilityDisplay]
 
 
 class SecurityState(rx.State):
     security_findings: list[SecurityFinding] = []
-    sbom_components: list[SBOMComponent] = []
+    sbom_components: list[SBOMComponentDisplay] = []
     current_project_id: int | None = 1
 
     @rx.event
@@ -42,11 +44,24 @@ class SecurityState(rx.State):
                     SecurityFinding.project_id == self.current_project_id
                 )
             ).all()
-            self.sbom_components = session.exec(
+            components = session.exec(
                 sqlmodel.select(SBOMComponent)
                 .where(SBOMComponent.project_id == self.current_project_id)
                 .options(sqlmodel.selectinload(SBOMComponent.vulnerabilities))
             ).all()
+            self.sbom_components = [
+                SBOMComponentDisplay(
+                    name=c.name,
+                    version=c.version,
+                    vulnerabilities=[
+                        VulnerabilityDisplay(
+                            id=v.id, severity=v.severity, summary=v.summary
+                        )
+                        for v in c.vulnerabilities
+                    ],
+                )
+                for c in components
+            ]
 
     @rx.event(background=True)
     async def run_security_scans(self):

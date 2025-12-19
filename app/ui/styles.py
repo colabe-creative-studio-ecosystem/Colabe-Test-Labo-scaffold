@@ -16,18 +16,11 @@ colors = {
 
 
 def card_style(accent_color: str) -> dict:
+    color_hex = colors.get(f"accent_{accent_color}", "#00E5FF")
+    r, g, b = tuple((int(color_hex.lstrip("#")[i : i + 2], 16) for i in (0, 2, 4)))
     return {
-        "bg": "bg_elevated",
-        "p": "6",
-        "rounded": "2xl",
-        "border": "1px",
-        "border_color": f"var(--{accent_color})/0.3",
-        "box_shadow": f"0 0 40px -10px var(--{accent_color})",
-        "transition": "all 0.2s ease-in-out",
-        "_hover": {
-            "box_shadow": f"0 0 60px -15px var(--{accent_color})",
-            "transform": "translateY(-2px)",
-        },
+        "class_name": f"bg-[#0E1520] p-6 rounded-2xl border transition-all duration-200 ease-in-out hover:-translate-y-0.5 shadow-[0_0_40px_-10px_var(--{accent_color})] hover:shadow-[0_0_60px_-15px_var(--{accent_color})]",
+        "style": {"borderColor": f"rgba({r}, {g}, {b}, 0.3)"},
     }
 
 

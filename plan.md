@@ -1,26 +1,21 @@
-# Colabe Test Labo - Fix Pages & Unified Dark Neon Theme
+# Colabe Test Labo - Complete Pages Implementation
 
-## Phase 1: Create Missing Pages & Fix Navigation ✅
-- [ ] Create Projects page with CRUD operations (list, create, edit, delete projects)
-- [ ] Create Test Plans page with test plan management for selected project
-- [ ] Create Project State to manage projects data and operations
-- [ ] Create Test Plan State to manage test plans data and operations
-- [ ] Add routes for /projects and /testplans in app.py
-- [ ] Fix all sidebar navigation links to connect to correct pages
-- [ ] Ensure all buttons have proper event handlers connected
+## Phase 1: Core Test Pages (Test Plans, Live Runs, Diffs) ✅
+- [x] Create Test Plans page with state management (CRUD for test plans)
+- [x] Create Live Runs page showing active/completed test runs with status
+- [x] Create Diffs page showing code differences between test runs
+- [x] All pages with dark theme and neon cyan accents
 
-## Phase 2: Unified Dark Neon Theme & Styling
-- [ ] Create global dark theme CSS with neon glow effects
-- [ ] Update colabe.css with dark background, neon card glows, neon text colors
-- [ ] Apply dark theme to all pages: index, health, auth, audit, security, quality, policies, billing, api-docs, projects, testplans
-- [ ] Update sidebar component with dark neon styling
-- [ ] Add neon glow effects behind cards and containers
-- [ ] Use cyan/purple/green neon colors for titles and accents
-- [ ] Ensure consistent styling across all components
+## Phase 2: Quality & Analysis Pages (Coverage, Security, Accessibility, Performance)
+- [ ] Update Coverage/Quality page with dark theme and neon effects
+- [ ] Update Security page with dark theme and magenta neon accents
+- [ ] Create Accessibility page with a11y metrics and dark theme (green neon)
+- [ ] Create Performance page with metrics, charts, dark theme (orange neon)
 
-## Phase 3: Backend Verification & Testing
-- [ ] Verify all API endpoints work correctly
-- [ ] Test project CRUD operations
-- [ ] Test test plan operations
-- [ ] Verify navigation flow between all pages
-- [ ] Ensure all tools/scanners display results properly
+## Phase 3: Admin & Config Pages (Policies, Audit, Billing, Settings)
+- [ ] Update Policies page with dark theme and purple neon effects
+- [ ] Update Audit Trail page with dark theme and amber neon effects
+- [ ] Update Billing page with centered text and improved layout
+- [ ] Create Settings page with user/tenant configuration options
+- [ ] Update API Docs page with larger cards and better spacing
+- [ ] Update System Health page with dark theme and neon effects

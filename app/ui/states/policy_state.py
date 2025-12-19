@@ -3,6 +3,9 @@ from typing import Optional
 from app.ui.states.auth_state import AuthState
 from app.core.models import Project, ProjectPolicy, SeverityEnum
 import sqlmodel
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 class PolicyState(rx.State):
@@ -44,8 +47,15 @@ class PolicyState(rx.State):
             with rx.session() as session:
                 policy_to_update = session.get(ProjectPolicy, self.project_policy.id)
                 if policy_to_update:
-                    if field in [
-                        "min_coverage_percent",
+                    if field == "min_coverage_percent":
+                        try:
+                            setattr(policy_to_update, field, float(value))
+                        except ValueError as e:
+                            logger.exception(
+                                f"Failed to update policy field {field} with value {value}: {e}"
+                            )
+                            pass
+                    elif field in [
                         "performance_budget",
                         "accessibility_budget",
                         "sla_critical",
@@ -53,7 +63,13 @@ class PolicyState(rx.State):
                         "sla_medium",
                         "sla_low",
                     ]:
-                        setattr(policy_to_update, field, int(value))
+                        try:
+                            setattr(policy_to_update, field, int(value))
+                        except ValueError as e:
+                            logger.exception(
+                                f"Failed to update policy field {field} with value {value}: {e}"
+                            )
+                            pass
                     elif field == "auto_merge_enabled":
                         setattr(policy_to_update, field, value == "true")
                     else:
@@ -62,6 +78,18 @@ class PolicyState(rx.State):
                     session.commit()
                     session.refresh(policy_to_update)
                     self.project_policy = policy_to_update
+
+    @rx.event
+    def set_blocking_severity(self, value: str):
+        self.update_policy("blocking_severity", value)
+
+    @rx.event
+    def set_min_coverage(self, value: str):
+        self.update_policy("min_coverage_percent", value)
+
+    @rx.event
+    def set_autofix_scope(self, value: str):
+        self.update_policy("autofix_scope", value)
 
     @rx.var
     def is_mergeable(self) -> bool:
