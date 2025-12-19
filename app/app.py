@@ -16,7 +16,7 @@ from app.integrations.webhook_handler import stripe_webhook
 
 
 def api_routes(api):
-    api.add_api_route("/api/webhook/stripe", stripe_webhook, methods=["POST"])
+    api.add_route("/api/webhook/stripe", stripe_webhook, methods=["POST"])
     return api
 
 

@@ -18,7 +18,9 @@ class Settings:
     S3_SECRET_ACCESS_KEY: str | None = os.environ.get("S3_SECRET_ACCESS_KEY")
     S3_BUCKET_NAME: str = os.environ.get("S3_BUCKET_NAME", "colabe-artifacts")
     ANTHROPIC_API_KEY: str | None = os.environ.get("ANTHROPIC_API_KEY")
-    STRIPE_SECRET_KEY: str | None = os.environ.get("STRIPE_SECRET_KEY")
+    STRIPE_SECRET_KEY: str | None = os.environ.get(
+        "STRIPE_SECRET_KEY"
+    ) or os.environ.get("STRIPE_API_KEY")
     STRIPE_WEBHOOK_SECRET: str | None = os.environ.get("STRIPE_WEBHOOK_SECRET")
     DOMAIN: str = os.environ.get("DOMAIN", "http://localhost:3000")
 
