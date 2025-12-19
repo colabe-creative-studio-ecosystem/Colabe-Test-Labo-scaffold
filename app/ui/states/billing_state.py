@@ -96,17 +96,11 @@ class BillingState(rx.State):
                 "Payment successful! Thank you for your purchase."
             )
             return rx.toast(
-                "Payment Successful",
-                description="Your account has been updated.",
-                style={"background_color": "#00D68F", "color": "white"},
+                "Payment Successful", description="Your account has been updated."
             )
         elif "canceled" in query_params:
             self.payment_status_message = "Payment was canceled."
-            return rx.toast(
-                "Payment Canceled",
-                description="No charges were made.",
-                style={"background_color": "#FF3B3B", "color": "white"},
-            )
+            return rx.toast("Payment Canceled", description="No charges were made.")
 
     @rx.event
     async def load_billing_data(self):

@@ -1,6 +1,11 @@
 import reflex as rx
 from app.ui.components.footer import footer
-from app.ui.states.billing_state import BillingState
+from app.ui.states.billing_state import (
+    BillingState,
+    CoinPackDisplay,
+    TierDisplay,
+    InvoiceDisplay,
+)
 from app.ui.states.auth_state import AuthState
 from app.ui.components.sidebar import sidebar
 from app.ui.styles import page_style, page_content_style, header_style, card_style
@@ -23,8 +28,7 @@ def billing_page() -> rx.Component:
                 rx.el.p("Loading..."),
                 class_name="flex items-center justify-center min-h-screen colabe-bg",
             ),
-        ),
-        on_mount=BillingState.load_billing_data,
+        )
     )
 
 
@@ -143,7 +147,7 @@ def billing_page_content() -> rx.Component:
                     ),
                     class_name="overflow-hidden rounded-lg border border-white/10",
                 ),
-                class_name="mt-8 " + card_style("magenta")["class_name"],
+                class_name=f"mt-8 {card_style('magenta')['class_name']}",
                 style=card_style("magenta")["style"],
             ),
             class_name="p-8 max-w-7xl mx-auto",
@@ -152,16 +156,11 @@ def billing_page_content() -> rx.Component:
     )
 
 
-from app.ui.states.billing_state import CoinPackDisplay, TierDisplay, InvoiceDisplay
-
-
 def render_tier_card(tier: TierDisplay) -> rx.Component:
     return rx.el.div(
         rx.el.div(
             rx.el.h4(tier.name, class_name="font-bold text-lg"),
-            rx.el.span(
-                "€" + tier.price.to_string() + "/mo", class_name="text-[#D8B76E]"
-            ),
+            rx.el.span("€", tier.price, "/mo", class_name="text-[#D8B76E]"),
             class_name="flex justify-between items-center",
         ),
         rx.el.button(
@@ -175,10 +174,8 @@ def render_tier_card(tier: TierDisplay) -> rx.Component:
 
 def render_coin_pack(pack: CoinPackDisplay) -> rx.Component:
     return rx.el.button(
-        rx.el.div(
-            pack.coins.to_string() + " Coins", class_name="font-bold text-[#00E5FF]"
-        ),
-        rx.el.div("€" + pack.price.to_string(), class_name="text-sm text-[#A9B3C1]"),
+        rx.el.div(pack.coins, " Coins", class_name="font-bold text-[#00E5FF]"),
+        rx.el.div("€", pack.price, class_name="text-sm text-[#A9B3C1]"),
         on_click=BillingState.buy_coins(pack.coins, pack.price),
         class_name="flex flex-col items-center justify-center p-3 rounded-lg bg-[#0A0F14] border border-white/10 hover:border-[#00E5FF] transition-colors",
     )

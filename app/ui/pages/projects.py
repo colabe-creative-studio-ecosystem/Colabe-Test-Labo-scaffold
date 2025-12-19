@@ -24,8 +24,7 @@ def projects_page() -> rx.Component:
                 rx.el.p("Loading...", class_name="text-[#E8F0FF]"),
                 class_name="flex items-center justify-center min-h-screen colabe-bg",
             ),
-        ),
-        on_mount=ProjectState.load_projects,
+        )
     )
 
 

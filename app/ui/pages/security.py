@@ -6,6 +6,7 @@ from app.ui.states.auth_state import AuthState
 from app.core.models import SecurityFinding, SBOMComponent
 from app.ui.components.sidebar import sidebar, user_dropdown
 from app.ui.styles import page_style, page_content_style, header_style
+from app.ui.states.security_state import SBOMComponentDisplay
 
 
 def security_page() -> rx.Component:
@@ -61,7 +62,6 @@ def security_page_content() -> rx.Component:
             class_name="p-8 flex-1",
         ),
         class_name=page_content_style,
-        on_mount=SecurityState.load_security_data,
     )
 
 
@@ -188,9 +188,6 @@ def sbom_table() -> rx.Component:
             class_name="overflow-hidden rounded-xl border border-white/10 bg-[#0E1520]",
         ),
     )
-
-
-from app.ui.states.security_state import SBOMComponentDisplay
 
 
 def render_sbom_row(component: SBOMComponentDisplay) -> rx.Component:

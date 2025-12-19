@@ -73,8 +73,7 @@ def audit_log_page() -> rx.Component:
                 rx.el.p("Loading...", class_name="text-[#E8F0FF]"),
                 class_name="flex items-center justify-center min-h-screen colabe-bg",
             ),
-        ),
-        on_mount=AuditState.load_audit_logs,
+        )
     )
 
 

@@ -45,6 +45,5 @@ def accessibility_page() -> rx.Component:
                 rx.el.p("Loading..."),
                 class_name="flex items-center justify-center min-h-screen colabe-bg",
             ),
-        ),
-        on_mount=AuthState.check_login,
+        )
     )

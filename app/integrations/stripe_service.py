@@ -8,9 +8,9 @@ logger = logging.getLogger(__name__)
 
 class StripeService:
     def __init__(self):
-        if settings.STRIPE_SECRET_KEY:
+        if settings.STRIPE_SECRET_KEY and settings.STRIPE_SECRET_KEY.strip():
             stripe.api_key = settings.STRIPE_SECRET_KEY
-        else:
+        elif settings.STRIPE_SECRET_KEY is not None:
             logger.warning(
                 "STRIPE_SECRET_KEY not set. Stripe features will be disabled."
             )

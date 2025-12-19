@@ -5,6 +5,7 @@ from app.ui.states.auth_state import AuthState
 from app.ui.components.sidebar import sidebar, user_dropdown
 from app.ui.styles import page_style, page_content_style, header_style, card_style
 from app.core.models import AutofixPatch
+from app.ui.states.diff_state import PatchDisplay
 
 
 def diffs_page() -> rx.Component:
@@ -22,8 +23,7 @@ def diffs_page() -> rx.Component:
                 rx.el.p("Loading...", class_name="text-[#E8F0FF]"),
                 class_name="flex items-center justify-center min-h-screen colabe-bg",
             ),
-        ),
-        on_mount=DiffState.load_data,
+        )
     )
 
 
@@ -63,9 +63,6 @@ def diffs_content() -> rx.Component:
         ),
         class_name=page_content_style,
     )
-
-
-from app.ui.states.diff_state import PatchDisplay
 
 
 def patch_card(patch: PatchDisplay) -> rx.Component:

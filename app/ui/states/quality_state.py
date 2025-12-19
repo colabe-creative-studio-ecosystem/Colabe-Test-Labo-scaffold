@@ -80,6 +80,10 @@ class QualityState(rx.State):
             session.commit()
         await self._load_quality_data(run_id)
 
+    @rx.event
+    async def load_initial_data(self):
+        await self.load_quality_data(1)
+
     @rx.var
     def coverage_heatmap_fig(self) -> go.Figure:
         if not self.coverage_data:

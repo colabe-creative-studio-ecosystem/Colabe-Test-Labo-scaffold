@@ -57,7 +57,6 @@ def quality_page_content() -> rx.Component:
             class_name="p-8",
         ),
         class_name=page_content_style,
-        on_mount=QualityState.load_quality_data(1),
     )
 
 

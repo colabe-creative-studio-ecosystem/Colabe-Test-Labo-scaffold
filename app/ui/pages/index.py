@@ -20,7 +20,7 @@ def main_content() -> rx.Component:
                     class_name="text-2xl font-bold text-[#E8F0FF] title-gradient",
                 ),
                 rx.el.p(
-                    "Welcome back, " + AuthState.user.username + "!",
+                    f"Welcome back, {AuthState.user.username}!",
                     class_name="text-[#A9B3C1]",
                 ),
             ),
@@ -38,7 +38,7 @@ def main_content() -> rx.Component:
                     class_name="mt-4 text-lg text-[#A9B3C1] max-w-2xl text-center",
                 ),
                 rx.el.p(
-                    "You are logged in with role: " + AuthState.current_user_role,
+                    f"You are logged in with role: {AuthState.current_user_role}",
                     class_name="mt-4 text-md text-[#00E5FF] bg-[#00E5FF]/10 px-3 py-1 rounded-full",
                 ),
                 **style,
@@ -64,6 +64,5 @@ def index() -> rx.Component:
                 rx.el.p("Loading...", class_name="text-[#E8F0FF]"),
                 class_name="flex items-center justify-center min-h-screen colabe-bg",
             ),
-        ),
-        on_mount=BillingState.load_wallet,
+        )
     )

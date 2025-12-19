@@ -18,8 +18,7 @@ def user_dropdown() -> rx.Component:
         wallet_badge(),
         rx.el.button(
             rx.el.img(
-                src="https://api.dicebear.com/9.x/initials/svg?seed="
-                + AuthState.user.username,
+                src=f"https://api.dicebear.com/9.x/initials/svg?seed={AuthState.user.username}",
                 class_name="h-8 w-8 rounded-full",
                 alt="User Avatar",
             ),

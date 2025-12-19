@@ -5,6 +5,7 @@ from app.ui.states.auth_state import AuthState
 from app.ui.components.sidebar import sidebar, user_dropdown
 from app.ui.styles import page_style, page_content_style, header_style, card_style
 from app.core.models import TestPlan
+from app.ui.states.test_plan_state import TestPlanDisplay
 
 
 def test_plans_page() -> rx.Component:
@@ -24,8 +25,7 @@ def test_plans_page() -> rx.Component:
                 rx.el.p("Loading...", class_name="text-[#E8F0FF]"),
                 class_name="flex items-center justify-center min-h-screen colabe-bg",
             ),
-        ),
-        on_mount=TestPlanState.load_data,
+        )
     )
 
 
@@ -122,9 +122,6 @@ def create_plan_section() -> rx.Component:
         ),
         class_name="mb-8 p-6 bg-[#0E1520] rounded-xl border border-white/5 shadow-lg",
     )
-
-
-from app.ui.states.test_plan_state import TestPlanDisplay
 
 
 def plan_card(plan: TestPlanDisplay) -> rx.Component:
