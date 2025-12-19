@@ -1,11 +1,13 @@
 # Colabe Test Labo - Monetization & System Verification Plan
 
-## Phase 1: Monetization Infrastructure & Billing System ✅ → Enhancement
-- [ ] Audit existing billing models (Wallet, Subscription, CoinPack, Invoice)
-- [ ] Create coin purchase flow with Stripe integration
-- [ ] Build subscription upgrade/downgrade functionality
-- [ ] Add invoice generation and download features
-- [ ] Implement usage tracking and coin deduction for scans
+## Phase 1: Monetization Infrastructure & Billing System ✅
+- [x] Audit existing billing models (Wallet, Subscription, CoinPack, Invoice)
+- [x] Create coin purchase flow with Stripe integration
+- [x] Build subscription upgrade/downgrade functionality
+- [x] Add invoice generation and download features
+- [x] Implement Stripe webhook handler for payment events
+- [x] Add stripe_customer_id to Tenant model
+- [x] Test Stripe API connection and checkout session creation
 
 ---
 

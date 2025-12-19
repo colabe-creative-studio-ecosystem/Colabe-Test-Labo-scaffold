@@ -12,6 +12,14 @@ from app.ui.pages.api_docs import api_docs_page
 from app.ui.states.auth_state import AuthState
 from app.core.settings import settings
 from app.core import models
+from app.integrations.webhook_handler import stripe_webhook_routes
+
+
+def register_routes(api):
+    for route in stripe_webhook_routes:
+        api.routes.append(route)
+    return api
+
 
 app = rxe.App(
     head_components=[
@@ -24,6 +32,7 @@ app = rxe.App(
     ],
     theme=rx.theme(appearance="light"),
     stylesheets=["/colabe.css"],
+    api_transformer=register_routes,
 )
 app.add_page(index, route="/", on_load=AuthState.check_login)
 app.add_page(health_check_page, route="/health", on_load=AuthState.check_login)

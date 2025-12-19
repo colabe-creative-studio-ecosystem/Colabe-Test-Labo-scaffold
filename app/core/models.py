@@ -15,6 +15,7 @@ class RoleEnum(str, Enum):
 class Tenant(SQLModel, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
     name: str = Field(unique=True)
+    stripe_customer_id: Optional[str] = Field(default=None, index=True)
     created_at: datetime.datetime = Field(default_factory=datetime.datetime.now)
     users: list["User"] = Relationship(back_populates="tenant")
 
@@ -242,6 +243,7 @@ class Wallet(SQLModel, table=True):
 class Subscription(SQLModel, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
     tenant_id: int = Field(foreign_key="tenant.id", unique=True)
+    stripe_subscription_id: Optional[str] = None
     plan: str = Field(default="Free")
     status: str = Field(default="active")
     renews_at: Optional[datetime.datetime] = None
@@ -259,6 +261,8 @@ class CoinPack(SQLModel, table=True):
 class Invoice(SQLModel, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
     tenant_id: int = Field(foreign_key="tenant.id")
+    stripe_payment_intent_id: Optional[str] = None
+    stripe_invoice_id: Optional[str] = None
     amount: float
     currency: str = Field(default="EUR")
     status: str
