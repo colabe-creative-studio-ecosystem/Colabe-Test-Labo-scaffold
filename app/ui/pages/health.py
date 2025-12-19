@@ -34,17 +34,22 @@ class HealthState(rx.State):
         except Exception as e:
             logging.exception(e)
             self.redis_status = "Error"
-        try:
-            self.job_id = enqueue_health_check()
+        job_id = enqueue_health_check()
+        if job_id:
+            self.job_id = job_id
             self.worker_status = "Job Enqueued"
-        except Exception as e:
-            logging.exception(e)
-            self.worker_status = "Enqueue Failed"
+        else:
+            self.job_id = ""
+            if self.redis_status == "Error":
+                self.worker_status = "Redis Unavailable"
+            else:
+                self.worker_status = "Enqueue Failed"
         if self.db_status == "OK" and self.redis_status == "OK":
             self.health_status = "OK"
         else:
             self.health_status = "Degraded"
-        return HealthState.check_job_status
+        if self.job_id:
+            return HealthState.check_job_status
 
     @rx.event(background=True)
     async def check_job_status(self):

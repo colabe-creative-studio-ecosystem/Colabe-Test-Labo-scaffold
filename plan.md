@@ -1,79 +1,26 @@
-# Colabe Test Labo - Monetization & System Verification Plan
+# Colabe Test Labo - Fix Pages & Unified Dark Neon Theme
 
-## Phase 1: Monetization Infrastructure & Billing System ✅
-- [x] Audit existing billing models (Wallet, Subscription, CoinPack, Invoice)
-- [x] Create coin purchase flow with Stripe integration
-- [x] Build subscription upgrade/downgrade functionality
-- [x] Add invoice generation and download features
-- [x] Implement Stripe webhook handler for payment events
-- [x] Add stripe_customer_id to Tenant model
-- [x] Test Stripe API connection and checkout session creation
+## Phase 1: Create Missing Pages & Fix Navigation ✅
+- [ ] Create Projects page with CRUD operations (list, create, edit, delete projects)
+- [ ] Create Test Plans page with test plan management for selected project
+- [ ] Create Project State to manage projects data and operations
+- [ ] Create Test Plan State to manage test plans data and operations
+- [ ] Add routes for /projects and /testplans in app.py
+- [ ] Fix all sidebar navigation links to connect to correct pages
+- [ ] Ensure all buttons have proper event handlers connected
 
----
+## Phase 2: Unified Dark Neon Theme & Styling
+- [ ] Create global dark theme CSS with neon glow effects
+- [ ] Update colabe.css with dark background, neon card glows, neon text colors
+- [ ] Apply dark theme to all pages: index, health, auth, audit, security, quality, policies, billing, api-docs, projects, testplans
+- [ ] Update sidebar component with dark neon styling
+- [ ] Add neon glow effects behind cards and containers
+- [ ] Use cyan/purple/green neon colors for titles and accents
+- [ ] Ensure consistent styling across all components
 
-## Phase 2: Button & UI Functionality Verification ✅
-- [x] Fix AuthState login/register event handlers (create_session issue)
-- [x] Fix database schema (add stripe_customer_id, stripe_payment_intent_id columns)
-- [x] Test authentication flow (login → session → role access → logout)
-- [x] Test Stripe webhook handler (coin purchase flow)
-- [x] Verify form submissions work correctly
-- [x] Audit sidebar navigation links (identify unimplemented routes)
-
----
-
-## Phase 3: Frontend-Backend Connection & Endpoint Testing ✅
-- [x] Verify Stripe API connection works
-- [x] Test checkout session creation
-- [x] Test webhook handler processes coin purchases correctly
-- [x] Verify wallet balance updates after payment
-- [x] Verify invoice records created properly
-- [x] Test authentication state persistence
-
----
-
-## Final Smoke Test Results ✅
-
-### ✅ ALL TESTS PASSED
-| Component | Status | Details |
-|-----------|--------|---------|
-| **Stripe API Connection** | ✅ PASS | Connected to `acct_1SfrsS36WlDDErro` |
-| **Checkout Sessions** | ✅ PASS | Creates live checkout URLs |
-| **Webhook Handler** | ✅ PASS | `POST /api/webhook/stripe` registered |
-| **Database Models** | ✅ PASS | All Stripe fields present |
-| **Authentication** | ✅ PASS | Login, Register, Logout handlers ready |
-| **Billing State** | ✅ PASS | 4 coin packs, 2 subscription tiers |
-| **Security State** | ✅ PASS | Bandit + CycloneDX scan handlers ready |
-| **Core Routes** | ✅ PASS | 10 pages fully implemented |
-
-### Route Coverage: 53% (8/15 sidebar links)
-**Implemented:**
-- `/` Dashboard
-- `/quality` Coverage
-- `/security` Security
-- `/policies` Policies
-- `/audits` Audit Log
-- `/billing` Billing & Wallet
-- `/api-docs` API & Webhooks
-- `/health` System Health
-- `/login` + `/register` Auth pages
-
-**Placeholder (non-critical):**
-- `/projects`, `/test-plans`, `/runs`, `/diffs`
-- `/accessibility`, `/performance`, `/settings`
-
----
-
-## 🚀 LAUNCH STATUS: READY FOR PRODUCTION
-
-### Go-Live Checklist ✅
-- [x] Stripe account connected: `acct_1SfrsS36WlDDErro`
-- [x] Webhook endpoint: `POST /api/webhook/stripe`
-- [x] Authentication flow tested
-- [x] Payment flow tested
-- [x] Security scanning tested
-- [x] Audit logging enabled
-
-### Post-Launch Reminders
-- Complete Stripe account onboarding to enable charges/payouts
-- Ensure Redis is running for background workers
-- Monitor webhook events in Stripe dashboard
+## Phase 3: Backend Verification & Testing
+- [ ] Verify all API endpoints work correctly
+- [ ] Test project CRUD operations
+- [ ] Test test plan operations
+- [ ] Verify navigation flow between all pages
+- [ ] Ensure all tools/scanners display results properly

@@ -13,6 +13,9 @@ from app.ui.pages.privacy import privacy_page
 from app.ui.states.auth_state import AuthState
 from app.core.settings import settings
 from app.integrations.webhook_handler import stripe_webhook
+from app.core.db_init import initialize_db
+
+initialize_db()
 
 
 def api_routes(api):
