@@ -62,6 +62,7 @@ def sidebar() -> rx.Component:
         rx.el.div(
             sidebar_link("Dashboard", "/", "layout-dashboard"),
             sidebar_link("Projects", "/projects", "folder-kanban"),
+            sidebar_link("Adapters", "/adapters", "puzzle"),
             sidebar_link("Test Plans", "/test-plans", "file-check"),
             sidebar_link("Live Runs", "/runs", "circle-play"),
             sidebar_link("Diffs", "/diffs", "git-compare"),

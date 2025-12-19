@@ -1,21 +1,19 @@
-# Colabe Test Labo - Complete Pages Implementation
+# Colabe Test Labo - Test Runner Integrations
 
-## Phase 1: Core Test Pages (Test Plans, Live Runs, Diffs) ✅
-- [x] Create Test Plans page with state management (CRUD for test plans)
-- [x] Create Live Runs page showing active/completed test runs with status
-- [x] Create Diffs page showing code differences between test runs
-- [x] All pages with dark theme and neon cyan accents
+## Phase 1: Test Runner Adapters Infrastructure ✅
+- [x] Core models and database schema
+- [x] Basic project and test plan management
+- [x] Run execution tracking
 
-## Phase 2: Quality & Analysis Pages (Coverage, Security, Accessibility, Performance)
-- [ ] Update Coverage/Quality page with dark theme and neon effects
-- [ ] Update Security page with dark theme and magenta neon accents
-- [ ] Create Accessibility page with a11y metrics and dark theme (green neon)
-- [ ] Create Performance page with metrics, charts, dark theme (orange neon)
+## Phase 2: Multi-Framework Test Runner Adapters ✅
+- [x] Create adapter registry with supported frameworks/languages
+- [x] Build adapter state with framework capabilities (Python/pytest, JavaScript/Jest, Java/JUnit, Go, Rust, C#, Ruby, PHP)
+- [x] Create Adapters/Integrations page showing all runners with status, language, supported test types
+- [x] Display adapter configuration options per framework
+- [x] Show integration status (connected, pending, disabled) for each runner
 
-## Phase 3: Admin & Config Pages (Policies, Audit, Billing, Settings)
-- [ ] Update Policies page with dark theme and purple neon effects
-- [ ] Update Audit Trail page with dark theme and amber neon effects
-- [ ] Update Billing page with centered text and improved layout
-- [ ] Create Settings page with user/tenant configuration options
-- [ ] Update API Docs page with larger cards and better spacing
-- [ ] Update System Health page with dark theme and neon effects
+## Phase 3: Adapter Configuration & Execution UI ✅
+- [x] Add adapter enable/disable toggle per project
+- [x] Create adapter-specific configuration forms (env vars, CLI args, coverage tools)
+- [x] Show test execution command templates per framework
+- [x] Add adapter health check indicators

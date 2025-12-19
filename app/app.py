@@ -110,6 +110,9 @@ app.add_page(
 app.add_page(
     diffs_page, route="/diffs", on_load=sidebar_load_events + [DiffState.load_data]
 )
+from app.ui.pages.adapters import adapters_page
+
+app.add_page(adapters_page, route="/adapters", on_load=sidebar_load_events)
 app.add_page(
     settings_page,
     route="/settings",
