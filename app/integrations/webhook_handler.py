@@ -1,4 +1,3 @@
-from fastapi import APIRouter
 from starlette.requests import Request
 from starlette.responses import JSONResponse
 import reflex as rx
@@ -10,10 +9,8 @@ from datetime import datetime
 
 logger = logging.getLogger(__name__)
 stripe_service = StripeService()
-stripe_router = APIRouter()
 
 
-@stripe_router.post("/api/webhook/stripe")
 async def stripe_webhook(request: Request):
     stripe_signature = request.headers.get("stripe-signature")
     if not stripe_signature:
