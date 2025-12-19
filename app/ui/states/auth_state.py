@@ -89,7 +89,7 @@ class AuthState(rx.State):
             )
             self.user = new_user
             self._user_id = new_user.id
-            return AuthState.create_session(new_user.id, session)
+            return AuthState.create_session(new_user.id)
 
     @rx.event
     def login(self, form_data: dict):
@@ -103,7 +103,7 @@ class AuthState(rx.State):
                 self._log_audit("user.login", user_id=user.id, tenant_id=user.tenant_id)
                 self.user = user
                 self._user_id = user.id
-                return AuthState.create_session(user.id, session)
+                return AuthState.create_session(user.id)
             else:
                 self.error_message = "Invalid email or password."
                 self._log_audit(
@@ -113,14 +113,15 @@ class AuthState(rx.State):
                 return rx.toast("Invalid email or password", duration=3000)
 
     @rx.event
-    def create_session(self, user_id: int, session: sqlmodel.Session):
+    def create_session(self, user_id: int):
         session_token = secrets.token_urlsafe(32)
         expires_at = datetime.now() + settings.SESSION_TIMEOUT
-        new_session = Session(
-            session_id=session_token, user_id=user_id, expires_at=expires_at
-        )
-        session.add(new_session)
-        session.commit()
+        with rx.session() as session:
+            new_session = Session(
+                session_id=session_token, user_id=user_id, expires_at=expires_at
+            )
+            session.add(new_session)
+            session.commit()
         self.session_id = session_token
         return rx.redirect("/")
 
