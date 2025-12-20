@@ -71,7 +71,7 @@ def quality_score_card() -> rx.Component:
             rx.el.div(
                 rx.el.div(
                     rx.el.p(
-                        f"{QualityState.quality_score.composite_score:.1f}",
+                        QualityState.formatted_quality_score.composite_score,
                         class_name="text-5xl font-bold text-[#00E5FF]",
                     ),
                     rx.el.p("out of 100", class_name="text-[#A9B3C1]"),
@@ -79,22 +79,27 @@ def quality_score_card() -> rx.Component:
                 ),
                 rx.el.div(
                     quality_score_item(
-                        "Static Issues", QualityState.quality_score.static_issues_score
+                        "Static Issues",
+                        QualityState.formatted_quality_score.static_issues_score,
                     ),
                     quality_score_item(
-                        "Test Pass Rate", QualityState.quality_score.test_pass_rate
+                        "Test Pass Rate",
+                        QualityState.formatted_quality_score.test_pass_rate,
                     ),
                     quality_score_item(
-                        "Coverage Delta", QualityState.quality_score.coverage_delta
+                        "Coverage Delta",
+                        QualityState.formatted_quality_score.coverage_delta,
                     ),
                     quality_score_item(
-                        "Performance", QualityState.quality_score.performance_score
+                        "Performance",
+                        QualityState.formatted_quality_score.performance_score,
                     ),
                     quality_score_item(
-                        "Accessibility", QualityState.quality_score.accessibility_score
+                        "Accessibility",
+                        QualityState.formatted_quality_score.accessibility_score,
                     ),
                     quality_score_item(
-                        "Security", QualityState.quality_score.security_score
+                        "Security", QualityState.formatted_quality_score.security_score
                     ),
                     class_name="mt-6 grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-4 text-sm",
                 ),
@@ -111,12 +116,10 @@ def quality_score_card() -> rx.Component:
     )
 
 
-def quality_score_item(name: str, score: rx.Var[float]) -> rx.Component:
+def quality_score_item(name: str, score: rx.Var[str]) -> rx.Component:
     return rx.el.div(
         rx.el.p(name, class_name="text-[#A9B3C1] truncate mr-2"),
-        rx.el.p(
-            f"{score:.1f}", class_name="font-semibold text-[#E8F0FF] whitespace-nowrap"
-        ),
+        rx.el.p(score, class_name="font-semibold text-[#E8F0FF] whitespace-nowrap"),
         class_name="flex justify-between items-center",
     )
 
@@ -128,13 +131,21 @@ def coverage_heatmap() -> rx.Component:
         ),
         rx.cond(
             QualityState.coverage_data.length() > 0,
-            rx.plotly(data=QualityState.coverage_heatmap_fig),
+            rx.el.div(
+                rx.plotly(
+                    data=QualityState.coverage_heatmap_fig,
+                    style={"width": "100%", "height": "100%"},
+                    config={"responsive": True, "displayModeBar": False},
+                    use_resize_handler=True,
+                ),
+                class_name="w-full h-[400px] overflow-hidden relative rounded-lg",
+            ),
             rx.el.div(
                 rx.el.p(
                     "No coverage data available for this run. Generate a report to see the heatmap.",
                     class_name="text-[#A9B3C1]",
                 ),
-                class_name="flex items-center justify-center h-full",
+                class_name="flex items-center justify-center h-full min-h-[300px]",
             ),
         ),
         **card_style("magenta"),

@@ -7,6 +7,16 @@ import plotly.graph_objects as go
 from typing import Optional
 
 
+class QualityScoreDisplay(rx.Base):
+    static_issues_score: str
+    test_pass_rate: str
+    coverage_delta: str
+    performance_score: str
+    accessibility_score: str
+    security_score: str
+    composite_score: str
+
+
 class QualityState(rx.State):
     coverage_data: list[Coverage] = []
     quality_score: Optional[QualityScore] = None
@@ -85,6 +95,20 @@ class QualityState(rx.State):
         await self.load_quality_data(1)
 
     @rx.var
+    def formatted_quality_score(self) -> Optional[QualityScoreDisplay]:
+        if not self.quality_score:
+            return None
+        return QualityScoreDisplay(
+            static_issues_score=f"{self.quality_score.static_issues_score:.0f}",
+            test_pass_rate=f"{self.quality_score.test_pass_rate:.1f}%",
+            coverage_delta=f"{self.quality_score.coverage_delta:+.1f}%",
+            performance_score=f"{self.quality_score.performance_score:.1f}",
+            accessibility_score=f"{self.quality_score.accessibility_score:.1f}",
+            security_score=f"{self.quality_score.security_score:.1f}",
+            composite_score=f"{self.quality_score.composite_score:.1f}",
+        )
+
+    @rx.var
     def coverage_heatmap_fig(self) -> go.Figure:
         if not self.coverage_data:
             return go.Figure()
@@ -125,11 +149,14 @@ class QualityState(rx.State):
         )
         fig.update_layout(
             title="File Coverage Heatmap",
-            xaxis_title="Files",
-            yaxis_title="Directories",
+            xaxis_title=None,
+            yaxis_title=None,
             yaxis=dict(autorange="reversed"),
             plot_bgcolor="rgba(0,0,0,0)",
             paper_bgcolor="rgba(0,0,0,0)",
+            autosize=True,
+            margin=dict(l=10, r=10, t=40, b=10),
+            font=dict(color="#E8F0FF", size=10),
         )
-        fig.update_xaxes(showticklabels=False)
+        fig.update_xaxes(showticklabels=False, visible=False)
         return fig
