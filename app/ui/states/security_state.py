@@ -147,11 +147,11 @@ class SecurityState(rx.State):
                     session.commit()
                     components = sbom.get("components", [])
                     for comp_data in components:
+                        name = comp_data.get("name", "Unknown Library")
+                        version = comp_data.get("version", "0.0.0")
+                        purl = comp_data.get("purl") or f"pkg:generic/{name}@{version}"
                         comp = SBOMComponent(
-                            project_id=project_id,
-                            name=comp_data["name"],
-                            version=comp_data["version"],
-                            purl=comp_data["purl"],
+                            project_id=project_id, name=name, version=version, purl=purl
                         )
                         session.add(comp)
                     session.commit()
