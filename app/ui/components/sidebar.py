@@ -37,12 +37,12 @@ def user_dropdown() -> rx.Component:
     )
 
 
-def sidebar_link(text: str, href: str, icon: str) -> rx.Component:
+def sidebar_link(text: str, href: str, icon: str, color: str) -> rx.Component:
     return rx.el.a(
-        rx.icon(icon, size=20),
-        rx.el.span(text),
+        rx.icon(icon, size=20, class_name=f"text-[{color}]"),
+        rx.el.span(text, class_name=f"text-[{color}] font-medium"),
         href=href,
-        class_name=sidebar_button_style,
+        class_name=f"flex items-center space-x-3 px-3 py-2 rounded-lg transition-all duration-200 hover:bg-[{color}]/10 hover:shadow-[0_0_15px_-5px_{color}] opacity-80 hover:opacity-100",
     )
 
 
@@ -60,22 +60,22 @@ def sidebar() -> rx.Component:
             class_name="p-4 border-b border-white/10",
         ),
         rx.el.div(
-            sidebar_link("Dashboard", "/", "layout-dashboard"),
-            sidebar_link("Projects", "/projects", "folder-kanban"),
-            sidebar_link("Adapters", "/adapters", "puzzle"),
-            sidebar_link("Test Plans", "/test-plans", "file-check"),
-            sidebar_link("Live Runs", "/runs", "circle-play"),
-            sidebar_link("Diffs", "/diffs", "git-compare"),
-            sidebar_link("Coverage", "/quality", "pie-chart"),
-            sidebar_link("Security", "/security", "shield"),
-            sidebar_link("Accessibility", "/accessibility", "accessibility"),
-            sidebar_link("Performance", "/performance", "gauge"),
-            sidebar_link("Policies", "/policies", "gavel"),
-            sidebar_link("Audit Log", "/audits", "scroll-text"),
-            sidebar_link("Billing & Wallet", "/billing", "wallet"),
-            sidebar_link("API & Webhooks", "/api-docs", "code"),
-            sidebar_link("System Health", "/health", "heart-pulse"),
-            sidebar_link("Settings", "/settings", "settings"),
+            sidebar_link("Dashboard", "/", "layout-dashboard", "#00E5FF"),
+            sidebar_link("Projects", "/projects", "folder-kanban", "#FF3CF7"),
+            sidebar_link("Adapters", "/adapters", "puzzle", "#FFE600"),
+            sidebar_link("Test Plans", "/test-plans", "file-check", "#D8B76E"),
+            sidebar_link("Live Runs", "/runs", "circle-play", "#00D68F"),
+            sidebar_link("Diffs", "/diffs", "git-compare", "#FFB020"),
+            sidebar_link("Coverage", "/quality", "pie-chart", "#00E5FF"),
+            sidebar_link("Security", "/security", "shield", "#FF3B3B"),
+            sidebar_link("Accessibility", "/accessibility", "accessibility", "#FF3CF7"),
+            sidebar_link("Performance", "/performance", "gauge", "#FFE600"),
+            sidebar_link("Policies", "/policies", "gavel", "#D8B76E"),
+            sidebar_link("Audit Log", "/audits", "scroll-text", "#00E5FF"),
+            sidebar_link("Billing & Wallet", "/billing", "wallet", "#00D68F"),
+            sidebar_link("API & Webhooks", "/api-docs", "code", "#FF3CF7"),
+            sidebar_link("System Health", "/health", "heart-pulse", "#00D68F"),
+            sidebar_link("Settings", "/settings", "settings", "#E8F0FF"),
             class_name="flex-grow p-4 space-y-2",
         ),
         class_name=sidebar_style,

@@ -37,7 +37,7 @@ def policies_page_content() -> rx.Component:
             rx.el.div(
                 rx.el.h1(
                     "Project Policies",
-                    class_name="text-2xl font-bold text-[#E8F0FF] title-gradient",
+                    class_name="text-2xl font-bold text-[#D8B76E] drop-shadow-[0_0_10px_rgba(216,183,110,0.3)]",
                 ),
                 rx.el.p(
                     "Manage gates, SLAs, and automation rules for your project.",
@@ -66,7 +66,8 @@ def policies_page_content() -> rx.Component:
 def policy_form() -> rx.Component:
     return rx.el.div(
         rx.el.h2(
-            "Policy Configuration", class_name="text-xl font-semibold text-[#E8F0FF]"
+            "Policy Configuration",
+            class_name="text-xl font-semibold text-[#00E5FF] mb-6 drop-shadow-[0_0_5px_rgba(0,229,255,0.3)]",
         ),
         policy_item(
             "Blocking Severity",
@@ -75,7 +76,7 @@ def policy_form() -> rx.Component:
                 rx.foreach(SEVERITY_OPTIONS, lambda x: rx.el.option(x, value=x)),
                 default_value=PolicyState.project_policy.blocking_severity,
                 on_change=PolicyState.set_blocking_severity,
-                class_name="mt-1 block w-full pl-3 pr-10 py-2 text-base bg-[#0A0F14] text-[#E8F0FF] border border-white/10 rounded-md focus:outline-none focus:ring-[#00E5FF] focus:border-[#00E5FF] sm:text-sm",
+                class_name="mt-1 block w-full pl-3 pr-10 py-2 text-base bg-[#0A0F14] text-[#E8F0FF] border border-white/10 rounded-md focus:outline-none focus:border-[#00E5FF] focus:shadow-[0_0_10px_-2px_#00E5FF] transition-all sm:text-sm",
             ),
         ),
         policy_item(
@@ -86,9 +87,9 @@ def policy_form() -> rx.Component:
                     type="number",
                     default_value=PolicyState.project_policy.min_coverage_percent,
                     on_change=PolicyState.set_min_coverage,
-                    class_name="mt-1 block w-full pl-3 pr-10 py-2 text-base bg-[#0A0F14] text-[#E8F0FF] border border-white/10 rounded-md focus:outline-none focus:ring-[#00E5FF] focus:border-[#00E5FF] sm:text-sm",
+                    class_name="mt-1 block w-full pl-3 pr-10 py-2 text-base bg-[#0A0F14] text-[#E8F0FF] border border-white/10 rounded-md focus:outline-none focus:border-[#00E5FF] focus:shadow-[0_0_10px_-2px_#00E5FF] transition-all sm:text-sm",
                 ),
-                rx.el.p("%", class_name="ml-2 text-[#A9B3C1]"),
+                rx.el.p("%", class_name="ml-2 text-[#00E5FF] font-bold"),
                 class_name="flex items-center",
             ),
         ),
@@ -99,7 +100,7 @@ def policy_form() -> rx.Component:
                 rx.foreach(AUTOFIX_SCOPE_OPTIONS, lambda x: rx.el.option(x, value=x)),
                 default_value=PolicyState.project_policy.autofix_scope,
                 on_change=PolicyState.set_autofix_scope,
-                class_name="mt-1 block w-full pl-3 pr-10 py-2 text-base bg-[#0A0F14] text-[#E8F0FF] border border-white/10 rounded-md focus:outline-none focus:ring-[#00E5FF] focus:border-[#00E5FF] sm:text-sm",
+                class_name="mt-1 block w-full pl-3 pr-10 py-2 text-base bg-[#0A0F14] text-[#E8F0FF] border border-white/10 rounded-md focus:outline-none focus:border-[#00E5FF] focus:shadow-[0_0_10px_-2px_#00E5FF] transition-all sm:text-sm",
             ),
         ),
         policy_item(
@@ -111,7 +112,7 @@ def policy_form() -> rx.Component:
                     class_name=rx.cond(
                         PolicyState.project_policy.auto_merge_enabled,
                         "text-[#A9B3C1]",
-                        "font-semibold text-[#E8F0FF]",
+                        "font-semibold text-[#FF3CF7]",
                     ),
                 ),
                 rx.el.button(
@@ -124,8 +125,8 @@ def policy_form() -> rx.Component:
                     ),
                     class_name=rx.cond(
                         PolicyState.project_policy.auto_merge_enabled,
-                        "bg-[#00E5FF] relative inline-flex flex-shrink-0 h-6 w-11 border-2 border-transparent rounded-full cursor-pointer transition-colors ease-in-out duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#00E5FF]",
-                        "bg-gray-700 relative inline-flex flex-shrink-0 h-6 w-11 border-2 border-transparent rounded-full cursor-pointer transition-colors ease-in-out duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#00E5FF]",
+                        "bg-[#FF3CF7] relative inline-flex flex-shrink-0 h-6 w-11 border-2 border-transparent rounded-full cursor-pointer transition-colors ease-in-out duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#FF3CF7] shadow-[0_0_10px_#FF3CF7]",
+                        "bg-gray-700 relative inline-flex flex-shrink-0 h-6 w-11 border-2 border-transparent rounded-full cursor-pointer transition-colors ease-in-out duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#FF3CF7]",
                     ),
                     on_click=PolicyState.update_policy(
                         "auto_merge_enabled",
@@ -140,25 +141,25 @@ def policy_form() -> rx.Component:
                     "Enabled",
                     class_name=rx.cond(
                         PolicyState.project_policy.auto_merge_enabled,
-                        "font-semibold text-[#E8F0FF]",
+                        "font-semibold text-[#FF3CF7]",
                         "text-[#A9B3C1]",
                     ),
                 ),
                 class_name="flex items-center space-x-3 mt-1",
             ),
         ),
-        class_name="col-span-1 lg:col-span-2 bg-[#0E1520] p-6 rounded-xl border border-white/10 shadow-lg space-y-6",
+        class_name="col-span-1 lg:col-span-2 bg-[#0E1520] p-6 rounded-xl border border-[#D8B76E]/20 shadow-[0_0_20px_-5px_rgba(216,183,110,0.1)] space-y-6",
     )
 
 
 def policy_item(title: str, description: str, control: rx.Component) -> rx.Component:
     return rx.el.div(
         rx.el.div(
-            rx.el.h3(title, class_name="font-medium text-[#E8F0FF]"),
+            rx.el.h3(title, class_name="font-medium text-[#FF3CF7]"),
             rx.el.p(description, class_name="text-sm text-[#A9B3C1]"),
         ),
         control,
-        class_name="grid grid-cols-1 md:grid-cols-2 gap-4 items-center",
+        class_name="grid grid-cols-1 md:grid-cols-2 gap-4 items-center p-4 rounded-lg hover:bg-white/5 transition-colors border border-transparent hover:border-white/5",
     )
 
 
@@ -171,11 +172,12 @@ def merge_status_card() -> rx.Component:
             rx.cond(
                 PolicyState.is_mergeable,
                 rx.icon(
-                    "circle_check_big", class_name="text-green-500 h-16 w-16 mx-auto"
+                    "circle_check_big",
+                    class_name="text-[#00D68F] h-16 w-16 mx-auto drop-shadow-[0_0_10px_#00D68F]",
                 ),
                 rx.icon(
                     "message_circle_reply",
-                    class_name="text-[#FF3B3B] h-16 w-16 mx-auto",
+                    class_name="text-[#FF3B3B] h-16 w-16 mx-auto drop-shadow-[0_0_10px_#FF3B3B]",
                 ),
             ),
             rx.el.p(
@@ -183,7 +185,7 @@ def merge_status_card() -> rx.Component:
                 class_name="mt-2 text-2xl font-bold",
             ),
             class_name=rx.cond(
-                PolicyState.is_mergeable, "text-green-500", "text-[#FF3B3B]"
+                PolicyState.is_mergeable, "text-[#00D68F]", "text-[#FF3B3B]"
             )
             + " text-center",
         ),
@@ -205,7 +207,7 @@ def merge_status_card() -> rx.Component:
             ),
             class_name="mt-4 space-y-2 text-sm",
         ),
-        class_name="bg-[#0E1520] p-6 rounded-xl border border-white/10 shadow-lg",
+        class_name="bg-[#0E1520] p-6 rounded-xl border border-[#D8B76E]/20 shadow-[0_0_20px_-5px_rgba(216,183,110,0.1)]",
     )
 
 
