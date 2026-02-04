@@ -3,6 +3,9 @@ import sqlmodel
 from sqlalchemy.orm import selectinload
 from app.ui.states.auth_state import AuthState
 from app.core.models import AuditLog
+from app.ui.utils import get_logger, notify_error
+
+logger = get_logger(__name__)
 
 
 class AuditUserDisplay(rx.Base):

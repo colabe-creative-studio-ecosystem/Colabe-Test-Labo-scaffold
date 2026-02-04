@@ -1,5 +1,8 @@
 import reflex as rx
 import json
+from app.ui.utils import get_logger
+
+logger = get_logger(__name__)
 
 
 class ApiDocsState(rx.State):

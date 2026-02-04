@@ -2,9 +2,12 @@ import reflex as rx
 import sqlmodel
 from app.ui.states.auth_state import AuthState
 from app.core.models import Coverage, QualityScore
+from app.ui.utils import get_logger, notify_error, notify_success
 import random
 import plotly.graph_objects as go
 from typing import Optional
+
+logger = get_logger(__name__)
 
 
 class QualityScoreDisplay(rx.Base):
