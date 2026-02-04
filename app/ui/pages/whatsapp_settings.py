@@ -126,8 +126,8 @@ def connection_settings_card() -> rx.Component:
             ),
             on_submit=WhatsAppConnectorState.save_settings,
         ),
-        **card_style("cyan"),
-        class_name="lg:col-span-2",
+        class_name=f"{card_style('cyan')['class_name']} lg:col-span-2",
+        style=card_style("cyan")["style"],
     )
 
 
@@ -300,7 +300,11 @@ def health_status_card() -> rx.Component:
             rx.el.div(
                 rx.el.p("Last Health Check", class_name="text-sm text-[#A9B3C1]"),
                 rx.el.p(
-                    WhatsAppConnectorState.last_health_check or "Never",
+                    rx.cond(
+                        WhatsAppConnectorState.last_health_check,
+                        WhatsAppConnectorState.last_health_check,
+                        "Never",
+                    ),
                     class_name="text-sm font-medium text-[#E8F0FF]",
                 ),
                 class_name="ml-3",
@@ -327,7 +331,11 @@ def health_status_card() -> rx.Component:
             rx.el.div(
                 rx.el.p("Last Webhook", class_name="text-sm text-[#A9B3C1]"),
                 rx.el.p(
-                    WhatsAppConnectorState.last_webhook_received or "Never",
+                    rx.cond(
+                        WhatsAppConnectorState.last_webhook_received,
+                        WhatsAppConnectorState.last_webhook_received,
+                        "Never",
+                    ),
                     class_name="text-sm font-medium text-[#E8F0FF]",
                 ),
                 class_name="ml-3",
@@ -335,6 +343,6 @@ def health_status_card() -> rx.Component:
             class_name="flex items-start p-4 rounded-lg bg-[#0A0F14]/50 border border-white/5",
         ),
         
-        **card_style("magenta"),
-        class_name="lg:col-span-1",
+        class_name=f"{card_style('magenta')['class_name']} lg:col-span-1",
+        style=card_style("magenta")["style"],
     )

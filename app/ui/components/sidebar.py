@@ -76,6 +76,7 @@ def sidebar() -> rx.Component:
             sidebar_link("API & Webhooks", "/api-docs", "code", "#FF3CF7"),
             sidebar_link("System Health", "/health", "heart-pulse", "#00D68F"),
             sidebar_link("Settings", "/settings", "settings", "#E8F0FF"),
+            sidebar_link("WhatsApp Settings", "/studio/settings/whatsapp", "message-square", "#00E5FF"),
             class_name="flex-grow p-4 space-y-2",
         ),
         class_name=sidebar_style,
