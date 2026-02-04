@@ -3,6 +3,7 @@ import sqlmodel
 from datetime import datetime, timedelta
 from sqlalchemy.orm import selectinload
 from typing import Optional
+from pydantic import BaseModel
 from app.ui.states.auth_state import AuthState
 from app.core.models import (
     Conversation,
@@ -14,7 +15,7 @@ from app.core.models import (
 )
 
 
-class MessageDisplay(rx.Base):
+class MessageDisplay(BaseModel):
     id: int
     sender_type: str
     sender_name: Optional[str] = None
@@ -22,7 +23,7 @@ class MessageDisplay(rx.Base):
     timestamp: str
 
 
-class ConversationDisplay(rx.Base):
+class ConversationDisplay(BaseModel):
     id: int
     whatsapp_number: str
     contact_name: Optional[str] = None
@@ -87,7 +88,7 @@ class ConversationState(rx.State):
         """Convert a Conversation model to ConversationDisplay"""
         time_remaining = None
         if conv.sla_deadline:
-            delta = conv.sla_deadline - datetime.now()
+            delta = conv.sla_deadline - datetime.utcnow()
             if delta.total_seconds() > 0:
                 hours = int(delta.total_seconds() // 3600)
                 minutes = int((delta.total_seconds() % 3600) // 60)
@@ -145,7 +146,6 @@ class ConversationState(rx.State):
             # Auto-assign if unassigned
             if not conv.assigned_agent_id:
                 conv.assigned_agent_id = auth_state.user.id
-                conv.updated_at = datetime.now()
                 session.add(conv)
                 session.commit()
                 session.refresh(conv)
@@ -185,19 +185,11 @@ class ConversationState(rx.State):
                 sender_type=MessageSenderEnum.AGENT,
                 sender_id=auth_state.user.id,
                 content=self.reply_text,
-                timestamp=datetime.now(),
+                timestamp=datetime.utcnow(),
             )
             session.add(new_message)
 
-            # Update conversation timestamp
-            conv = session.exec(
-                sqlmodel.select(Conversation).where(
-                    Conversation.id == self.selected_conversation.id
-                )
-            ).first()
-            if conv:
-                conv.updated_at = datetime.now()
-                session.add(conv)
+            # Note: Conversation updated_at will be automatically updated by onupdate trigger
 
             # Audit log for agent message
             audit_log = AuditLog(
@@ -239,7 +231,6 @@ class ConversationState(rx.State):
             if conv:
                 conv.status = ConversationStatusEnum.AUTOMATED
                 conv.assigned_agent_id = None
-                conv.updated_at = datetime.now()
                 session.add(conv)
 
                 # Audit log
@@ -278,13 +269,13 @@ class ConversationState(rx.State):
             ).first()
 
             if conv and conv.messages:
-                # Generate summary from messages
-                # For now, simple summary - in production, use OpenAI or similar
-                message_texts = [msg.content for msg in conv.messages[-10:]]
+                # Generate summary from messages with content truncation
+                message_texts = [
+                    msg.content[:100] for msg in conv.messages[-10:]
+                ]  # Last 10 messages, truncate to 100 chars each
                 summary = f"Recent conversation with {len(conv.messages)} messages. Last topics discussed: {', '.join(message_texts[:3])}"
 
                 conv.ai_summary = summary
-                conv.updated_at = datetime.now()
                 session.add(conv)
                 session.commit()
 

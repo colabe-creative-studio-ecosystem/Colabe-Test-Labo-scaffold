@@ -2,6 +2,7 @@ import reflex as rx
 import datetime
 from typing import Optional
 from sqlmodel import Field, Relationship, SQLModel
+from sqlalchemy import Column, DateTime, func
 from enum import Enum
 
 
@@ -291,8 +292,11 @@ class Conversation(SQLModel, table=True):
     assigned_agent_id: Optional[int] = Field(default=None, foreign_key="user.id")
     ai_summary: Optional[str] = None
     sla_deadline: Optional[datetime.datetime] = None
-    created_at: datetime.datetime = Field(default_factory=datetime.datetime.now)
-    updated_at: datetime.datetime = Field(default_factory=datetime.datetime.now)
+    created_at: datetime.datetime = Field(default_factory=datetime.datetime.utcnow)
+    updated_at: datetime.datetime = Field(
+        default_factory=datetime.datetime.utcnow,
+        sa_column=Column(DateTime, onupdate=func.now()),
+    )
     assigned_agent: Optional["User"] = Relationship()
     messages: list["Message"] = Relationship(back_populates="conversation")
 
