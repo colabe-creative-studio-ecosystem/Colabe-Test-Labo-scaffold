@@ -71,6 +71,7 @@ def sidebar() -> rx.Component:
             sidebar_link("Accessibility", "/accessibility", "accessibility", "#FF3CF7"),
             sidebar_link("Performance", "/performance", "gauge", "#FFE600"),
             sidebar_link("Policies", "/policies", "gavel", "#D8B76E"),
+            sidebar_link("Agent Console", "/agent-console", "headset", "#00D68F"),
             sidebar_link("Audit Log", "/audits", "scroll-text", "#00E5FF"),
             sidebar_link("Billing & Wallet", "/billing", "wallet", "#00D68F"),
             sidebar_link("API & Webhooks", "/api-docs", "code", "#FF3CF7"),

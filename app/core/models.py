@@ -2,6 +2,7 @@ import reflex as rx
 import datetime
 from typing import Optional
 from sqlmodel import Field, Relationship, SQLModel
+from sqlalchemy import Column, DateTime, func
 from enum import Enum
 
 
@@ -274,3 +275,44 @@ class Invoice(SQLModel, table=True):
     paid_at: Optional[datetime.datetime] = None
     download_url: Optional[str] = None
     created_at: datetime.datetime = Field(default_factory=datetime.datetime.now)
+
+
+class ConversationStatusEnum(str, Enum):
+    AUTOMATED = "automated"
+    HUMAN_HANDOFF = "human_handoff"
+    RESOLVED = "resolved"
+
+
+class Conversation(SQLModel, table=True):
+    id: Optional[int] = Field(default=None, primary_key=True)
+    tenant_id: int = Field(foreign_key="tenant.id")
+    whatsapp_number: str
+    contact_name: Optional[str] = None
+    status: ConversationStatusEnum = Field(default=ConversationStatusEnum.AUTOMATED)
+    assigned_agent_id: Optional[int] = Field(default=None, foreign_key="user.id")
+    ai_summary: Optional[str] = None
+    sla_deadline: Optional[datetime.datetime] = None
+    created_at: datetime.datetime = Field(default_factory=datetime.datetime.utcnow)
+    updated_at: datetime.datetime = Field(
+        default_factory=datetime.datetime.utcnow,
+        sa_column=Column(DateTime, onupdate=func.now()),
+    )
+    assigned_agent: Optional["User"] = Relationship()
+    messages: list["Message"] = Relationship(back_populates="conversation")
+
+
+class MessageSenderEnum(str, Enum):
+    USER = "user"
+    AI = "ai"
+    AGENT = "agent"
+
+
+class Message(SQLModel, table=True):
+    id: Optional[int] = Field(default=None, primary_key=True)
+    conversation_id: int = Field(foreign_key="conversation.id")
+    sender_type: MessageSenderEnum
+    sender_id: Optional[int] = Field(default=None, foreign_key="user.id")
+    content: str
+    timestamp: datetime.datetime = Field(default_factory=datetime.datetime.now)
+    conversation: "Conversation" = Relationship(back_populates="messages")
+    sender: Optional["User"] = Relationship()
