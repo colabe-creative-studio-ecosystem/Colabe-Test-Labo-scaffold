@@ -274,3 +274,21 @@ class Invoice(SQLModel, table=True):
     paid_at: Optional[datetime.datetime] = None
     download_url: Optional[str] = None
     created_at: datetime.datetime = Field(default_factory=datetime.datetime.now)
+
+
+class WhatsAppPhoneMapping(SQLModel, table=True):
+    id: Optional[int] = Field(default=None, primary_key=True)
+    phone_number_id: str = Field(unique=True, index=True)
+    tenant_id: int = Field(foreign_key="tenant.id")
+    created_at: datetime.datetime = Field(default_factory=datetime.datetime.now)
+    tenant: "Tenant" = Relationship()
+
+
+class EventLog(SQLModel, table=True):
+    id: Optional[int] = Field(default=None, primary_key=True)
+    tenant_id: Optional[int] = Field(default=None, foreign_key="tenant.id")
+    event_type: str
+    event_source: str
+    payload: str
+    processed: bool = Field(default=False)
+    created_at: datetime.datetime = Field(default_factory=datetime.datetime.now)

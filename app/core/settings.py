@@ -22,6 +22,7 @@ class Settings:
         "STRIPE_SECRET_KEY"
     ) or os.environ.get("STRIPE_API_KEY")
     STRIPE_WEBHOOK_SECRET: str | None = os.environ.get("STRIPE_WEBHOOK_SECRET")
+    WHATSAPP_WEBHOOK_SECRET: str | None = os.environ.get("WHATSAPP_WEBHOOK_SECRET")
     DOMAIN: str = os.environ.get("DOMAIN", "http://localhost:3000")
 
 
