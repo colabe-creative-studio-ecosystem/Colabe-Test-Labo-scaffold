@@ -17,6 +17,7 @@ from app.ui.pages.diffs import diffs_page
 from app.ui.pages.settings import settings_page
 from app.ui.pages.performance import performance_page
 from app.ui.pages.accessibility import accessibility_page
+from app.ui.pages.whatsapp_templates import whatsapp_templates_page
 from app.ui.states.auth_state import AuthState
 from app.ui.states.billing_state import BillingState
 from app.ui.states.project_state import ProjectState
@@ -30,6 +31,7 @@ from app.ui.states.audit_state import AuditState
 from app.ui.states.api_docs_state import ApiDocsState
 from app.ui.states.health_state import HealthState
 from app.ui.states.quality_state import QualityState
+from app.ui.states.whatsapp_state import WhatsAppState
 from app.core.settings import settings
 from app.integrations.webhook_handler import stripe_webhook
 from app.core.db_init import initialize_db
@@ -120,5 +122,10 @@ app.add_page(
 )
 app.add_page(performance_page, route="/performance", on_load=sidebar_load_events)
 app.add_page(accessibility_page, route="/accessibility", on_load=sidebar_load_events)
+app.add_page(
+    whatsapp_templates_page,
+    route="/whatsapp-templates",
+    on_load=sidebar_load_events + [WhatsAppState.load_templates],
+)
 app.add_page(terms_page, route="/terms")
 app.add_page(privacy_page, route="/privacy")
