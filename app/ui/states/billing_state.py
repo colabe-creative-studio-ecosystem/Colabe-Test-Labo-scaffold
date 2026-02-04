@@ -130,7 +130,7 @@ class BillingState(rx.State):
             elif "canceled" in query_params:
                 self.payment_status_message = "Payment was canceled."
                 logger.info("Payment canceled by user")
-                return rx.toast("Payment Canceled", description="No charges were made.")
+                return notify_info("Payment canceled. No charges were made.")
         except Exception as e:
             logger.error(f"Error checking payment status: {str(e)}")
 

@@ -7,7 +7,7 @@ and cleanup across all state classes.
 
 import logging
 from contextlib import contextmanager
-from typing import Generator, Optional, TypeVar, Type
+from typing import Generator, Optional, TypeVar, Type, Any
 import reflex as rx
 from sqlmodel import Session, select
 from sqlalchemy.exc import SQLAlchemyError
@@ -38,24 +38,18 @@ def get_db_session() -> Generator[Session, None, None]:
     Raises:
         SQLAlchemyError: On database errors
     """
-    session = None
-    try:
-        with rx.session() as session:
+    with rx.session() as session:
+        try:
             yield session
             session.commit()
-    except SQLAlchemyError as e:
-        if session:
+        except SQLAlchemyError as e:
             session.rollback()
-        logger.error(f"Database error: {str(e)}", exc_info=True)
-        raise
-    except Exception as e:
-        if session:
+            logger.error(f"Database error: {str(e)}", exc_info=True)
+            raise
+        except Exception as e:
             session.rollback()
-        logger.exception(f"Unexpected error in database session: {str(e)}")
-        raise
-    finally:
-        # Session cleanup is handled by rx.session() context manager
-        pass
+            logger.exception(f"Unexpected error in database session: {str(e)}")
+            raise
 
 
 def safe_get_by_id(
@@ -101,7 +95,7 @@ def safe_query(
     statement,
     session: Optional[Session] = None,
     first: bool = False
-) -> Optional[any]:
+) -> Optional[Any]:
     """
     Execute a query safely with error handling.
     

@@ -56,34 +56,34 @@ def handle_errors(
     """
     def decorator(func: Callable) -> Callable:
         @wraps(func)
-        def wrapper(self, *args, **kwargs):
+        def wrapper(*args, **kwargs):
             logger = get_logger(func.__module__)
             try:
-                return func(self, *args, **kwargs)
+                return func(*args, **kwargs)
             except ValueError as e:
                 msg = log_message or user_message
                 logger.error(f"{msg}: {str(e)}", exc_info=True)
-                # Set error message on state if it has the attribute
-                if hasattr(self, 'error_message'):
-                    self.error_message = user_message
+                # Set error message on first arg if it has the attribute (for state instances)
+                if args and hasattr(args[0], 'error_message'):
+                    args[0].error_message = user_message
                 return rx.toast.error(user_message) if return_value is None else return_value
             except KeyError as e:
                 msg = log_message or user_message
                 logger.error(f"{msg} - Missing key: {str(e)}", exc_info=True)
-                if hasattr(self, 'error_message'):
-                    self.error_message = user_message
+                if args and hasattr(args[0], 'error_message'):
+                    args[0].error_message = user_message
                 return rx.toast.error(user_message) if return_value is None else return_value
             except ConnectionError as e:
                 msg = log_message or "Database connection error"
                 logger.error(f"{msg}: {str(e)}", exc_info=True)
-                if hasattr(self, 'error_message'):
-                    self.error_message = "Connection error. Please try again."
+                if args and hasattr(args[0], 'error_message'):
+                    args[0].error_message = "Connection error. Please try again."
                 return rx.toast.error("Connection error. Please try again.") if return_value is None else return_value
             except Exception as e:
                 msg = log_message or user_message
                 logger.exception(f"{msg}: {str(e)}")
-                if hasattr(self, 'error_message'):
-                    self.error_message = user_message
+                if args and hasattr(args[0], 'error_message'):
+                    args[0].error_message = user_message
                 return rx.toast.error(user_message) if return_value is None else return_value
         return wrapper
     return decorator
