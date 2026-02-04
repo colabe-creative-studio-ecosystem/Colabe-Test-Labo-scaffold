@@ -5,7 +5,7 @@ from app.ui.states.auth_state import AuthState
 from app.core.models import Wallet, Subscription, Invoice, Tenant
 from app.integrations.stripe_service import StripeService
 from app.core.settings import settings
-from app.ui.utils import get_logger, notify_error, notify_success
+from app.ui.utils import get_logger, notify_error, notify_success, notify_info
 
 logger = get_logger(__name__)
 

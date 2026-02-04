@@ -37,10 +37,16 @@ def get_db_session() -> Generator[Session, None, None]:
         
     Raises:
         SQLAlchemyError: On database errors
+        
+    Note:
+        The commit happens AFTER the yield block completes successfully.
+        If any exception occurs in the with block, it's caught here and rolled back.
     """
     with rx.session() as session:
         try:
+            # Control passes to the with block here
             yield session
+            # Execution resumes here only if with block completed successfully
             session.commit()
         except SQLAlchemyError as e:
             session.rollback()

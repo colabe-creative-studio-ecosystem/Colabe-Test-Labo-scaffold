@@ -66,25 +66,31 @@ def handle_errors(
                 # Set error message on first arg if it has the attribute (for state instances)
                 if args and hasattr(args[0], 'error_message'):
                     args[0].error_message = user_message
-                return rx.toast.error(user_message) if return_value is None else return_value
+                # Always show user feedback
+                rx.toast.error(user_message)
+                return return_value
             except KeyError as e:
                 msg = log_message or user_message
                 logger.error(f"{msg} - Missing key: {str(e)}", exc_info=True)
                 if args and hasattr(args[0], 'error_message'):
                     args[0].error_message = user_message
-                return rx.toast.error(user_message) if return_value is None else return_value
+                rx.toast.error(user_message)
+                return return_value
             except ConnectionError as e:
                 msg = log_message or "Database connection error"
                 logger.error(f"{msg}: {str(e)}", exc_info=True)
+                error_msg = "Connection error. Please try again."
                 if args and hasattr(args[0], 'error_message'):
-                    args[0].error_message = "Connection error. Please try again."
-                return rx.toast.error("Connection error. Please try again.") if return_value is None else return_value
+                    args[0].error_message = error_msg
+                rx.toast.error(error_msg)
+                return return_value
             except Exception as e:
                 msg = log_message or user_message
                 logger.exception(f"{msg}: {str(e)}")
                 if args and hasattr(args[0], 'error_message'):
                     args[0].error_message = user_message
-                return rx.toast.error(user_message) if return_value is None else return_value
+                rx.toast.error(user_message)
+                return return_value
         return wrapper
     return decorator
 
