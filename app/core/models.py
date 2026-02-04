@@ -274,3 +274,19 @@ class Invoice(SQLModel, table=True):
     paid_at: Optional[datetime.datetime] = None
     download_url: Optional[str] = None
     created_at: datetime.datetime = Field(default_factory=datetime.datetime.now)
+
+
+class EngineEvent(SQLModel, table=True):
+    """WhatsApp message event for engine processing"""
+    id: Optional[int] = Field(default=None, primary_key=True)
+    type: str = Field(default="message_received")
+    workspace_id: str
+    conversation_id: str
+    contact_id: str
+    message_id: str
+    text: Optional[str] = None
+    interactive_type: Optional[str] = None  # "button" or "list"
+    interactive_id: Optional[str] = None
+    interactive_title: Optional[str] = None
+    timestamp: datetime.datetime
+    created_at: datetime.datetime = Field(default_factory=datetime.datetime.now)
