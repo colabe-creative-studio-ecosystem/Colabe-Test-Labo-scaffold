@@ -1,4 +1,5 @@
 import logging
+import re
 from typing import Dict, List, Any, Optional
 from datetime import datetime
 import json
@@ -60,7 +61,6 @@ class WhatsAppEventParser:
             return text
         
         # Redact phone numbers (basic pattern)
-        import re
         text = re.sub(r'\b\d{10,15}\b', '[REDACTED_PHONE]', text)
         
         # Truncate long messages
