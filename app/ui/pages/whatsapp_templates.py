@@ -138,16 +138,21 @@ def template_card(template: WhatsAppTemplate) -> rx.Component:
     )
 
 
-def status_badge(status: str) -> rx.Component:
+def get_status_color_class(status: str) -> str:
+    """Get the color class for a status badge"""
     color_map = {
         "draft": "bg-[#A9B3C1] bg-opacity-20 text-[#A9B3C1]",
         "pending_approval": "bg-[#F59E0B] bg-opacity-20 text-[#F59E0B]",
         "approved": "bg-[#10B981] bg-opacity-20 text-[#10B981]",
         "rejected": "bg-[#DC2626] bg-opacity-20 text-[#DC2626]",
     }
+    return color_map.get(status, "bg-[#A9B3C1] bg-opacity-20 text-[#A9B3C1]")
+
+
+def status_badge(status: str) -> rx.Component:
     return rx.el.span(
         status.replace("_", " ").title(),
-        class_name=f"px-2 py-1 rounded text-xs font-medium {rx.cond(status == 'draft', color_map.get('draft', ''), rx.cond(status == 'pending_approval', color_map.get('pending_approval', ''), rx.cond(status == 'approved', color_map.get('approved', ''), color_map.get('rejected', ''))))}",
+        class_name=f"px-2 py-1 rounded text-xs font-medium {get_status_color_class(status)}",
     )
 
 

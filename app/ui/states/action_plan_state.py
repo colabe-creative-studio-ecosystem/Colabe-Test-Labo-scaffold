@@ -1,6 +1,9 @@
 import reflex as rx
 from app.core.models import WhatsAppTemplate, ActionPlan, ActionKindEnum
 import json
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 class ActionPlanState(rx.State):
@@ -117,9 +120,6 @@ class ActionPlanState(rx.State):
             self.close_composer()
             return rx.toast("Action plan created successfully!", duration=3000)
         except Exception as e:
-            import logging
-
-            logger = logging.getLogger(__name__)
             logger.exception(f"Error creating action plan: {e}")
             return rx.toast(f"Error creating action plan: {str(e)}", duration=3000)
 

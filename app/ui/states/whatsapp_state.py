@@ -2,6 +2,7 @@ import reflex as rx
 import sqlmodel
 import logging
 import json
+import re
 from app.core.models import (
     WhatsAppTemplate,
     TemplateStatusEnum,
@@ -199,8 +200,6 @@ class WhatsAppState(rx.State):
 
     def _extract_variables(self, body: str) -> list[str]:
         """Extract variable placeholders from template body like {{variable_name}}"""
-        import re
-
         pattern = r"\{\{(\w+)\}\}"
         matches = re.findall(pattern, body)
         return list(set(matches))
