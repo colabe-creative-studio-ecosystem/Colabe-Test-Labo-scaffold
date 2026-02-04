@@ -274,3 +274,48 @@ class Invoice(SQLModel, table=True):
     paid_at: Optional[datetime.datetime] = None
     download_url: Optional[str] = None
     created_at: datetime.datetime = Field(default_factory=datetime.datetime.now)
+
+
+class ConversationStatusEnum(str, Enum):
+    OPEN = "open"
+    CLOSED = "closed"
+
+
+class Contact(SQLModel, table=True):
+    id: Optional[int] = Field(default=None, primary_key=True)
+    workspace_id: int = Field(foreign_key="tenant.id", index=True)
+    phone_e164: str = Field(index=True)
+    display_name: Optional[str] = None
+    locale: Optional[str] = None
+    tags: Optional[str] = None  # Stored as JSON string
+    created_at: datetime.datetime = Field(default_factory=datetime.datetime.now)
+    workspace: "Tenant" = Relationship()
+    conversations: list["Conversation"] = Relationship(back_populates="contact")
+
+
+class Conversation(SQLModel, table=True):
+    id: Optional[int] = Field(default=None, primary_key=True)
+    workspace_id: int = Field(foreign_key="tenant.id", index=True)
+    channel: str = Field(default="whatsapp")
+    contact_id: int = Field(foreign_key="contact.id", index=True)
+    status: ConversationStatusEnum = Field(default=ConversationStatusEnum.OPEN)
+    last_message_at: Optional[datetime.datetime] = None
+    last_intent: Optional[str] = None
+    stage: Optional[str] = None
+    assigned_agent_id: Optional[int] = Field(default=None, foreign_key="user.id")
+    awaiting_reply_key: Optional[str] = None
+    created_at: datetime.datetime = Field(default_factory=datetime.datetime.now)
+    workspace: "Tenant" = Relationship()
+    contact: "Contact" = Relationship(back_populates="conversations")
+    assigned_agent: Optional["User"] = Relationship()
+    messages: list["Message"] = Relationship(back_populates="conversation")
+
+
+class Message(SQLModel, table=True):
+    id: Optional[int] = Field(default=None, primary_key=True)
+    conversation_id: int = Field(foreign_key="conversation.id", index=True)
+    direction: str  # "inbound" or "outbound"
+    content: str
+    message_metadata: Optional[str] = None  # Stored as JSON string for WhatsApp-specific data
+    created_at: datetime.datetime = Field(default_factory=datetime.datetime.now, index=True)
+    conversation: "Conversation" = Relationship(back_populates="messages")
