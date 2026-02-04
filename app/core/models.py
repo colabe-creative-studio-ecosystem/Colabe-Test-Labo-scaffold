@@ -12,12 +12,38 @@ class RoleEnum(str, Enum):
     VIEWER = "viewer"
 
 
+class WhatsAppAccountStatusEnum(str, Enum):
+    ACTIVE = "active"
+    DISABLED = "disabled"
+
+
 class Tenant(SQLModel, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
     name: str = Field(unique=True)
     stripe_customer_id: Optional[str] = Field(default=None, index=True)
     created_at: datetime.datetime = Field(default_factory=datetime.datetime.now)
     users: list["User"] = Relationship(back_populates="tenant")
+
+
+class WhatsAppAccount(SQLModel, table=True):
+    id: Optional[int] = Field(default=None, primary_key=True)
+    workspace_id: int = Field(foreign_key="tenant.id")
+    provider: str = Field(default="meta")
+    phone_number_id: str = Field(index=True)
+    business_account_id: str
+    display_phone_number: str
+    status: WhatsAppAccountStatusEnum = Field(default=WhatsAppAccountStatusEnum.ACTIVE)
+    created_at: datetime.datetime = Field(default_factory=datetime.datetime.now)
+    tenant: "Tenant" = Relationship()
+
+
+class WhatsAppSecret(SQLModel, table=True):
+    id: Optional[int] = Field(default=None, primary_key=True)
+    workspace_id: int = Field(foreign_key="tenant.id")
+    key_name: str
+    secret_encrypted: str
+    created_at: datetime.datetime = Field(default_factory=datetime.datetime.now)
+    tenant: "Tenant" = Relationship()
 
 
 class User(SQLModel, table=True):
