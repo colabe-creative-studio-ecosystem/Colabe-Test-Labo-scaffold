@@ -274,3 +274,38 @@ class Invoice(SQLModel, table=True):
     paid_at: Optional[datetime.datetime] = None
     download_url: Optional[str] = None
     created_at: datetime.datetime = Field(default_factory=datetime.datetime.now)
+
+
+class WebhookEvent(SQLModel, table=True):
+    """Tracks processed webhook events for idempotency"""
+    id: Optional[int] = Field(default=None, primary_key=True)
+    message_id: str = Field(unique=True, index=True)
+    event_type: str
+    source: str = Field(default="whatsapp")
+    payload: str
+    processed_at: datetime.datetime = Field(default_factory=datetime.datetime.now)
+    retry_count: int = Field(default=0)
+
+
+class DeadLetterEvent(SQLModel, table=True):
+    """Logs failed webhook events for investigation"""
+    id: Optional[int] = Field(default=None, primary_key=True)
+    message_id: str = Field(index=True)
+    event_type: str
+    source: str = Field(default="whatsapp")
+    payload: str
+    error_message: str
+    retry_count: int
+    failed_at: datetime.datetime = Field(default_factory=datetime.datetime.now)
+
+
+class WebhookMetrics(SQLModel, table=True):
+    """Monitoring counters for webhook processing"""
+    id: Optional[int] = Field(default=None, primary_key=True)
+    source: str = Field(default="whatsapp", index=True)
+    date: datetime.date = Field(default_factory=datetime.date.today, index=True)
+    inbound_events: int = Field(default=0)
+    outbound_sends: int = Field(default=0)
+    failures: int = Field(default=0)
+    circuit_breaker_trips: int = Field(default=0)
+    updated_at: datetime.datetime = Field(default_factory=datetime.datetime.now)
