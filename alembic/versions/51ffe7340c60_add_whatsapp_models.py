@@ -30,7 +30,7 @@ def upgrade() -> None:
         sa.Column("display_phone_number", sqlmodel.sql.sqltypes.AutoString(), nullable=False),
         sa.Column(
             "status",
-            sa.Enum("ACTIVE", "DISABLED", name="whatsappaccountstatusenum"),
+            sa.Enum("active", "disabled", name="whatsappaccountstatusenum"),
             nullable=False,
         ),
         sa.Column("created_at", sa.DateTime(), nullable=False),
