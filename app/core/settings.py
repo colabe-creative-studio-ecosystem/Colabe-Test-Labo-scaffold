@@ -23,6 +23,29 @@ class Settings:
     ) or os.environ.get("STRIPE_API_KEY")
     STRIPE_WEBHOOK_SECRET: str | None = os.environ.get("STRIPE_WEBHOOK_SECRET")
     DOMAIN: str = os.environ.get("DOMAIN", "http://localhost:3000")
+    
+    # Outbound Messaging Guardrail Settings
+    MAX_MESSAGES_PER_CONVERSATION_WINDOW: int = int(
+        os.environ.get("MAX_MESSAGES_PER_CONVERSATION_WINDOW", "4")
+    )
+    CONVERSATION_WINDOW_SECONDS: int = int(
+        os.environ.get("CONVERSATION_WINDOW_SECONDS", "60")
+    )
+    DEFAULT_CONTACT_COOLDOWN_SECONDS: int = int(
+        os.environ.get("DEFAULT_CONTACT_COOLDOWN_SECONDS", "300")
+    )
+    CIRCUIT_BREAKER_FAILURE_THRESHOLD: int = int(
+        os.environ.get("CIRCUIT_BREAKER_FAILURE_THRESHOLD", "10")
+    )
+    CIRCUIT_BREAKER_WINDOW_MINUTES: int = int(
+        os.environ.get("CIRCUIT_BREAKER_WINDOW_MINUTES", "10")
+    )
+    CIRCUIT_BREAKER_RECOVERY_SECONDS: int = int(
+        os.environ.get("CIRCUIT_BREAKER_RECOVERY_SECONDS", "300")
+    )
+    ADMIN_NOTIFICATION_COOLDOWN_MINUTES: int = int(
+        os.environ.get("ADMIN_NOTIFICATION_COOLDOWN_MINUTES", "60")
+    )
 
 
 settings = Settings()

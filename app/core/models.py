@@ -274,3 +274,64 @@ class Invoice(SQLModel, table=True):
     paid_at: Optional[datetime.datetime] = None
     download_url: Optional[str] = None
     created_at: datetime.datetime = Field(default_factory=datetime.datetime.now)
+
+
+# Outbound Messaging Guardrail Models
+class OutboundMessage(SQLModel, table=True):
+    """Tracks all outbound messages sent from the system."""
+    id: Optional[int] = Field(default=None, primary_key=True)
+    tenant_id: int = Field(foreign_key="tenant.id", index=True)
+    user_id: Optional[int] = Field(default=None, foreign_key="user.id")
+    conversation_id: Optional[str] = Field(default=None, index=True)
+    recipient_email: str = Field(index=True)
+    message_type: str  # e.g., "notification", "alert", "report"
+    status: str = Field(default="pending")  # pending, sent, failed, blocked
+    failure_reason: Optional[str] = None
+    sent_at: Optional[datetime.datetime] = None
+    created_at: datetime.datetime = Field(default_factory=datetime.datetime.now)
+    tenant: "Tenant" = Relationship()
+    user: Optional["User"] = Relationship()
+
+
+class ConversationRateLimit(SQLModel, table=True):
+    """Tracks message sending rate per conversation."""
+    id: Optional[int] = Field(default=None, primary_key=True)
+    conversation_id: str = Field(index=True)
+    tenant_id: int = Field(foreign_key="tenant.id", index=True)
+    message_count: int = Field(default=0)
+    window_start: datetime.datetime = Field(default_factory=datetime.datetime.now)
+    tenant: "Tenant" = Relationship()
+
+
+class ContactCooldown(SQLModel, table=True):
+    """Tracks cooldown periods for individual contacts."""
+    id: Optional[int] = Field(default=None, primary_key=True)
+    contact_email: str = Field(index=True)
+    tenant_id: int = Field(foreign_key="tenant.id", index=True)
+    last_message_sent_at: datetime.datetime = Field(default_factory=datetime.datetime.now)
+    cooldown_until: datetime.datetime
+    tenant: "Tenant" = Relationship()
+
+
+class WorkspaceQuietHours(SQLModel, table=True):
+    """Defines quiet hours for a workspace/tenant."""
+    id: Optional[int] = Field(default=None, primary_key=True)
+    tenant_id: int = Field(foreign_key="tenant.id", unique=True)
+    enabled: bool = Field(default=True)
+    start_hour: int = Field(default=22)  # 10 PM
+    end_hour: int = Field(default=8)  # 8 AM
+    timezone: str = Field(default="UTC")
+    tenant: "Tenant" = Relationship()
+
+
+class CircuitBreakerState(SQLModel, table=True):
+    """Tracks circuit breaker state for outbound sending."""
+    id: Optional[int] = Field(default=None, primary_key=True)
+    tenant_id: int = Field(foreign_key="tenant.id", unique=True)
+    state: str = Field(default="closed")  # closed, open, half_open
+    failure_count: int = Field(default=0)
+    last_failure_at: Optional[datetime.datetime] = None
+    window_start: datetime.datetime = Field(default_factory=datetime.datetime.now)
+    circuit_opened_at: Optional[datetime.datetime] = None
+    admin_notified_at: Optional[datetime.datetime] = None
+    tenant: "Tenant" = Relationship()
