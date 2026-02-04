@@ -274,3 +274,80 @@ class Invoice(SQLModel, table=True):
     paid_at: Optional[datetime.datetime] = None
     download_url: Optional[str] = None
     created_at: datetime.datetime = Field(default_factory=datetime.datetime.now)
+
+
+class WorkspaceSettings(SQLModel, table=True):
+    """Settings for workspace execution mode"""
+    id: Optional[int] = Field(default=None, primary_key=True)
+    tenant_id: int = Field(foreign_key="tenant.id", unique=True)
+    execution_mode: str = Field(default="auto")  # auto, simulate, live
+    environment: str = Field(default="production")  # staging, production
+    created_at: datetime.datetime = Field(default_factory=datetime.datetime.now)
+    updated_at: datetime.datetime = Field(default_factory=datetime.datetime.now)
+
+
+class Conversation(SQLModel, table=True):
+    """Conversation context for messaging automations"""
+    id: Optional[int] = Field(default=None, primary_key=True)
+    tenant_id: int = Field(foreign_key="tenant.id")
+    external_id: str = Field(index=True)  # External conversation ID from webhook
+    channel: str  # slack, email, chat, etc.
+    status: str = Field(default="active")  # active, closed, archived
+    metadata: Optional[str] = None  # JSON string for additional data
+    created_at: datetime.datetime = Field(default_factory=datetime.datetime.now)
+    updated_at: datetime.datetime = Field(default_factory=datetime.datetime.now)
+
+
+class AutomationTriggerEnum(str, Enum):
+    TRIGGER_MESSAGE = "trigger_message"
+    TRIGGER_WEBHOOK = "trigger_webhook"
+    TRIGGER_SCHEDULE = "trigger_schedule"
+    TRIGGER_EVENT = "trigger_event"
+
+
+class AutomationStatusEnum(str, Enum):
+    DRAFT = "draft"
+    LIVE = "live"
+    PAUSED = "paused"
+    ARCHIVED = "archived"
+
+
+class Automation(SQLModel, table=True):
+    """Automation flows with triggers and actions"""
+    id: Optional[int] = Field(default=None, primary_key=True)
+    tenant_id: int = Field(foreign_key="tenant.id")
+    name: str
+    description: Optional[str] = None
+    status: AutomationStatusEnum = Field(default=AutomationStatusEnum.DRAFT)
+    trigger_type: AutomationTriggerEnum
+    trigger_config: str  # JSON string with trigger configuration
+    flow_definition: str  # JSON string with flow steps and actions
+    created_at: datetime.datetime = Field(default_factory=datetime.datetime.now)
+    updated_at: datetime.datetime = Field(default_factory=datetime.datetime.now)
+    created_by: Optional[int] = Field(default=None, foreign_key="user.id")
+
+
+class ExecutionRunStatusEnum(str, Enum):
+    PENDING = "pending"
+    RUNNING = "running"
+    COMPLETED = "completed"
+    FAILED = "failed"
+    RETRYING = "retrying"
+
+
+class ExecutionRun(SQLModel, table=True):
+    """Trace of automation execution"""
+    id: Optional[int] = Field(default=None, primary_key=True)
+    automation_id: int = Field(foreign_key="automation.id")
+    conversation_id: Optional[int] = Field(default=None, foreign_key="conversation.id")
+    tenant_id: int = Field(foreign_key="tenant.id")
+    status: ExecutionRunStatusEnum = Field(default=ExecutionRunStatusEnum.PENDING)
+    mode: str = Field(default="live")  # simulate, live
+    trigger_data: Optional[str] = None  # JSON string with trigger event data
+    execution_trace: Optional[str] = None  # JSON string with execution steps
+    actions_dispatched: Optional[str] = None  # JSON string with dispatched actions
+    error_message: Optional[str] = None
+    retry_count: int = Field(default=0)
+    started_at: Optional[datetime.datetime] = None
+    completed_at: Optional[datetime.datetime] = None
+    created_at: datetime.datetime = Field(default_factory=datetime.datetime.now)

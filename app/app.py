@@ -32,6 +32,7 @@ from app.ui.states.health_state import HealthState
 from app.ui.states.quality_state import QualityState
 from app.core.settings import settings
 from app.integrations.webhook_handler import stripe_webhook
+from app.server.webhook_handler import inbound_webhook_handler
 from app.core.db_init import initialize_db
 
 initialize_db()
@@ -39,6 +40,7 @@ initialize_db()
 
 def api_routes(api):
     api.add_route("/api/webhook/stripe", stripe_webhook, methods=["POST"])
+    api.add_route("/api/webhook/inbound", inbound_webhook_handler, methods=["POST"])
     return api
 
 
