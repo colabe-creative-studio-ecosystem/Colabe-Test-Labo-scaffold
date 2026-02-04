@@ -40,7 +40,8 @@ class Dispatcher:
     def __init__(
         self,
         cloud_api_key: Optional[str] = None,
-        cloud_endpoint: Optional[str] = None
+        cloud_endpoint: Optional[str] = None,
+        max_delay_for_testing: Optional[float] = None
     ):
         """
         Initialize the dispatcher.
@@ -48,9 +49,11 @@ class Dispatcher:
         Args:
             cloud_api_key: API key for cloud provider
             cloud_endpoint: Endpoint URL for cloud provider
+            max_delay_for_testing: Maximum delay in seconds for testing (caps actual delays)
         """
         self.cloud_api_key = cloud_api_key
         self.cloud_endpoint = cloud_endpoint
+        self.max_delay_for_testing = max_delay_for_testing
         self._provider_cache: Dict[str, WhatsAppProvider] = {}
     
     def _get_provider(self, execution_run: ExecutionRun) -> WhatsAppProvider:
@@ -305,9 +308,12 @@ class Dispatcher:
         delay_seconds = action.payload.get("delay_seconds", 0)
         
         try:
-            # Simulate delay for immediate testing
-            # In production, this would schedule a task
-            await asyncio.sleep(min(delay_seconds, 0.1))  # Cap at 0.1s for testing
+            # Apply delay with optional cap for testing
+            actual_delay = delay_seconds
+            if self.max_delay_for_testing is not None:
+                actual_delay = min(delay_seconds, self.max_delay_for_testing)
+            
+            await asyncio.sleep(actual_delay)
             
             return DispatchReceipt(
                 action_id=action.id,
@@ -315,6 +321,7 @@ class Dispatcher:
                 timestamp=datetime.now(),
                 provider_response={
                     "delay_seconds": delay_seconds,
+                    "actual_delay": actual_delay,
                     "scheduled": True
                 }
             )
@@ -441,21 +448,11 @@ class Dispatcher:
         Returns:
             WhatsAppProvider instance
         """
-        cache_key = mode.value
-        if cache_key in self._provider_cache:
-            return self._provider_cache[cache_key]
-        
-        if mode == ExecutionMode.SIMULATE:
-            return SimulationProvider()
-        elif mode in (ExecutionMode.SANDBOX, ExecutionMode.LIVE):
-            if not self.cloud_api_key or not self.cloud_endpoint:
-                raise DispatcherError(
-                    f"Cloud API credentials required for {mode.value} mode"
-                )
-            return CloudProvider(
-                api_key=self.cloud_api_key,
-                endpoint=self.cloud_endpoint,
-                mode=mode.value
-            )
-        else:
-            raise DispatcherError(f"Unknown execution mode: {mode}")
+        # Create a temporary execution run to reuse _get_provider logic
+        temp_run = ExecutionRun(
+            id="temp",
+            mode=mode,
+            user_id="temp",
+            conversation_id="temp"
+        )
+        return self._get_provider(temp_run)

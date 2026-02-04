@@ -43,7 +43,8 @@ class TestDispatcher:
         """Create a dispatcher instance for testing."""
         return Dispatcher(
             cloud_api_key="test_api_key",
-            cloud_endpoint="https://test.example.com"
+            cloud_endpoint="https://test.example.com",
+            max_delay_for_testing=0.1  # Cap delays at 0.1s for faster tests
         )
     
     @pytest.fixture
@@ -287,7 +288,7 @@ class TestSafeFailureBehavior:
     @pytest.fixture
     def dispatcher(self):
         """Create a dispatcher instance for testing."""
-        return Dispatcher()
+        return Dispatcher(max_delay_for_testing=0.1)
     
     @pytest.fixture
     def simulation_run(self):
