@@ -1,6 +1,9 @@
 import reflex as rx
 from typing import Optional
 import asyncio
+from app.ui.utils import get_logger, notify_error, notify_success
+
+logger = get_logger(__name__)
 
 
 class AdapterInfo(rx.Base):
