@@ -274,3 +274,26 @@ class Invoice(SQLModel, table=True):
     paid_at: Optional[datetime.datetime] = None
     download_url: Optional[str] = None
     created_at: datetime.datetime = Field(default_factory=datetime.datetime.now)
+
+
+class WhatsAppEnvironmentEnum(str, Enum):
+    SIMULATION = "simulation"
+    SANDBOX = "sandbox"
+    LIVE = "live"
+
+
+class WhatsAppConnectorSettings(SQLModel, table=True):
+    id: Optional[int] = Field(default=None, primary_key=True)
+    tenant_id: int = Field(foreign_key="tenant.id", unique=True)
+    phone_number_id: str
+    business_account_id: str
+    webhook_verify_token: str
+    access_token_encrypted: str  # Encrypted storage
+    environment: WhatsAppEnvironmentEnum = Field(default=WhatsAppEnvironmentEnum.SIMULATION)
+    is_connected: bool = Field(default=False)
+    last_webhook_received: Optional[datetime.datetime] = None
+    last_health_check: Optional[datetime.datetime] = None
+    health_check_status: Optional[str] = None
+    created_at: datetime.datetime = Field(default_factory=datetime.datetime.now)
+    updated_at: datetime.datetime = Field(default_factory=datetime.datetime.now)
+    tenant: "Tenant" = Relationship()
