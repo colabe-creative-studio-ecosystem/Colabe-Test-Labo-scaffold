@@ -63,3 +63,5 @@ def downgrade() -> None:
     op.drop_table("whatsappsecret")
     op.drop_index("ix_whatsappaccount_phone_number_id", table_name="whatsappaccount")
     op.drop_table("whatsappaccount")
+    # Drop enum type to allow clean re-creation on next upgrade
+    op.execute("DROP TYPE IF EXISTS whatsappaccountstatusenum")
