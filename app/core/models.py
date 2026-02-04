@@ -276,13 +276,6 @@ class Invoice(SQLModel, table=True):
     created_at: datetime.datetime = Field(default_factory=datetime.datetime.now)
 
 
-class InteractiveData(SQLModel):
-    """Interactive message data (button or list reply)"""
-    type: str  # "button" or "list"
-    id: str
-    title: str
-
-
 class EngineEvent(SQLModel, table=True):
     """WhatsApp message event for engine processing"""
     id: Optional[int] = Field(default=None, primary_key=True)
