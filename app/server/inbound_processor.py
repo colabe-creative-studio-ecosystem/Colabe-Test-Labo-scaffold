@@ -15,8 +15,10 @@ Steps:
 
 import logging
 import json
+import asyncio
 from typing import Dict, Any, Optional, List
 from datetime import datetime
+from functools import wraps
 import reflex as rx
 import sqlmodel
 from sqlalchemy import select
@@ -522,7 +524,7 @@ class InboundProcessor:
                 tenant_id=automation.tenant_id,
                 status=ExecutionRunStatusEnum.COMPLETED,
                 mode=execution_mode,
-                trigger_data=json.dumps(execution_result.get("execution_trace", [])),
+                trigger_data=None,  # Can be populated with original trigger event if needed
                 execution_trace=json.dumps(execution_result.get("execution_trace", [])),
                 actions_dispatched=json.dumps(
                     dispatch_result.get("dispatched_actions", [])
@@ -593,8 +595,6 @@ def with_retry(max_retries: int = 3, base_delay: float = 2.0):
         max_retries: Maximum number of retry attempts
         base_delay: Base delay in seconds (will be exponentially increased)
     """
-    import time
-    from functools import wraps
 
     def decorator(func):
         @wraps(func)
@@ -612,7 +612,7 @@ def with_retry(max_retries: int = 3, base_delay: float = 2.0):
                             f"Transient error on attempt {attempt + 1}/{max_retries + 1}, "
                             f"retrying in {delay}s: {e}"
                         )
-                        time.sleep(delay)
+                        await asyncio.sleep(delay)
                     else:
                         logger.error(
                             f"Max retries ({max_retries}) exceeded for transient error: {e}"
