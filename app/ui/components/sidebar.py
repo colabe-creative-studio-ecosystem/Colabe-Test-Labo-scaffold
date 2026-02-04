@@ -72,6 +72,7 @@ def sidebar() -> rx.Component:
             sidebar_link("Performance", "/performance", "gauge", "#FFE600"),
             sidebar_link("Policies", "/policies", "gavel", "#D8B76E"),
             sidebar_link("Audit Log", "/audits", "scroll-text", "#00E5FF"),
+            sidebar_link("WhatsApp Templates", "/whatsapp-templates", "message-circle", "#00D68F"),
             sidebar_link("Billing & Wallet", "/billing", "wallet", "#00D68F"),
             sidebar_link("API & Webhooks", "/api-docs", "code", "#FF3CF7"),
             sidebar_link("System Health", "/health", "heart-pulse", "#00D68F"),

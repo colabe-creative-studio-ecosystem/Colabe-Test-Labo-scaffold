@@ -274,3 +274,48 @@ class Invoice(SQLModel, table=True):
     paid_at: Optional[datetime.datetime] = None
     download_url: Optional[str] = None
     created_at: datetime.datetime = Field(default_factory=datetime.datetime.now)
+
+
+class TemplateStatusEnum(str, Enum):
+    DRAFT = "draft"
+    PENDING_APPROVAL = "pending_approval"
+    APPROVED = "approved"
+    REJECTED = "rejected"
+
+
+class TemplateCategoryEnum(str, Enum):
+    MARKETING = "marketing"
+    UTILITY = "utility"
+    AUTHENTICATION = "authentication"
+
+
+class ActionKindEnum(str, Enum):
+    ACTION_SEND_TEMPLATE = "send_template"
+    ACTION_NOTIFY = "notify"
+    ACTION_ALERT = "alert"
+
+
+class WhatsAppTemplate(SQLModel, table=True):
+    id: Optional[int] = Field(default=None, primary_key=True)
+    workspace_id: int = Field(foreign_key="tenant.id")
+    name: str
+    language: str = Field(default="en")
+    category: TemplateCategoryEnum = Field(default=TemplateCategoryEnum.UTILITY)
+    body: str
+    variables_json: str = Field(default="[]")
+    status: TemplateStatusEnum = Field(default=TemplateStatusEnum.DRAFT)
+    created_at: datetime.datetime = Field(default_factory=datetime.datetime.now)
+    updated_at: datetime.datetime = Field(default_factory=datetime.datetime.now)
+    workspace: "Tenant" = Relationship()
+
+
+class ActionPlan(SQLModel, table=True):
+    id: Optional[int] = Field(default=None, primary_key=True)
+    project_id: int = Field(foreign_key="project.id")
+    name: str
+    kind: ActionKindEnum
+    template_id: Optional[int] = Field(default=None, foreign_key="whatsapptemplate.id")
+    config_json: str = Field(default="{}")
+    created_at: datetime.datetime = Field(default_factory=datetime.datetime.now)
+    project: "Project" = Relationship()
+    template: Optional["WhatsAppTemplate"] = Relationship()
