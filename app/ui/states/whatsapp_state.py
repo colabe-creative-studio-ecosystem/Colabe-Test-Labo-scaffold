@@ -100,7 +100,7 @@ class WhatsAppState(rx.State):
             self.toggle_create_modal()
             return rx.toast("Template created successfully!", duration=3000)
         except Exception as e:
-            logger.exception(f"Error creating template: {e}")
+            logger.exception("Error creating template")
             return rx.toast(f"Error creating template: {str(e)}", duration=3000)
 
     @rx.event
@@ -174,7 +174,7 @@ class WhatsAppState(rx.State):
             self.close_edit_modal()
             return rx.toast("Template updated successfully!", duration=3000)
         except Exception as e:
-            logger.exception(f"Error updating template: {e}")
+            logger.exception("Error updating template")
             return rx.toast(f"Error updating template: {str(e)}", duration=3000)
 
     @rx.event
@@ -188,7 +188,7 @@ class WhatsAppState(rx.State):
             await self.load_templates()
             return rx.toast("Template deleted.", duration=3000)
         except Exception as e:
-            logger.exception(f"Error deleting template {template_id}: {e}")
+            logger.exception(f"Error deleting template {template_id}")
             return rx.toast(
                 "Cannot delete template. It may be in use by action plans.",
                 duration=5000,

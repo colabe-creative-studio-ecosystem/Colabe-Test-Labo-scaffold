@@ -120,7 +120,7 @@ class ActionPlanState(rx.State):
             self.close_composer()
             return rx.toast("Action plan created successfully!", duration=3000)
         except Exception as e:
-            logger.exception(f"Error creating action plan: {e}")
+            logger.exception("Error creating action plan")
             return rx.toast(f"Error creating action plan: {str(e)}", duration=3000)
 
     def get_template_preview(self) -> str:

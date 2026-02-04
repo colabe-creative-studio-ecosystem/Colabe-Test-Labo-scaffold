@@ -202,7 +202,7 @@ def variable_input_field(var_item: tuple) -> rx.Component:
         rx.el.input(
             placeholder=f"Enter {var_name}",
             value=var_value,
-            on_change=lambda val: ActionPlanState.set_variable_value(var_name, val),
+            on_change=lambda val, name=var_name: ActionPlanState.set_variable_value(name, val),
             class_name="w-full px-3 py-2 bg-[#0B0F1A] border border-[#1E293B] rounded-lg text-[#E8F0FF] focus:outline-none focus:ring-2 focus:ring-[#6366F1]",
         ),
     )
