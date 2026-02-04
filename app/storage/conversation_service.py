@@ -1,7 +1,7 @@
 """Conversation state management service for WhatsApp threads."""
 import reflex as rx
 from sqlmodel import select, and_
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Optional, List
 from app.core.models import Contact, Conversation, Message, ConversationStatusEnum
 
@@ -79,7 +79,7 @@ class ConversationService:
 
             if conversation:
                 # Update existing conversation
-                conversation.last_message_at = datetime.now()
+                conversation.last_message_at = datetime.now(timezone.utc)
                 if last_intent:
                     conversation.last_intent = last_intent
                 if stage is not None:
@@ -95,7 +95,7 @@ class ConversationService:
                     channel=channel,
                     contact_id=contact_id,
                     status=status,
-                    last_message_at=datetime.now(),
+                    last_message_at=datetime.now(timezone.utc),
                     last_intent=last_intent,
                     stage=stage,
                     assigned_agent_id=assigned_agent_id,
@@ -129,7 +129,7 @@ class ConversationService:
             # Update conversation last_message_at
             conversation = session.get(Conversation, conversation_id)
             if conversation:
-                conversation.last_message_at = datetime.now()
+                conversation.last_message_at = datetime.now(timezone.utc)
 
             session.commit()
             session.refresh(message)
