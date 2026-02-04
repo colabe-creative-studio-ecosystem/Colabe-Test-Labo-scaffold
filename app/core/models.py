@@ -23,18 +23,20 @@ class Tenant(SQLModel, table=True):
     stripe_customer_id: Optional[str] = Field(default=None, index=True)
     created_at: datetime.datetime = Field(default_factory=datetime.datetime.now)
     users: list["User"] = Relationship(back_populates="tenant")
+    whatsapp_accounts: list["WhatsAppAccount"] = Relationship(back_populates="tenant")
+    whatsapp_secrets: list["WhatsAppSecret"] = Relationship(back_populates="tenant")
 
 
 class WhatsAppAccount(SQLModel, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
     workspace_id: int = Field(foreign_key="tenant.id")
     provider: str = Field(default="meta")
-    phone_number_id: str = Field(index=True)
+    phone_number_id: str = Field(index=True, unique=True)
     business_account_id: str
     display_phone_number: str
     status: WhatsAppAccountStatusEnum = Field(default=WhatsAppAccountStatusEnum.ACTIVE)
     created_at: datetime.datetime = Field(default_factory=datetime.datetime.now)
-    tenant: "Tenant" = Relationship()
+    tenant: "Tenant" = Relationship(back_populates="whatsapp_accounts")
 
 
 class WhatsAppSecret(SQLModel, table=True):
@@ -43,7 +45,7 @@ class WhatsAppSecret(SQLModel, table=True):
     key_name: str
     secret_encrypted: str
     created_at: datetime.datetime = Field(default_factory=datetime.datetime.now)
-    tenant: "Tenant" = Relationship()
+    tenant: "Tenant" = Relationship(back_populates="whatsapp_secrets")
 
 
 class User(SQLModel, table=True):

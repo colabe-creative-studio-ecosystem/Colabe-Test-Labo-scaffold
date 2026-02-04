@@ -36,6 +36,7 @@ def upgrade() -> None:
         sa.Column("created_at", sa.DateTime(), nullable=False),
         sa.ForeignKeyConstraint(["workspace_id"], ["tenant.id"]),
         sa.PrimaryKeyConstraint("id"),
+        sa.UniqueConstraint("phone_number_id"),
     )
     # Create index on phone_number_id for efficient webhook lookups
     op.create_index(
